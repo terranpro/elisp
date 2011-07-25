@@ -1,0 +1,290 @@
+(custom-set-variables
+  ;; custom-set-variables was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ '(column-number-mode t)
+ '(gnus-local-domain "terranpro.org")
+ '(mail-host-address "pringles.terranpro.org")
+ '(read-mail-command (quote gnus))
+ '(semantic-c-dependency-system-include-path (quote ("/usr/local/include" "/usr/local/include/opencv" "/usr/local/include/libfreenect" "/usr/include")))
+ '(semantic-idle-scheduler-idle-time 2)
+ '(user-full-name "Brian Fransioli")
+ '(user-mail-address "assem@terranpro.org"))
+(custom-set-faces
+  ;; custom-set-faces was added by Custom.
+  ;; If you edit it by hand, you could mess it up, so be careful.
+  ;; Your init file should contain only one such instance.
+  ;; If there is more than one, they won't work right.
+ )
+
+;; Reopen files/buffers from previous session on startup
+(desktop-save-mode 1)
+
+;; Let X's clipboard play nice with emacs
+(setq x-select-enable-clipboard t)
+
+;; Remove eyecandy for mouse
+;; we are one with the keyboard in emacs land
+(scroll-bar-mode -1)        ;hide scroll-bar
+
+(tool-bar-mode -1)          ;hide tool-bar
+(menu-bar-mode -1)          ;hide menu-bar
+
+(add-to-list 'load-path "/home/terranpro/elisp/")
+(load-library "brian-config")
+
+;; Brian's LISP Code
+;; (defun enlarge-frame-height ()
+;;   "Enlarge frame height by one"
+;;   (interactive)
+;;   (set-frame-height (selected-frame) (+ (frame-height) 1))
+;;   (message "Frame height %s" (frame-height))
+;; )
+
+;; (defun enlarge-frame-width ()
+;;   "Enlarge frame width by one"
+;;   (interactive)
+;;   (set-frame-width (selected-frame) (+ (frame-width) 1))
+;;   (message "Frame width %s" (frame-width))
+;; )
+
+;; (defun shrink-frame-width ()
+;;   "Shrink frame width by one"
+;;   (interactive)
+;;   (set-frame-width (selected-frame) (+ (frame-width) -1))
+;;   (message "Frame width %s" (frame-width))
+;; )
+
+;; Two ways of doing key mapping translation
+;; the latter two lines only worked when using kbd
+;; presumably because of the { } keys?
+;;(global-set-key "\C-\M-^" 'enlarge-frame-height)
+;;(global-set-key (kbd "C-M-}") 'enlarge-frame-width)
+;;(global-set-key (kbd "C-M-{") 'shrink-frame-width)
+;;
+
+;; Loads for CEDET 
+(ido-mode t)
+
+(load-file "/home/terranpro/code/cedet-1.0/common/cedet.el")
+
+(global-ede-mode 'nil) 
+
+;;(semantic-load-enable-minimum-features)
+;;(semantic-load-enable-code-helpers)
+;;(semantic-load-enable-gaudy-code-helpers)
+(semantic-load-enable-excessive-code-helpers)
+;;(semantic-load-enable-semantic-debugging-helpers)
+
+(require 'semantic-ia)
+
+(require 'semantic-gcc)
+
+;;DIDNT WORK... T.T
+;;(semantic-add-system-include "/usr/local/include/opencv" 'c-mode)
+;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
+
+(require 'semanticdb)
+;;(global-semantic-db-minor-mode 1)
+
+
+;; (defun my-cedet-hook ()
+;;  (local-set-key [(control return)] 'semantic-ia-complete-symbol)
+;;  (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
+;;  (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
+;;  (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle))
+;; (add-hook 'c-mode-common-hook 'my-cedet-hook)
+
+
+(defun my-cedet-hook ()
+  (local-set-key [(control return)] 'semantic-ia-complete-symbol)
+  (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
+  (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
+  (local-set-key "\C-c=" 'semantic-decoration-include-visit)
+  (local-set-key "\C-cj" 'semantic-ia-fast-jump)
+  (local-set-key "\C-cq" 'semantic-ia-show-doc)
+  (local-set-key "\C-cs" 'semantic-ia-show-summary)
+  (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle)
+  (local-set-key "\C-c+" 'semantic-tag-folding-show-block)
+  (local-set-key "\C-c-" 'semantic-tag-folding-fold-block)
+  (local-set-key "\C-c\C-c+" 'semantic-tag-folding-show-all)
+  (local-set-key "\C-c\C-c-" 'semantic-tag-folding-fold-all))
+(add-hook 'c-mode-common-hook 'my-cedet-hook)
+
+(global-semantic-tag-folding-mode 1)
+
+
+;; (require 'gccsense)
+
+;; (defun my-gccsense-hook ()
+;;   (local-set-key [(control return)] 'gccsense-complete)
+;;   (local-set-key "\C-c." 'ac-complete-gccsense))
+;; (add-hook 'c-mode-common-hook 'my-gccsense-hook)
+
+
+;;(add-to-list 'load-path "/usr/share/emacs/site-lisp/muse-el/")
+;;(add-to-list 'load-path "usr/share/emacs/site-lisp/muse-el/")
+(setq load-path (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/muse"))
+
+(require 'htmlize)       ; pretty syntax highlighting w/muse
+(require 'muse-mode)     ; load authoring mode
+
+(require 'muse-html)     ; load publishing styles I use
+(require 'muse-latex)
+(require 'muse-texinfo)
+(require 'muse-docbook)
+(require 'muse-colors)
+(require 'muse-wiki)
+(require 'muse-project)  ; publish files in projects
+
+(setq terranpro-html-style-sheet
+      (concat "<link rel=\"stylesheet\" type=\"text/css\""
+              " charset=\"utf-8\" media=\"all\""
+              " href=\"./css/style.css\" />"
+      )
+)
+
+(setq terranpro-xhtml-style-sheet
+      (concat "<link rel=\"stylesheet\" type=\"text/css\""
+              " charset=\"utf-8\" media=\"all\""
+              " href=\"./css/style.css\" />"
+      )
+)
+
+(muse-derive-style
+ "terranpro-html"
+ "html"
+ :author "assem <assem@terranpro.org>"
+ :header "~/remote/header.html"
+ :footer "~/remote/footer.html"
+ :style-sheet terranpro-html-style-sheet
+)
+
+(muse-derive-style
+ "terranpro-xhtml"
+ "xhtml"
+ :author "assem <assem@terranpro.org>"
+ :header "~/remote/header.html"
+ :footer "~/remote/footer.html"
+ :style-sheet terranpro-xhtml-style-sheet
+)
+
+(setq muse-project-alist
+      '(
+	("TerranproOrg" ("~/remote/muse" :default "index.muse")
+	 (:base "terranpro-xhtml" :path "~/remote/terranpro_org_web/")
+;;	 (:base "pdf" :path "~/public_html/pdf")
+	)
+       )
+)
+
+(defun my-muse-update-directive-date()
+  "
+Update the #date directive that Muse recognizes, which I put at 
+the top of my webpages.  This finds the first #date occurrence 
+and kills the rest of the text at that line, replacing it with 
+the current date, as reported by the shell command \"date\""
+  (interactive)
+
+  (if (equal major-mode 'muse-mode)
+      (save-excursion
+
+	  (goto-char (point-min))
+	  (unless (equal (search-forward "#date" nil t) nil)
+
+	    (kill-line)
+	    (kill-line)
+	    (insert " " (shell-command-to-string "date"))))))
+
+
+(add-hook 'before-save-hook 'my-muse-update-directive-date())
+
+;;(setq muse-html-style-sheet-website
+;;      "<link href=\"./css/style.css\" type=\"text/css\" rel=\"stylesheet\">")
+
+
+;; Gnus Mail and News Reader
+(setq load-path (cons (expand-file-name "~/code/gnus/lisp") load-path))
+(require 'gnus-load)
+
+(require 'info)
+(if (featurep 'xemacs)
+    (add-to-list 'Info-directory-list "~/code/gnus/texi/")
+  (add-to-list 'Info-default-directory-list "~/code/gnus/texi/"))
+
+
+(setq gnus-select-method 
+      '(nnimap "capp.snu.ac.kr") ; no special config
+)
+
+(setq gnus-secondary-select-methods
+      '((nnimap "assem-gmail"
+	       (nnimap-address "imap.gmail.com")
+	       (nnimap-server-port 993)
+	       (nnimap-stream ssl))
+
+	(nnimap "terranpro-gmail"
+	       (nnimap-address "imap.gmail.com")
+	       (nnimap-server-port 993)
+	       (nnimap-stream ssl))
+	
+	(nntp "nntp.aioe.org"))
+)
+
+(setq gnus-posting-styles
+      '(((header "to" "assem@terranpro.org")
+         (address "assem@terranpro.org"))
+	((header "to" "terranpro@capp.snu.ac.kr")
+         (address "terranpro@capp.snu.ac.kr"))
+	((header "cc" "assem@terranpro.org")
+         (address "assem@terranpro.org"))
+	((header "cc" "terranpro@capp.snu.ac.kr")
+         (address "terranpro@capp.snu.ac.kr"))
+	((header "to" "members@capp.snu.ac.kr")
+         (address "terranpro@capp.snu.ac.kr"))
+	((header "cc" "members@capp.snu.ac.kr")
+         (address "terranpro@capp.snu.ac.kr"))
+	((header "to" "terranpro@gmail.com")
+	 (address "terranpro@gmail.com"))
+	((header "cc" "terranpro@gmail.com")
+         (address "terranpro@gmail.com"))
+	((header "to" "bfransioli3@gatech.edu")
+         (address "bfransioli3@gatech.edu")))
+)
+
+
+;; SMTP Stuff for multi accounting
+(setq message-send-mail-function 'message-send-mail-with-sendmail)
+;; we substitute sendmail with msmtp
+(setq sendmail-program "msmtp")
+
+;; Choose account label to feed msmtp -a option based on From header in 
+;; Message buffer
+;; This function must be added to message-send-mail-hook for on-the-fly change 
+;; of From address
+;; before sending message since message-send-mail-hook is processed right 
+;; before sending message.
+
+(defun cg-feed-msmtp ()
+  (if (message-mail-p)
+      (save-excursion
+	(let* ((from
+		(save-restriction
+		  (message-narrow-to-headers)
+		  (message-fetch-field "from")))
+	       (account
+		(cond
+		 ;; I use email address as account label in ~/.msmtprc
+		 ((string-match "assem@terranpro.org" from)"assem@terranpro.org")
+		 ((string-match "terranpro@gmail.com" from)"terranpro@gmail.com")
+
+		 ((string-match "bfransioli3@gatech.edu" from)"terranpro@gmail.com")
+		 ;; Add more string-match lines for your email accounts
+		 ((string-match "terranpro@capp.snu.ac.kr" from)"capp"))))
+	  (message (format "%s" account))
+	  (setq message-sendmail-extra-arguments (list "-a" account))))))
+
+(setq message-sendmail-envelope-from 'header)
+(add-hook 'message-send-mail-hook 'cg-feed-msmtp)
+(message "Done")
