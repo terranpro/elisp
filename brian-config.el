@@ -20,6 +20,13 @@
   (message "Frame width %s" (frame-width))
 )
 
+(defun maximize-frame-height ()
+  "Cheap, Hacky way to Maximize Frame"
+  (interactive)
+  (set-frame-height (selected-frame) 10000)
+  (message "Maximized Frame height %s" (frame-height))
+)
+
 ;; Two ways of doing key mapping translation
 ;; the latter two lines only worked when using kbd
 ;; presumably because of the { } keys?
@@ -28,6 +35,20 @@
 (global-set-key (kbd "C-M-{") 'shrink-frame-width)
 ;;
 
-(setq brian-elisp-active t)
+;; Reopen files/buffers from previous session on startup
+(desktop-save-mode 1)
+
+;; Let X's clipboard play nice with emacs
+(setq x-select-enable-clipboard t)
+
+;; Remove eyecandy for mouse
+;; we are one with the keyboard in emacs land
+(scroll-bar-mode -1)        ;hide scroll-bar
+
+(tool-bar-mode -1)          ;hide tool-bar
+(menu-bar-mode -1)          ;hide menu-bar
+
 (message "Brian's ELISP Loaded.")
 
+;; So I can use (require 'brian-config) elsewhere
+(provide 'brian-config)
