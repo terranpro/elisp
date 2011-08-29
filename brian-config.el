@@ -33,6 +33,7 @@
 (global-set-key "\C-\M-^" 'enlarge-frame-height)
 (global-set-key (kbd "C-M-}") 'enlarge-frame-width)
 (global-set-key (kbd "C-M-{") 'shrink-frame-width)
+(global-set-key (kbd "C-c M") 'maximize-frame-height)
 ;;
 
 ;; Reopen files/buffers from previous session on startup
@@ -47,6 +48,10 @@
 
 (tool-bar-mode -1)          ;hide tool-bar
 (menu-bar-mode -1)          ;hide menu-bar
+
+;; ido mode is nuts
+(ido-mode t)
+(setq ido-enable-flex-matching t) ;fuzzy matching
 
 (message "Brian's ELISP Loaded.")
 

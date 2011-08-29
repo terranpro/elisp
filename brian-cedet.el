@@ -2,8 +2,6 @@
 ;; Contains my personal configuration for CEDET
 
 ;; Loads for CEDET 
-(ido-mode t)
-
 (load-file "/home/terranpro/code/cedet-1.0/common/cedet.el")
 
 (global-ede-mode 'nil) 
@@ -18,6 +16,7 @@
 
 (require 'semantic-gcc)
 
+(require 'semantic-sb)
 ;;DIDNT WORK... T.T
 ;;(semantic-add-system-include "/usr/local/include/opencv" 'c-mode)
 ;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
@@ -50,3 +49,14 @@
 (add-hook 'c-mode-common-hook 'my-cedet-hook)
 
 (global-semantic-tag-folding-mode 1)
+
+;; speedbar customizations
+
+(setq speedbar-frame-parameters
+      '((minibuffer)
+	(width . 42)
+	(border-width . 0)
+	(menu-bar-lines . 0)
+	(tool-bar-lines . 0)
+	(unsplittable . t)
+	(left-fringe . 0)))
