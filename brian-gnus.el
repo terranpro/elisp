@@ -2,7 +2,6 @@
 (setq load-path (cons (expand-file-name "~/code/gnus/lisp") load-path))
 (require 'gnus-load)
 
-(require 'info)
 (if (featurep 'xemacs)
     (add-to-list 'Info-directory-list "~/code/gnus/texi/")
   (add-to-list 'Info-default-directory-list "~/code/gnus/texi/"))
@@ -83,3 +82,25 @@
 (add-hook 'message-send-mail-hook 'cg-feed-msmtp)
 
 
+; more gnus customizations
+(setq gnus-treat-display-smileys t)
+
+
+; w3m-el
+(setq load-path (cons (expand-file-name "~/code/emacs-w3m") load-path))
+
+(if (featurep 'xemacs)
+    (add-to-list 'Info-directory-list (expand-file-name "~/code/emacs-w3m/doc"))
+  (add-to-list 'Info-default-directory-list 
+	       (expand-file-name "~/code/emacs-w3m/doc")))
+
+(setq Info-directory-list (append '("/home/terranpro/code/emacs-w3m/doc") 
+				  Info-directory-list))
+(setq Info-directory-list (append  Info-directory-list
+				   '("/home/terranpro/code/emacs-w3m/doc")))
+
+(require 'w3m-load)
+;(require 'mime-w3m)
+(setq mm-text-html-renderer 'w3m)
+(setq mm-inline-text-html-with-images t)
+(setq mm-w3m-safe-url-regexp nil)
