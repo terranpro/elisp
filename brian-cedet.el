@@ -2,7 +2,7 @@
 ;; Contains my personal configuration for CEDET
 
 ;; Loads for CEDET 
-(load-file "/home/terranpro/code/cedet-1.0/common/cedet.el")
+(load-file "/home/terranpro/code/cedet/common/cedet.el")
 
 (global-ede-mode 'nil) 
 
