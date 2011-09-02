@@ -53,6 +53,9 @@
 (ido-mode t)
 (setq ido-enable-flex-matching t) ;fuzzy matching
 
+;TODO: (temp) some default tweaking for window sizing
+(add-to-list 'default-frame-alist '(height . 100))
+
 (message "Brian's ELISP Loaded.")
 
 ;; So I can use (require 'brian-config) elsewhere

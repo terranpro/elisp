@@ -1,4 +1,5 @@
 (defvar devhelp-function-completion-list "" "List of all glib functions")
+(defvar devhelp-current-selection-number 0)
 
 (defun devhelp-find-function (func-name)
 "Scans through the .devhelp files in search of a C function 
@@ -37,7 +38,7 @@ EX: M-x devhelp-find-function <RET> g_slist_append <RET>"
 (defun devhelp-find-function-at-point ()
   (interactive)
 
-  (devhelp-find-function (devhelp-get-current-completion)))
+  (devhelp-find-function (devhelp-get-current-symbol-at-point)))
 
 (defun devhelp-find-function-info (devhelp-filename function-name)
   (with-temp-buffer
@@ -95,6 +96,11 @@ EX: M-x devhelp-find-function <RET> g_slist_append <RET>"
 ]+" "" nuked-string)))
 
 (defun devhelp-build-completion-list ()
+"Get a list of all MACROS, functions, keywords, and a few other 
+unsightly things from the devhelp files.  This is used for 
+keyword completion.  Should be run before trying to use a 
+devhelp-complete* function."
+
   (interactive)
 
   (with-temp-buffer 
@@ -111,14 +117,29 @@ EX: M-x devhelp-find-function <RET> g_slist_append <RET>"
 
 (defun devhelp-complete ()
   (interactive)
-  (message (try-completion (devhelp-get-current-completion) 
+  (message (try-completion (devhelp-get-current-symbol-at-point) 
 			   devhelp-function-completion-list)))
 
 (defun devhelp-complete-all ()
   (interactive)
   (message "%s" 
-	   (all-completions (devhelp-get-current-completion) 
+	   (all-completions (devhelp-get-current-symbol-at-point) 
 			    devhelp-function-completion-list)))
+
+(defun devhelp-complete-next () 
+  (interactive)
+  (setq devhelp-current-selection-number (1+ devhelp-current-selection-number))
+  (save-excursion 
+    (let ((current-string (devhelp-get-current-symbol-at-point))
+	  (tail-string)
+	  (completion-string))
+      (setq completion-string 
+	    (nth devhelp-current-selection-number 
+		 (all-completions current-string 
+				  devhelp-function-completion-list)))
+      (setq tail-string (substring completion-string (length current-string)))
+;      (kill-word 1)
+      (insert tail-string))))
 
 (defun devhelp-find-all-functions ()
   (interactive)
@@ -133,7 +154,9 @@ EX: M-x devhelp-find-function <RET> g_slist_append <RET>"
 
     func-name-list))
 
-(defun devhelp-get-current-completion ()
+(defun devhelp-get-current-symbol-at-point ()
+"Grabs the symbol before the point, delineated by whitespace.  
+Returns the string of whatever is found."
   (interactive)
   (save-excursion
     
@@ -148,6 +171,6 @@ EX: M-x devhelp-find-function <RET> g_slist_append <RET>"
       ;(message "%s" completion-string)
       completion-string)))
 
-(global-set-key (kbd "C-c TAB") 'devhelp-complete)
+(global-set-key (kbd "C-c TAB") 'devhelp-complete-next)
 (global-set-key (kbd "C-c A") 'devhelp-complete-all)
 (global-set-key (kbd "C-c s") 'devhelp-find-function-at-point)
