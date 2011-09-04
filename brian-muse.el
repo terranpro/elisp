@@ -1,5 +1,5 @@
 (setq load-path 
-      (add-to-list 'load-path "/home/terranpro/code/muse/lisp"))
+      (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/muse"))
 
 (require 'htmlize)       ; pretty syntax highlighting w/muse
 (require 'muse-mode)     ; load authoring mode

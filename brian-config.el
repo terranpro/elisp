@@ -56,6 +56,9 @@
 ;TODO: (temp) some default tweaking for window sizing
 (add-to-list 'default-frame-alist '(height . 100))
 
+; Hotkey for compiling like in other IDEs
+(global-set-key (kbd "<f5>") 'compile)
+
 (message "Brian's ELISP Loaded.")
 
 ;; So I can use (require 'brian-config) elsewhere

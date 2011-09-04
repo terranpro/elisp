@@ -4,7 +4,9 @@
 ;; Loads for CEDET 
 (load-file "/home/terranpro/code/cedet/common/cedet.el")
 
-(global-ede-mode 'nil) 
+(require 'ede)
+
+(global-ede-mode t)
 
 ;;(semantic-load-enable-minimum-features)
 ;;(semantic-load-enable-code-helpers)
@@ -24,6 +26,12 @@
 (require 'semanticdb)
 ;;(global-semantic-db-minor-mode 1)
 
+(require 'semantic-c)
+
+(setq semantic-load-turn-useful-things-on t)
+
+(semantic-add-system-include "/usr/include/glib-2.0" 'c-mode)
+(semantic-add-system-include "/usr/include/glib-2.0" 'c++-mode)
 
 ;; (defun my-cedet-hook ()
 ;;  (local-set-key [(control return)] 'semantic-ia-complete-symbol)
@@ -47,6 +55,8 @@
   (local-set-key "\C-c\C-c+" 'semantic-tag-folding-show-all)
   (local-set-key "\C-c\C-c-" 'semantic-tag-folding-fold-all))
 (add-hook 'c-mode-common-hook 'my-cedet-hook)
+(add-hook 'emacs-lisp-mode-hook 'my-cedet-hook)
+(add-hook 'lisp-interaction-mode-hook 'my-cedet-hook)
 
 (global-semantic-tag-folding-mode 1)
 
