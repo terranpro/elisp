@@ -59,6 +59,9 @@
 ; Hotkey for compiling like in other IDEs
 (global-set-key (kbd "<f5>") 'compile)
 
+;; Never use backup files (garbage with tildes at end)
+(setq make-backup-files nil)
+
 (message "Brian's ELISP Loaded.")
 
 ;; So I can use (require 'brian-config) elsewhere
