@@ -62,7 +62,13 @@
 ;; Never use backup files (garbage with tildes at end)
 (setq make-backup-files nil)
 
+;; TODO create a brian-alias.el file later if this grows:
+;; My aliases to make emacs even more amazing
+(defalias 'yes-or-no-p 'y-or-n-p) ; y or n is enough
+(defalias 'list-buffers 'ibuffer) ; always use ibuffer
+
 (message "Brian's ELISP Loaded.")
 
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)
+

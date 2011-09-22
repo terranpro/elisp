@@ -85,6 +85,7 @@
 ; more gnus customizations
 (setq gnus-treat-display-smileys t)
 
+(setq gnus-agent-max-fetch-size 10000000)
 
 ; w3m-el
 (setq load-path (cons (expand-file-name "~/code/emacs-w3m") load-path))
