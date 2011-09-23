@@ -24,9 +24,8 @@
 	       (nnimap-address "imap.gmail.com")
 	       (nnimap-server-port 993)
 	       (nnimap-stream ssl))
-	
-	(nntp "nntp.aioe.org"))
-)
+
+	(nntp "nntp.aioe.org")))
 
 (setq gnus-posting-styles
       '(((header "to" "assem@terranpro.org")
@@ -88,6 +87,7 @@
 ; more gnus customizations
 (setq gnus-treat-display-smileys t)
 
+(setq gnus-agent-max-fetch-size 10000000)
 
 ; w3m-el
 (setq load-path (cons (expand-file-name "~/code/emacs-w3m") load-path))
