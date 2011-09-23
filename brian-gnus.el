@@ -8,7 +8,10 @@
 
 
 (setq gnus-select-method 
-      '(nnimap "capp.snu.ac.kr") ; no special config
+      '(nnimap "capp.snu.ac.kr"
+	       (nnimap-address "capp.snu.ac.kr")
+	       (nnimap-stream network)
+	       (nnimap-streaming t))	; no special config
 )
 
 (setq gnus-secondary-select-methods
