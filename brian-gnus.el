@@ -8,8 +8,10 @@
 
 
 (setq gnus-select-method 
-      '(nnimap "capp.snu.ac.kr") ; no special config
-)
+      '(nnimap "capp.snu.ac.kr"
+		(nnimap-address "capp.snu.ac.kr")
+		(nnimap-stream network)
+))
 
 (setq gnus-secondary-select-methods
       '((nnimap "assem-gmail"
@@ -21,9 +23,8 @@
 	       (nnimap-address "imap.gmail.com")
 	       (nnimap-server-port 993)
 	       (nnimap-stream ssl))
-	
-	(nntp "nntp.aioe.org"))
-)
+
+	(nntp "nntp.aioe.org")))
 
 (setq gnus-posting-styles
       '(((header "to" "assem@terranpro.org")
