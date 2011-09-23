@@ -24,13 +24,20 @@
    today.
 
 ** TODO Study TOPIK Book
-   SCHEDULED: <2011-09-23 Fri ++3d>
+   SCHEDULED: <2011-09-26 Mon ++3d>
+   - State "DONE"       from "TODO"       [2011-09-23 Fri 17:12]
+   CLOCK: [2011-09-23 Fri 16:37]--[2011-09-23 Fri 17:10] =>  0:33
+   CLOCK: [2011-09-23 Fri 15:24]--[2011-09-23 Fri 16:25] =>  1:01
+   :PROPERTIES:
+   :LAST_REPEAT: [2011-09-23 Fri 17:12]
+   :END:
    Try to read passages from the TOPIK book, understand them, and input
    new vocabulary into Anki for memorization.
 
 * VLSI Seminar						     :SNU:CAPP:class:
 ** TODO My Adaboost HW Presentation
    DEADLINE: <2011-09-27 Tue -2d>
+   CLOCK: [2011-09-23 Fri 18:28]--[2011-09-23 Fri 22:22] =>  3:54
    CLOCK: [2011-09-23 Fri 03:14]--[2011-09-23 Fri 04:02] =>  0:48
 *** Overview
     We are working in org-mode with LaTeX babel in order to create a

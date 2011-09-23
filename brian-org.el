@@ -5,6 +5,8 @@
 (require 'org-latex)
 (require 'ob)
 (require 'ob-ditaa)
+(require 'ob-plantuml)
 (setq org-confirm-babel-evaluate nil)
+(setq org-plantuml-jar-path "/home/terranpro/Downloads/plantuml.jar")
 
 (global-set-key (kbd "C-c a") 'org-agenda)
