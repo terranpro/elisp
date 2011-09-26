@@ -59,7 +59,7 @@
 ; Emacs24 default font on one of my debian sids was 
 ; fucking stupid huge; so put this so the default font is 
 ; size 10pt.
-(set-face-attribute 'default nil :height 90)
+;(set-face-attribute 'default nil :height 90)
 ;(set-face-attribute 'default nil :font "")
 
 ; Hotkey for compiling like in other IDEs

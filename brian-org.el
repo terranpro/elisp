@@ -3,6 +3,7 @@
 (setq load-path (cons "~/code/org-mode/contrib/lisp" load-path))
 (require 'org-install)
 (require 'org-latex)
+(require 'org-habit)
 (require 'ob)
 (require 'ob-ditaa)
 (require 'ob-plantuml)

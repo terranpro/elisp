@@ -13,13 +13,20 @@
 ** TODO Pay the Rent
    DEADLINE: <2011-09-27 Tue ++1m -2d>
 
-* Graphics Programming
+* Graphics Programming						  :SNU:class:
 ** TODO Project 1: Robot
    DEADLINE: <2011-09-29 Thu -1d>
+   CLOCK: [2011-09-25 Sun 22:35]--[2011-09-26 Mon 00:16] =>  1:41
+   CLOCK: [2011-09-25 Sun 18:05]--[2011-09-25 Sun 19:39] =>  1:34
 
-* Korean Study
+* Korean Study							     :korean:
 ** TODO Vocabulary Review
-   SCHEDULED: <2011-09-23 Fri ++1d>
+   SCHEDULED: <2011-09-27 Tue .+1d>
+   - State "DONE"       from "TODO"       [2011-09-25 Sun 18:03]
+   CLOCK: [2011-09-25 Sun 17:01]--[2011-09-25 Sun 18:00] =>  0:59
+   :PROPERTIES:
+   :LAST_REPEAT: [2011-09-25 Sun 18:03]
+   :END:
    Use Anki on my phone to review the words and phrases that are due
    today.
 
@@ -37,6 +44,8 @@
 * VLSI Seminar						     :SNU:CAPP:class:
 ** TODO My Adaboost HW Presentation
    DEADLINE: <2011-09-27 Tue -2d>
+   CLOCK: [2011-09-25 Sun 15:25]--[2011-09-25 Sun 16:57] =>  1:32
+   CLOCK: [2011-09-24 Sat 17:43]--[2011-09-24 Sat 19:56] =>  2:13
    CLOCK: [2011-09-23 Fri 18:28]--[2011-09-23 Fri 22:22] =>  3:54
    CLOCK: [2011-09-23 Fri 03:14]--[2011-09-23 Fri 04:02] =>  0:48
 *** Overview
@@ -46,3 +55,19 @@
     little bit of *important* LaTeX, so that I can use the same setup
     later for more important things (like writing my thesis).
 
+* Habbits
+** TODO Morning Vitamin
+   SCHEDULED: <2011-09-27 Tue 10:00 .+1d>
+   - State "DONE"       from "TODO"       [2011-09-26 Mon 11:41]
+   - State "DONE"       from "TODO"       [2011-09-25 Sun 15:09]
+   :PROPERTIES:
+   :STYLE:    habit
+   :LAST_REPEAT: [2011-09-26 Mon 11:41]
+   :END:
+** TODO Evening Vitamin
+   SCHEDULED: <2011-09-26 Mon 22:00 .+1d>
+   - State "DONE"       from "TODO"       [2011-09-25 Sun 22:34]
+   :PROPERTIES:
+   :STYLE:    habit
+   :LAST_REPEAT: [2011-09-25 Sun 22:34]
+   :END:
