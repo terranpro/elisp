@@ -8,6 +8,7 @@
 * Skype Development
 ** TODO Loopback Video w/H264
    DEADLINE: <2011-09-30 Fri>
+   CLOCK: [2011-09-27 Tue 16:52]--[2011-09-27 Tue 18:12] =>  1:20
 
 * Apartment
 ** TODO Pay the Rent
@@ -31,13 +32,14 @@
    today.
 
 ** TODO Study TOPIK Book
-   SCHEDULED: <2011-09-26 Mon ++3d>
+   SCHEDULED: <2011-09-29 Thu ++3d>
+   - State "DONE"       from "TODO"       [2011-09-27 Tue 16:36]
    CLOCK: [2011-09-26 Mon 15:19]--[2011-09-26 Mon 17:56] =>  2:37
    - State "DONE"       from "TODO"       [2011-09-23 Fri 17:12]
    CLOCK: [2011-09-23 Fri 16:37]--[2011-09-23 Fri 17:10] =>  0:33
    CLOCK: [2011-09-23 Fri 15:24]--[2011-09-23 Fri 16:25] =>  1:01
    :PROPERTIES:
-   :LAST_REPEAT: [2011-09-23 Fri 17:12]
+   :LAST_REPEAT: [2011-09-27 Tue 16:36]
    :END:
    Try to read passages from the TOPIK book, understand them, and input
    new vocabulary into Anki for memorization.
@@ -59,17 +61,19 @@
 
 * Habbits
 ** TODO Morning Vitamin
-   SCHEDULED: <2011-09-27 Tue 10:00 .+1d>
+   SCHEDULED: <2011-09-28 Wed 10:00 .+1d>
+   - State "DONE"       from "TODO"       [2011-09-27 Tue 10:37]
    - State "DONE"       from "TODO"       [2011-09-26 Mon 11:41]
    - State "DONE"       from "TODO"       [2011-09-25 Sun 15:09]
    :PROPERTIES:
    :STYLE:    habit
-   :LAST_REPEAT: [2011-09-26 Mon 11:41]
+   :LAST_REPEAT: [2011-09-27 Tue 16:37]
    :END:
 ** TODO Evening Vitamin
-   SCHEDULED: <2011-09-26 Mon 22:00 .+1d>
+   SCHEDULED: <2011-09-27 Tue 22:00 ++1d>
+   - State "DONE"       from "TODO"       [2011-09-26 Mon 22:37]
    - State "DONE"       from "TODO"       [2011-09-25 Sun 22:34]
    :PROPERTIES:
    :STYLE:    habit
-   :LAST_REPEAT: [2011-09-25 Sun 22:34]
+   :LAST_REPEAT: [2011-09-27 Tue 16:37]
    :END:
