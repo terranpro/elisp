@@ -8,6 +8,8 @@
 * Skype Development
 ** TODO Loopback Video w/H264
    DEADLINE: <2011-09-30 Fri>
+   CLOCK: [2011-09-28 Wed 20:00]--[2011-09-28 Wed 21:42] =>  1:42
+   CLOCK: [2011-09-28 Wed 15:22]--[2011-09-28 Wed 16:25] =>  1:03
    CLOCK: [2011-09-27 Tue 16:52]--[2011-09-27 Tue 18:12] =>  1:20
 
 * Apartment
