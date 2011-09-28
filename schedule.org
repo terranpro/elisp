@@ -64,13 +64,14 @@
 
 * Habbits
 ** TODO Morning Vitamin
-   SCHEDULED: <2011-09-28 Wed 10:00 .+1d>
+   SCHEDULED: <2011-09-29 Thu 10:00 .+1d>
+   - State "DONE"       from "TODO"       [2011-09-28 Wed 13:05]
    - State "DONE"       from "TODO"       [2011-09-27 Tue 10:37]
    - State "DONE"       from "TODO"       [2011-09-26 Mon 11:41]
    - State "DONE"       from "TODO"       [2011-09-25 Sun 15:09]
    :PROPERTIES:
    :STYLE:    habit
-   :LAST_REPEAT: [2011-09-27 Tue 16:37]
+   :LAST_REPEAT: [2011-09-28 Wed 13:05]
    :END:
 ** TODO Evening Vitamin
    SCHEDULED: <2011-09-28 Wed 22:00 ++1d>
