@@ -11,8 +11,14 @@
 	  '("gnutls-cli --priority secure256 --x509cafile /etc/ssl/certs/ca-certificates.crt --x509certfile /home/terranpro/.weechat/ssl/nick.pem -p %p %h"
 	    "gnutls-cli --insecure -p %p %h" "gnutls-cli --insecure -p %p %h --protocols ssl3" 
 	    "openssl s_client -connect %h:%p -no_ssl2 -ign_eof"))
-    (erc-tls :server "127.0.0.1" :port 7000
-	     :nick "terranpro")
+
+    ;; FreeNode SSL
+    ;; (erc-tls :server "127.0.0.1" :port 7000
+    ;; 	     :nick "terranpro")
+
+    ;; HanIRC Server
+    (erc :server "127.0.0.1" :port 7001
+	 :nick "assem")
 
     ;; (erc-tls :server "roddenberry.freenode.net" :port 7000
     ;; 	     :nick "terranpro")
