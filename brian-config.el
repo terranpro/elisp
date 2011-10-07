@@ -52,6 +52,8 @@
 ;; ido mode is nuts
 (ido-mode t)
 (setq ido-enable-flex-matching t) ;fuzzy matching
+(setq ido-default-buffer-method 'selected-window)
+(setq ido-default-file-method 'selected-window)
 
 ;TODO: (temp) some default tweaking for window sizing
 (add-to-list 'default-frame-alist '(height . 100))
