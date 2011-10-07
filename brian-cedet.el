@@ -24,7 +24,7 @@
 ;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
 
 (require 'semanticdb)
-;;(global-semantic-db-minor-mode 1)
+(global-semanticdb-minor-mode 1)
 
 (require 'semantic-c)
 
