@@ -4,10 +4,6 @@
 ;; Loads for CEDET 
 (load-file "/home/terranpro/code/cedet/common/cedet.el")
 
-(require 'ede)
-
-(global-ede-mode t)
-
 ;;(semantic-load-enable-minimum-features)
 ;;(semantic-load-enable-code-helpers)
 ;;(semantic-load-enable-gaudy-code-helpers)
@@ -19,10 +15,6 @@
 (require 'semantic-gcc)
 
 (require 'semantic-sb)
-;;DIDNT WORK... T.T
-;;(semantic-add-system-include "/usr/local/include/opencv" 'c-mode)
-;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
-
 (require 'semanticdb)
 (global-semanticdb-minor-mode 1)
 
@@ -32,6 +24,20 @@
 
 (semantic-add-system-include "/usr/include/glib-2.0" 'c-mode)
 (semantic-add-system-include "/usr/include/glib-2.0" 'c++-mode)
+
+
+(require 'ede)
+
+(global-ede-mode t)
+(setq ede-locate-setup-options '(ede-locate-global ede-locate-base))
+
+;; COGRE settings
+;; Unicode characters make the lines/arrows pretty!
+(cogre-uml-enable-unicode)
+
+;;DIDNT WORK... T.T
+;;(semantic-add-system-include "/usr/local/include/opencv" 'c-mode)
+;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
 
 ;; (defun my-cedet-hook ()
 ;;  (local-set-key [(control return)] 'semantic-ia-complete-symbol)
