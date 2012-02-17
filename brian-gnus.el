@@ -25,7 +25,8 @@
 	       (nnimap-server-port 993)
 	       (nnimap-stream ssl))
 
-	(nntp "nntp.aioe.org")))
+;;	(nntp "nntp.aioe.org")
+	))
 
 (setq gnus-posting-styles
       '(((header "to" "assem@terranpro.org")
@@ -97,13 +98,24 @@
   (add-to-list 'Info-default-directory-list 
 	       (expand-file-name "~/code/emacs-w3m/doc")))
 
-(setq Info-directory-list (append '("/home/terranpro/code/emacs-w3m/doc") 
-				  Info-directory-list))
-(setq Info-directory-list (append  Info-directory-list
-				   '("/home/terranpro/code/emacs-w3m/doc")))
+;; (setq Info-directory-list (append '("/home/terranpro/code/emacs-w3m/doc") 
+;; 				  Info-directory-list))
+;; (setq Info-directory-list (append  Info-directory-list
+;; 				   '("/home/terranpro/code/emacs-w3m/doc")))
 
 (require 'w3m-load)
 ;(require 'mime-w3m)
 (setq mm-text-html-renderer 'w3m)
 (setq mm-inline-text-html-with-images t)
 (setq mm-w3m-safe-url-regexp nil)
+
+;; BBDB
+(require 'bbdb-loaddefs "/home/terranpro/code/bbdb/lisp/bbdb-loaddefs.el")
+(if (featurep 'xemacs)
+    (add-to-list 'Info-directory-list "/home/terranpro/bbdb/doc/")
+  (add-to-list 'Info-default-directory-list "/home/terranpro/code/bbdb/doc/"))
+
+ 	
+(require 'bbdb)
+(bbdb-initialize)
+(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)

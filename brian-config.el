@@ -23,7 +23,7 @@
 (defun maximize-frame-height ()
   "Cheap, Hacky way to Maximize Frame"
   (interactive)
-  (set-frame-height (selected-frame) 10000)
+  (set-frame-height (selected-frame) 131)
   (message "Maximized Frame height %s" (frame-height))
 )
 
@@ -61,7 +61,7 @@
 ; Emacs24 default font on one of my debian sids was 
 ; fucking stupid huge; so put this so the default font is 
 ; size 10pt.
-;(set-face-attribute 'default nil :height 90)
+(set-face-attribute 'default nil :height 90)
 ;(set-face-attribute 'default nil :font "")
 
 ; Hotkey for compiling like in other IDEs
