@@ -64,9 +64,9 @@
 
 ;;(require 'semantic-gcc)
 
-(require 'semantic-sb)
-(require 'semanticdb)
-(global-semanticdb-minor-mode 1)
+;; (require 'semantic-sb)
+;; (require 'semanticdb)
+;; (global-semanticdb-minor-mode 1)
 
 ;;(require 'semanticdb-global)
 

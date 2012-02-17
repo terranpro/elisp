@@ -1,0 +1,5 @@
+#name: author
+#contributor: Brian Fransioli <assem@terranpro.org>
+# --
+#+AUTHOR: ${1:`user-full-name`}
+$0

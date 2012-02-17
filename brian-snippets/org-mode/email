@@ -1,0 +1,5 @@
+#name: email
+#contributor: Brian Fransioli <assem@terranpro.org>
+# --
+#+EMAIL: ${1:`user-mail-address`}
+$0

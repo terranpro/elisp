@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+#name: _new
+#key: _new
+# --
+${1:name} *
+$1_new ( void )
+{
+	$1 *${1:$(substring-no-properties text 0 1)};
+
+	${1:$(substring-no-properties text 0 1)} = ($1 *)malloc( sizeof($1) );
+
+	return( ${1:$(substring-no-properties text 0 1)} );
+}
+$0

@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+#name: _free
+#key: _free
+# --
+void
+${1:name}_free ( $1 * ${1:$(substring-no-properties text 0 1)} )
+{
+	if ( ${1:$(substring-no-properties text 0 1)} )
+		free( ${1:$(substring-no-properties text 0 1)} );
+
+	return;
+}
+$0

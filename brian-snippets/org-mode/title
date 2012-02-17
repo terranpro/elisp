@@ -1,0 +1,4 @@
+#name: title
+# --
+#+TITLE: ${1:title}
+$0

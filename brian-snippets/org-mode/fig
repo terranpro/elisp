@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+#name: fig
+#key: fig
+# expand-env: ((yas/indent-line 'fixed) (yas/wrap-around-region 'nil))
+# --
+$0** Figures			:B_columns:
+   :PROPERTIES:
+   :BEAMER_env: columns
+   :END:
+*** ${2:title}			:BMCOL:B_ignoreheading:
+    :PROPERTIES:
+    :BEAMER_col: 0.5
+    :BEAMER_env: ignoreheading
+    :END:
+[[file:${1:filename}]]
