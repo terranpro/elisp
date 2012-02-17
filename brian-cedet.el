@@ -64,13 +64,9 @@
 
 ;;(require 'semantic-gcc)
 
-;;(require 'semantic-sb)
-;;DIDNT WORK... T.T
-;;(semantic-add-system-include "/usr/local/include/opencv" 'c-mode)
-;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
-
-;;(require 'semanticdb)
-;;(global-semanticdb-minor-mode 1)
+(require 'semantic-sb)
+(require 'semanticdb)
+(global-semanticdb-minor-mode 1)
 
 ;;(require 'semanticdb-global)
 
@@ -103,6 +99,20 @@
 (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS_W" . ""))
 (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS_W_MAP" . ""))
 (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_INLINE" . ""))
+
+
+(require 'ede)
+
+(global-ede-mode t)
+(setq ede-locate-setup-options '(ede-locate-global ede-locate-base))
+
+;; COGRE settings
+;; Unicode characters make the lines/arrows pretty!
+(cogre-uml-enable-unicode)
+
+;;DIDNT WORK... T.T
+;;(semantic-add-system-include "/usr/local/include/opencv" 'c-mode)
+;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
 
 ;; (defun my-cedet-hook ()
 ;;  (local-set-key [(control return)] 'semantic-ia-complete-symbol)

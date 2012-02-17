@@ -13,6 +13,16 @@
    CLOCK: [2011-09-27 Tue 16:52]--[2011-09-27 Tue 18:12] =>  1:20
 ** TODO Webcam Capture and Encoding/Decoding with H/264
 
+* Optical Flow/Motion Estimation
+** TODO Investigate Similarities
+   CLOCK: [2011-10-09 Sun 20:19]--[2011-10-09 Sun 21:13] =>  0:54
+*** Overview
+    Professor Lee wants me to see if there is some way to use optical
+    flow, given the results of the H.264 motion estimation
+    (i.e. the motion vector).  If possible, there should be a speedup
+    associated with using precalculated results from the motion
+    vector.
+
 * Apartment
 ** TODO Pay the Rent
    DEADLINE: <2011-10-27 Thu ++1m -2d>
@@ -32,7 +42,9 @@
 
 * Korean Study							     :korean:
 ** TODO Vocabulary Review
-   SCHEDULED: <2011-10-02 Sun .+1d>
+   SCHEDULED: <2011-10-08 Sat .+1d>
+   - State "DONE"       from "TODO"       [2011-10-07 Fri 23:37]
+   CLOCK: [2011-10-07 Fri 22:35]--[2011-10-07 Fri 23:00] =>  0:25
    CLOCK: [2011-10-03 Mon 01:18]--[2011-10-03 Mon 02:11] =>  0:53
    - State "DONE"       from "TODO"       [2011-10-01 Sat 19:46]
    CLOCK: [2011-10-01 Sat 18:52]--[2011-10-01 Sat 19:46] =>  0:54
@@ -41,7 +53,7 @@
    - State "DONE"       from "TODO"       [2011-09-25 Sun 17:03]
    CLOCK: [2011-09-25 Sun 17:01]--[2011-09-25 Sun 18:00] =>  0:59
    :PROPERTIES:
-   :LAST_REPEAT: [2011-10-01 Sat 19:46]
+   :LAST_REPEAT: [2011-10-07 Fri 23:37]
    :END:
    Use Anki on my phone to review the words and phrases that are due
    today.
@@ -64,6 +76,14 @@
    Try to read passages from the TOPIK book, understand them, and input
    new vocabulary into Anki for memorization.
 
+** TODO Study Point Language Book
+   SCHEDULED: <2011-10-12 Wed .+3d>
+   - State "DONE"       from "TODO"       [2011-10-09 Sun 19:12]
+   CLOCK: [2011-10-09 Sun 18:17]--[2011-10-09 Sun 19:12] =>  0:55
+   :PROPERTIES:
+   :LAST_REPEAT: [2011-10-09 Sun 19:12]
+   :END:
+
 * VLSI Seminar						     :SNU:CAPP:class:
 ** DONE My Adaboost HW Presentation
    DEADLINE: <2011-09-27 Tue -2d>
@@ -81,7 +101,18 @@
 
 * Habbits
 ** TODO Morning Vitamin
-   SCHEDULED: <2011-10-08 Sat 10:00 .+1d>
+   SCHEDULED: <2011-10-26 Wed 10:00 .+1d>
+   - State "DONE"       from "TODO"       [2011-10-25 Tue 12:06]
+   - State "DONE"       from "TODO"       [2011-10-24 Mon 12:43]
+   - State "DONE"       from "TODO"       [2011-10-23 Sun 12:18]
+   - State "DONE"       from "TODO"       [2011-10-17 Mon 21:34]
+   - State "DONE"       from "TODO"       [2011-10-16 Sun 13:58]
+   - State "DONE"       from "TODO"       [2011-10-15 Sat 14:05]
+   - State "DONE"       from "TODO"       [2011-10-13 Thu 12:20]
+   - State "DONE"       from "TODO"       [2011-10-12 Wed 10:02]
+   - State "DONE"       from "TODO"       [2011-10-11 Tue 12:09]
+   - State "DONE"       from "TODO"       [2011-10-09 Sun 14:51]
+   - State "DONE"       from "TODO"       [2011-10-08 Sat 18:24]
    - State "DONE"       from "TODO"       [2011-10-07 Fri 13:53]
    - State "DONE"       from "TODO"       [2011-10-05 Wed 11:46]
    - State "DONE"       from "TODO"       [2011-10-03 Mon 11:44]
@@ -94,10 +125,17 @@
    - State "DONE"       from "TODO"       [2011-09-25 Sun 15:09]
    :PROPERTIES:
    :STYLE:    habit
-   :LAST_REPEAT: [2011-10-07 Fri 13:53]
+   :LAST_REPEAT: [2011-10-25 Tue 12:06]
    :END:
 ** TODO Evening Vitamin
-   SCHEDULED: <2011-10-07 Fri 22:00 .+1d>
+   SCHEDULED: <2011-10-23 Sun 22:00 .+1d>
+   - State "DONE"       from "TODO"       [2011-10-22 Sat 22:26]
+   - State "DONE"       from "TODO"       [2011-10-15 Sat 23:05]
+   - State "DONE"       from "TODO"       [2011-10-13 Thu 23:54]
+   - State "DONE"       from "TODO"       [2011-10-11 Tue 23:13]
+   - State "DONE"       from "TODO"       [2011-10-09 Sun 23:45]
+   - State "DONE"       from "TODO"       [2011-10-08 Sat 23:52]
+   - State "DONE"       from "TODO"       [2011-10-07 Fri 23:37]
    - State "DONE"       from "TODO"       [2011-10-07 Fri 00:30]
    - State "DONE"       from "TODO"       [2011-10-04 Tue 00:15]
    - State "DONE"       from "TODO"       [2011-10-03 Mon 00:53]
@@ -109,5 +147,5 @@
    - State "DONE"       from "TODO"       [2011-09-25 Sun 22:34]
    :PROPERTIES:
    :STYLE:    habit
-   :LAST_REPEAT: [2011-10-07 Fri 00:30]
+   :LAST_REPEAT: [2011-10-22 Sat 22:26]
    :END:
