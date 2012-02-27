@@ -85,7 +85,7 @@
 	    (c-offsets-alist
 	     (defun-open . 0)
 	     (defun-close . 0)
-	     (statement-block-intro . 0)
+	     (statement-block-intro . +)
 	     (substatement-open . 0)
 	     (substatement-label . 0)
 	     (label . 0)
