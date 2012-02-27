@@ -1,0 +1,25 @@
+# -*- mode: snippet -*-
+#name: fhdr
+#key: fhdr
+# --
+${3:Description}
+Copyright (C) `(format-time-string "%Y")` ${2:Name
+  $(yas/choose-value '("Brian Fransioli" "assem"))} <${3:email
+  $(yas/choose-value '("terranpro@capp.snu.ac.kr" "assem@terranpro.org"))}>
+
+This file is part of ${1:Project}
+
+$1 is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+$1 is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with $1.  If not, see <http://www.gnu.org/licenses/>.
+`(let ((comment-style 'extra-line))
+      (comment-region (point-min) (point-at-eol 0)))`

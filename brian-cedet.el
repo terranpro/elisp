@@ -11,36 +11,39 @@
 
 (if (= brian-cedet-use-newtrunk 1)
   (setq brian-cedet-loadfile 
-	"/home/terranpro/code/cedet-newtrunk/cedet-devel-load.el")
-  (setq brian-cedet-loadfile "/home/terranpro/code/cedet/common/cedet.el"))
+	"~/code/cedet-newtrunk/cedet-devel-load.el")
+  (setq brian-cedet-loadfile "~/code/cedet/common/cedet.el"))
 
 (load-file brian-cedet-loadfile)
 
-(when (= brian-cedet-use-newtrunk 0)
+(if (= brian-cedet-use-newtrunk 1)
+    (add-to-list 'Info-default-directory-list "~/code/cedet-newtrunk/doc/info")
+  
   (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet-newtrunk/common"))
+	       (expand-file-name "~/code/cedet/common"))
   (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet-newtrunk/common"))
+	       (expand-file-name "~/code/cedet/common"))
 
   (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet-newtrunk/semantic/doc"))
+	       (expand-file-name "~/code/cedet/semantic/doc"))
   (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet-newtrunk/eieio"))
+	       (expand-file-name "~/code/cedet/eieio"))
   (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet-newtrunk/speedbar"))
+	       (expand-file-name "~/code/cedet/speedbar"))
   (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet-newtrunk/cogre"))
+	       (expand-file-name "~/code/cedet/cogre"))
   (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet-newtrunk/ede"))
+	       (expand-file-name "~/code/cedet/ede"))
   (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet-newtrunk/srecode")))
+	       (expand-file-name "~/code/cedet/srecode")))
 
 
 (require 'ede)
-
+(require 'semantic)
 (when (= brian-cedet-use-newtrunk 1)
   (require 'semantic/decorate)
   (require 'semantic/ia)
+  (require 'ede/proj)
   (require 'ede/cpp-root)
   (require 'semantic)
   (require 'semantic/complete)
@@ -48,10 +51,25 @@
   (require 'semantic/db-cscope)
   (require 'semantic/db-global)
   (require 'semantic/bovine/c)
-  (require 'cedet-global))
+  (require 'ede/m3)
+  (require 'srecode/m3)
+  (require 'semantic/m3)
+  (require 'cedet-m3)
+  (require 'cedet-global)
+  ;; Add minor-modes which should be loaded
+  (add-to-list 'semantic-default-submodes 'global-semantic-idle-summary-mode)
+  (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
+  ;; Activate semantic
+  (semantic-mode 1))
 
-(global-ede-mode t)
+(global-ede-mode 1)
+(global-srecode-minor-mode 1)
 
+;; (setq srecode-map-load-path 
+;;       (list "~/.srecode"
+;; 	    "~/code/cedet-newtrunk/etc/srecode"))
+
+ 
 ;;(semantic-load-enable-minimum-features)
 (semantic-load-enable-code-helpers)
 ;;(semantic-load-enable-gaudy-code-helpers)
@@ -88,10 +106,10 @@
 
 ;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
 
-(add-to-list 'semantic-lex-c-preprocessor-symbol-file 
-	     '"/usr/local/include/opencv2/core/types_c.h")
-(add-to-list 'semantic-lex-c-preprocessor-symbol-file 
-	     '"/usr/local/include/opencv2/imgproc/types_c.h")
+;; (add-to-list 'semantic-lex-c-preprocessor-symbol-file 
+;; 	     '"/usr/local/include/opencv2/core/types_c.h")
+;; (add-to-list 'semantic-lex-c-preprocessor-symbol-file 
+;; 	     '"/usr/local/include/opencv2/imgproc/types_c.h")
 
 (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_PROP_RW" . ""))
 (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS" . ""))
@@ -99,12 +117,17 @@
 (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS_W" . ""))
 (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS_W_MAP" . ""))
 (add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_INLINE" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_IN_OUT" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_OUT" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_PROP" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_PROP_RW" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_WRAP" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_WRAP_AS" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_WRAP_DEFAULT" . ""))
 
-
-(require 'ede)
-
-(global-ede-mode t)
-(setq ede-locate-setup-options '(ede-locate-global ede-locate-base))
+;;(require 'ede)
+;;(global-ede-mode t)
+;;(setq ede-locate-setup-options '(ede-locate-global ede-locate-base))
 
 ;; COGRE settings
 ;; Unicode characters make the lines/arrows pretty!
@@ -191,27 +214,54 @@
 ;; 					     "/opt/local/include/opencv"
 ;; 					     "/opt/local/include/opencv2"))
 
-(ede-cpp-root-project "OpenCV/C++ test"
-     :name "OpenCV/C++ test"
-     :file "/home/terranpro/code/research/CMakeLists.txt"
-     :include-path '("/"
-		     "/sift"
-		     "/sift_optflow"
-		     "/util"
-		     "/test"
-                  )
-     :system-include-path '("/usr/local/include"
-                     "/usr/local/include/opencv"
-		     )
-     :spp-table '(
-                  ("CV_PROP_RW" . "")
-                  ("CV_EXPORTS" . "")
-                  ("CV_EXPORTS_W_SIMPLE" . "")
-               ("CV_EXPORTS_W" . "")
-               ("CV_EXPORTS_W_MAP" . "")
-               ("CV_INLINE" . ""))
-     :local-variables (list
-               (cons 'semantic-lex-c-preprocessor-symbol-file
-                 (cons "/usr/local/include/opencv2/core/types_c.h"
-                   (cons "/usr/local/include/opencv2/imgproc/types_c.h"
-                     semantic-lex-c-preprocessor-symbol-file)))))
+;; (ede-cpp-root-project "OpenCV/C++ test"
+;;      :name "OpenCV/C++ test"
+;;      :file "/home/terranpro/code/research/CMakeLists.txt"
+;;      :include-path '("/"
+;; 		     "/sift"
+;; 		     "/sift_optflow"
+;; 		     "/util"
+;; 		     "/test"
+;;                   )
+;;      :system-include-path '("/usr/local/include"
+;;                      "/usr/local/include/opencv"
+;; 		     )
+;;      :spp-table '(
+;;                   ("CV_PROP_RW" . "")
+;;                   ("CV_EXPORTS" . "")
+;;                   ("CV_EXPORTS_W_SIMPLE" . "")
+;;                ("CV_EXPORTS_W" . "")
+;;                ("CV_EXPORTS_W_MAP" . "")
+;;                ("CV_INLINE" . ""))
+;;      :local-variables (list
+;;                (cons 'semantic-lex-c-preprocessor-symbol-file
+;;                  (cons "/usr/local/include/opencv2/core/types_c.h"
+;;                    (cons "/usr/local/include/opencv2/imgproc/types_c.h"
+;;                      semantic-lex-c-preprocessor-symbol-file)))))
+
+(defun brian-srecode-projname-replace-and-comment (str)
+  (let* ((dict srecode-inserter-variable-current-dictionary)
+	 (projname (srecode-dictionary-lookup-name dict "PROJECTNAME"))
+	 (cs (or (and dict
+		      (srecode-dictionary-lookup-name dict "comment_prefix"))
+		 (and comment-multi-line comment-continue)
+		 (and (not comment-multi-line) comment-start)))
+	 (strs (split-string str "\n"))
+	 (newstr "")
+	 )
+    (while strs
+      (cond ((and (not comment-multi-line) (string= (car strs) ""))
+	     )
+	    (t
+	     (setq newstr (concat newstr cs " " (car strs)))))
+      (setq strs (cdr strs))
+      (when strs (setq newstr (concat newstr "\n"))))
+
+    (setq newstr (replace-regexp-in-string "{{PROJECTNAME}}" 
+					   projname 
+					   newstr
+					   t))
+    newstr))
+
+(defun brian-srecode-string-killer (str)
+  "")
