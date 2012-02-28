@@ -11,8 +11,8 @@
 
 (if (= brian-cedet-use-newtrunk 1)
   (setq brian-cedet-loadfile 
-	"/home/terranpro/code/cedet-newtrunk/cedet-devel-load.el")
-  (setq brian-cedet-loadfile "/home/terranpro/code/cedet/common/cedet.el"))
+	"~/code/cedet-newtrunk/cedet-devel-load.el")
+  (setq brian-cedet-loadfile "~/code/cedet/common/cedet.el"))
 
 (load-file brian-cedet-loadfile)
 
@@ -191,27 +191,27 @@
 ;; 					     "/opt/local/include/opencv"
 ;; 					     "/opt/local/include/opencv2"))
 
-(ede-cpp-root-project "OpenCV/C++ test"
-     :name "OpenCV/C++ test"
-     :file "/home/terranpro/code/research/CMakeLists.txt"
-     :include-path '("/"
-		     "/sift"
-		     "/sift_optflow"
-		     "/util"
-		     "/test"
-                  )
-     :system-include-path '("/usr/local/include"
-                     "/usr/local/include/opencv"
-		     )
-     :spp-table '(
-                  ("CV_PROP_RW" . "")
-                  ("CV_EXPORTS" . "")
-                  ("CV_EXPORTS_W_SIMPLE" . "")
-               ("CV_EXPORTS_W" . "")
-               ("CV_EXPORTS_W_MAP" . "")
-               ("CV_INLINE" . ""))
-     :local-variables (list
-               (cons 'semantic-lex-c-preprocessor-symbol-file
-                 (cons "/usr/local/include/opencv2/core/types_c.h"
-                   (cons "/usr/local/include/opencv2/imgproc/types_c.h"
-                     semantic-lex-c-preprocessor-symbol-file)))))
+;; (ede-cpp-root-project "OpenCV/C++ test"
+;;      :name "OpenCV/C++ test"
+;;      :file "~/code/research/CMakeLists.txt"
+;;      :include-path '("/"
+;; 		     "/sift"
+;; 		     "/sift_optflow"
+;; 		     "/util"
+;; 		     "/test"
+;;                   )
+;;      :system-include-path '("/usr/local/include"
+;;                      "/usr/local/include/opencv"
+;; 		     )
+;;      :spp-table '(
+;;                   ("CV_PROP_RW" . "")
+;;                   ("CV_EXPORTS" . "")
+;;                   ("CV_EXPORTS_W_SIMPLE" . "")
+;;                ("CV_EXPORTS_W" . "")
+;;                ("CV_EXPORTS_W_MAP" . "")
+;;                ("CV_INLINE" . ""))
+;;      :local-variables (list
+;;                (cons 'semantic-lex-c-preprocessor-symbol-file
+;;                  (cons "/usr/local/include/opencv2/core/types_c.h"
+;;                    (cons "/usr/local/include/opencv2/imgproc/types_c.h"
+;;                      semantic-lex-c-preprocessor-symbol-file)))))

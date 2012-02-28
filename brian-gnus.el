@@ -110,10 +110,10 @@
 (setq mm-w3m-safe-url-regexp nil)
 
 ;; BBDB
-(require 'bbdb-loaddefs "/home/terranpro/code/bbdb/lisp/bbdb-loaddefs.el")
+(require 'bbdb-loaddefs "~/code/bbdb/lisp/bbdb-loaddefs.el")
 (if (featurep 'xemacs)
-    (add-to-list 'Info-directory-list "/home/terranpro/bbdb/doc/")
-  (add-to-list 'Info-default-directory-list "/home/terranpro/code/bbdb/doc/"))
+    (add-to-list 'Info-directory-list "~/bbdb/doc/")
+  (add-to-list 'Info-default-directory-list "~/code/bbdb/doc/"))
 
  	
 (require 'bbdb)

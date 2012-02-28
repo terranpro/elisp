@@ -1,5 +1,5 @@
 (setq load-path 
-      (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/muse"))
+      (add-to-list 'load-path "~/code/muse/lisp"))
 
 (require 'htmlize)       ; pretty syntax highlighting w/muse
 (require 'muse-mode)     ; load authoring mode

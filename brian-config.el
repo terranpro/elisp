@@ -23,7 +23,7 @@
 (defun maximize-frame-height ()
   "Cheap, Hacky way to Maximize Frame"
   (interactive)
-  (set-frame-height (selected-frame) 131)
+  (set-frame-height (selected-frame) 95)
   (message "Maximized Frame height %s" (frame-height))
 )
 
@@ -56,7 +56,7 @@
 (setq ido-default-file-method 'selected-window)
 
 ;TODO: (temp) some default tweaking for window sizing
-(add-to-list 'default-frame-alist '(height . 100))
+(add-to-list 'default-frame-alist '(height . 70))
 
 ; Emacs24 default font on one of my debian sids was 
 ; fucking stupid huge; so put this so the default font is 
