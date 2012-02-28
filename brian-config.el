@@ -78,8 +78,30 @@
 (defalias 'yes-or-no-p 'y-or-n-p) ; y or n is enough
 (defalias 'list-buffers 'ibuffer) ; always use ibuffer
 
+;; Customs for C and C++ Programming styles I like
+(c-add-style 
+ "briancpp" '((c-basic-offset . 2)
+	    (c-comment-only-line-offset . 0)
+	    (c-offsets-alist
+	     (defun-open . 0)
+	     (defun-close . 0)
+	     (statement-block-intro . +)
+	     (substatement-open . 0)
+	     (substatement-label . 0)
+	     (label . 0)
+	     (statement-cont . +)
+	     (inline-open . 0)
+	     (inline-close . 0)
+	     (innamespace . 0))))
+
+(add-hook 'c++-mode-hook (lambda () 
+			   (c-set-style "briancpp")
+			   (define-key 
+			     c++-mode-map 
+			     (kbd "RET") 
+			     'newline-and-indent)))
+
 (message "Brian's ELISP Loaded.")
 
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)
-
