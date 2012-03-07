@@ -54,6 +54,8 @@
 (setq ido-enable-flex-matching t) ;fuzzy matching
 (setq ido-default-buffer-method 'selected-window)
 (setq ido-default-file-method 'selected-window)
+(setq ido-auto-merge-work-directories-length -1)
+(setq ido-everywhere t)
 
 ;TODO: (temp) some default tweaking for window sizing
 (add-to-list 'default-frame-alist '(height . 70))
@@ -68,7 +70,9 @@
 (global-set-key (kbd "<f5>") 'compile)
 
 ;; I Like Autofill mode for all files
-(auto-fill-mode t)
+;;(auto-fill-mode t)
+(add-hook 'text-mode-hook '(lambda () 
+			     (auto-fill-mode t)))
 
 ;; Never use backup files (garbage with tildes at end)
 (setq make-backup-files nil)
