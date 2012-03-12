@@ -23,3 +23,21 @@
     ;; (erc-tls :server "roddenberry.freenode.net" :port 7000
     ;; 	     :nick "terranpro")
     (setq tls-program tls-program-copy)))
+
+(defun brian-detect-http (string)
+  "Detect the first occurrence of a HTTP URL in a string and return
+it or return nil."
+
+  (let ((http-regexp
+	 "\\(https?:\\(//\\)\\|\\(\\\\\\)\\)+[\w\d:#@%/;$()~_?\+-=\\\\\.&]*"))
+    
+    (with-temp-buffer
+      (insert string)
+      (goto-char (point-min))
+      (search-forward-regexp http-regexp (point-max) t)
+      (thing-at-point-url-at-point))))
+
+;;(brian-detect-http "asdfjkasdf
+;;http://www.clown.com/klasdfjdsafl/sexintheface/retardedbackwards-style.htmls
+")
+
