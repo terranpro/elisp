@@ -13,12 +13,12 @@
 	    "openssl s_client -connect %h:%p -no_ssl2 -ign_eof"))
 
     ;; FreeNode SSL
-    ;; (erc-tls :server "127.0.0.1" :port 7000
-    ;; 	     :nick "terranpro")
+    (erc-tls :server "127.0.0.1" :port 7000
+     	     :nick "terranpro")
 
     ;; HanIRC Server
-    (erc :server "127.0.0.1" :port 7001
-	 :nick "assem")
+    ;;(erc :server "127.0.0.1" :port 7001
+    ;;:nick "assem")
 
     ;; (erc-tls :server "roddenberry.freenode.net" :port 7000
     ;; 	     :nick "terranpro")
