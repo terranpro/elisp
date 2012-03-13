@@ -7,7 +7,7 @@
 ;; Use the NEWTRUNK branch of CEDET? or TRUNK?
 ;; Currently TRUNK has a nasty bug when using ede-root-cpp-proj
 ;; feb16 2012
-(setq brian-cedet-use-newtrunk 1)
+(setq brian-cedet-use-newtrunk 0)
 
 (if (= brian-cedet-use-newtrunk 1)
   (setq brian-cedet-loadfile 

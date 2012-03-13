@@ -42,5 +42,3 @@
 (workgroups-mode 1)
 (setq wg-file "~/elisp/workgroups/Kenobi.wgrps")
 ;;(wg-load "~/elisp/workgroups/CAPP.wgrps")
-
-
