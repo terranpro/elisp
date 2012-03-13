@@ -23,7 +23,7 @@
 (defun maximize-frame-height ()
   "Cheap, Hacky way to Maximize Frame"
   (interactive)
-  (set-frame-height (selected-frame) 95)
+  (set-frame-height (selected-frame) 100)
   (message "Maximized Frame height %s" (frame-height))
 )
 
