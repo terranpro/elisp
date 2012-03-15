@@ -64,17 +64,20 @@ buffer."
       (save-window-excursion 
 	(switch-to-buffer our-buffer)
 	(erc-send-message new-url)))
+    (with-temp-buffer
+      (insert new-url)
+      (kill-ring-save (point-min) (point-max)))
     (message "Buffer %s Old URL %s => New URL: %s" our-buffer old-url new-url)))
 
 (defun brian-make-tinyurl (url)
-  "Asynchronously sends a long url to tinyurl for generation."
+  "Asynchronously sends a long url to tinyurl for generation.
+Saves the new URL to the kill-ring for easy yank'ing."
   (let* ((tinyurl-stub "http://tinyurl.com/api-create.php?url=")
 	 (tinyurl-full (concat tinyurl-stub url))
 	 (tinyurl-buffer (buffer-name))
 	 (tinyurl-result))
     (url-retrieve tinyurl-full 
 		  'brian-make-tinyurl-cback 
-		  (list url tinyurl-buffer))
-))
+		  (list url tinyurl-buffer))))
 
 (add-to-list 'erc-insert-modify-hook 'brian-detect-long-http)
