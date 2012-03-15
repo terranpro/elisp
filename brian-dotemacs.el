@@ -22,6 +22,9 @@
 	       "/ssh:mirine.terranpro.org:"))
 
 
+;; Reopen files/buffers from previous session on startup
+(desktop-save-mode 1)
+
 ;;; org-mode dev version
 (setq load-path (cons "~/code/org-mode/lisp" load-path))
 (setq load-path (cons "~/code/org-mode/contrib/lisp" load-path))

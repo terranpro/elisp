@@ -36,9 +36,6 @@
 (global-set-key (kbd "C-c M") 'maximize-frame-height)
 ;;
 
-;; Reopen files/buffers from previous session on startup
-(desktop-save-mode 1)
-
 ;; Let X's clipboard play nice with emacs
 (setq x-select-enable-clipboard t)
 
@@ -104,8 +101,6 @@
 			     c++-mode-map 
 			     (kbd "RET") 
 			     'newline-and-indent)))
-
-(message "Brian's ELISP Loaded.")
 
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)

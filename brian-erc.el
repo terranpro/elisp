@@ -2,7 +2,7 @@
 (require 'tls)
 
 (setq erc-user-full-name "assem")
-(setq erc-server-auto-reconnect nil)
+(setq erc-server-auto-reconnect t)
 
 (defun brian-irc ()
   (interactive)
@@ -57,7 +57,7 @@ buffer."
   (let* ((new-url (brian-detect-http 
 		   (buffer-substring (point-min) (point-max))))
 	 (our-args (cdr args))
-	 (old-url (first our-args))
+	 (old-url (car our-args))
 	 (our-buffer (car (cdr our-args))))
 
     (when (string-match "korea" our-buffer)
