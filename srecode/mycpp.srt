@@ -1,0 +1,171 @@
+set mode "c++-mode"
+set priority "95"
+
+set comment_start "//"
+set comment_end    "//"
+set comment_prefix "//"
+;; Used for Doxygen, should be the same as last char
+;; of comment_start
+set comment_extra "//"
+
+prompt PROJECTNAME "Project: " 
+
+set HEADEREXT ".hpp"
+
+context file
+
+;; This is not used because I wrote my own lisp function to
+;; do the substitutions i wanted from a dictionary string
+;; e.g. the COPYRIGHT variable (see brian-cedet.el)
+;; brian-srecode-projname-replace-and-comment , etc.
+template gpl_copyright
+----
+{{comment_prefix}} This file is part of {{?PROJECTNAME}}
+{{comment_prefix}} 
+{{comment_prefix}} {{PROJECTNAME}} is free software: you can redistribute it and/or modify
+{{comment_prefix}} it under the terms of the GNU General Public License as published by
+{{comment_prefix}} the Free Software Foundation, either version 3 of the License, or
+{{comment_prefix}} (at your option) any later version.
+{{comment_prefix}} 
+{{comment_prefix}} {{PROJECTNAME}} is distributed in the hope that it will be useful,
+{{comment_prefix}} but WITHOUT ANY WARRANTY; without even the implied warranty of
+{{comment_prefix}} MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+{{comment_prefix}} GNU General Public License for more details.
+{{comment_prefix}} 
+{{comment_prefix}} You should have received a copy of the GNU General Public License
+{{comment_prefix}} along with {{PROJECTNAME}}.  If not, see <http://www.gnu.org/licenses/>.
+{{comment_prefix}} 
+----
+
+prompt PROJECTNAME "Enter Project Name: "
+set COPYRIGHT "This file is part of {{PROJECTNAME}}
+
+{{PROJECTNAME}} is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+{{PROJECTNAME}} is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with {{PROJECTNAME}}.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+template header_guard :file :blank
+----
+#ifndef {{FILENAME_SYMBOL:upcase}}
+#define {{FILENAME_SYMBOL:upcase}}
+
+{{^}}
+
+#endif // {{FILENAME_SYMBOL:upcase}}
+----
+
+template empty :time :user :file :cpp
+"Optional docstring."
+----
+{{<A:filecomment}}{{?DESCRIPTION}}{{/A}}
+{{#NOTHEADER}}
+{{^}}
+{{/NOTHEADER}}
+{{#HEADER}}
+{{>:header_guard}}
+{{/HEADER}}
+----
+
+template filecomment :file :user :time
+sectiondictionary "A"
+set PROJECTNAMEHACK macro "?PROJECTNAME" "-hack"
+----
+{{comment_start}}{{comment_extra}} 
+{{comment_prefix}} {{FILENAME}} - {{^}}
+{{comment_prefix}} {{?PROJECTNAME:brian-srecode-string-killer}}
+{{comment_prefix}} Author: {{AUTHOR}} <{{EMAIL}}>
+{{comment_prefix}} {{MONTHNAME}} {{YEAR}}, {{TIME}}{{#RCS}}
+{{comment_prefix}} X-RCS: {{DOLLAR}}Id{{DOLLAR}}{{/RCS}}
+{{comment_prefix}} 
+{{#A}}{{COPYRIGHT:brian-srecode-projname-replace-and-comment}}{{/A}}
+{{comment_prefix}}
+{{comment_prefix}} Copyright (C) {{YEAR}} {{?AUTHOR}}
+{{comment_end}}{{comment_extra}}
+----
+
+context declaration
+
+;; {{?TYPE}} {{FILE}}::{{?NAME}}{{>:misc:arglist}}
+
+set doxygen_comment "///"
+
+template doxygen-function :indent :blank
+----
+{{doxygen_comment}}
+{{doxygen_comment}} @name {{?NAME}} - {{?DOC}}{{^}}{{#ARGS}}
+{{doxygen_comment}} @param {{?NAME}} - {{?DOC}}{{/ARGS}}
+{{doxygen_comment}} @return {{?TYPE}}
+{{doxygen_comment}}
+----
+
+template method :indent :blank :user :file
+"Method belonging to some class, declared externally."
+----
+{{#METHOD}}{{>A:doxygen-function}}
+{{?TYPE}} {{FILE}}::{{?NAME}}({{?ARGS}})
+{{#INITIALIZERS}}{{>B:initializers}}{{/INITIALIZERS}}
+{
+{{^}}
+}{{/METHOD}}
+----
+bind ""
+
+template method-invoker :indent :blank :user :file
+"Method invoker!"
+sectiondictionary "METHOD"
+set NAME macro "?FUNC_NAME"
+set TYPE macro "?RET_VALUE"
+----
+{{>A:method}}
+----
+bind "m"
+
+template class :indent :blank
+"Insert a C++ class.  For use by user insertion.
+Override this template to change contents of a class.
+Override `class-tag' to override the outer structure of the class."
+----
+{{<A:class-tag}}
+   public:
+     {{>CONSTRUCTOR:classdecl:constructor-tag}}
+     {{>DESTRUCTOR:classdecl:destructor-tag}}
+
+   protected:
+
+   private:
+   {{^}}
+
+{{/A}}
+----
+bind "c"
+
+template subclass :indent :blank
+"Insert a C++ subclass of some other class."
+sectiondictionary "PARENTS"
+set NAME "?PARENTNAME"
+----
+{{>A:class}}
+----
+bind "s"
+
+template class-tag :indent :blank
+"Insert a C++ class with the expectation of it being used by a tag inserter.
+Override this to affect applications, or the outer class structure for
+the user-facing template."
+----
+class {{?NAME}} {{#PARENTS}}{{#FIRST}}: {{/FIRST}}public {{NAME}}{{/PARENTS}}
+{     
+   {{^}}
+};
+----
+bind ""
