@@ -39,3 +39,11 @@
 				     "pdflatex %f"
 				     "bibtex %b"
 				     "pdflatex %b"))
+
+(add-to-list 'org-export-latex-classes
+	     '("brianthesis" "\\documentclass[10pt, b5paper, twoside]{article}"
+	       ("\\section{%s}" . "\\section*{%s}")
+	       ("\\subsection{%s}" . "\\subsection*{%s}")
+	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+	       ("\\paragraph{%s}" . "\\paragraph*{%s}")
+	       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
