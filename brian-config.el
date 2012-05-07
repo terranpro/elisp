@@ -74,6 +74,13 @@
 ;; Never use backup files (garbage with tildes at end)
 (setq make-backup-files nil)
 
+;; dired find file in new frame
+(require 'dired)
+(defun brian-dired-find-file-other-frame ()
+  (interactive)
+  (find-file-other-frame (dired-get-file-for-visit)))
+(define-key dired-mode-map (kbd "F") 'brian-dired-find-file-other-frame)
+
 ;; TODO create a brian-alias.el file later if this grows:
 ;; My aliases to make emacs even more amazing
 (defalias 'yes-or-no-p 'y-or-n-p) ; y or n is enough

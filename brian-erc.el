@@ -26,6 +26,13 @@
 
 
 (setq brian-detect-long-http-length 60)
+(setq brian-make-tinyurl-enabled 0)
+(defun brian-make-tinyurl-enable()
+  (interactive)
+  (if (= brian-make-tinyurl-enabled 0)
+      (add-hook 'erc-insert-modify-hook 'brian-detect-long-http)
+    (remove-hook 'erc-insert-modify-hook 'brian-detect-long-http))
+  (setq brian-make-tinyurl-enabled (not brian-make-tinyurl-enabled)))
 
 (defun brian-detect-http (string)
   "Detect the first occurrence of a HTTP URL in a string and return
@@ -79,5 +86,3 @@ Saves the new URL to the kill-ring for easy yank'ing."
     (url-retrieve tinyurl-full 
 		  'brian-make-tinyurl-cback 
 		  (list url tinyurl-buffer))))
-
-(add-to-list 'erc-insert-modify-hook 'brian-detect-long-http)

@@ -64,7 +64,9 @@
   (semantic-mode 1))
 
 (global-ede-mode 1)
+(setq srecode-map-save-file "~/elisp/srecode/srecode-map")
 (global-srecode-minor-mode 1)
+(add-to-list 'srecode-map-load-path "~/elisp/srecode/")
 
 ;; (setq srecode-map-load-path 
 ;;       (list "~/.srecode"
@@ -269,3 +271,4 @@
 
 
 (define-key srecode-mode-map (kbd "C-c / U") 'srecode-map-update-map)
+

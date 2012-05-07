@@ -28,3 +28,14 @@
 (setq org-plantuml-jar-path "/home/terranpro/Downloads/plantuml.jar")
 
 (global-set-key (kbd "C-c a") 'org-agenda)
+
+;; thesis
+(setq reftex-default-bibliography
+      (quote
+       ("~/code/research/papers/bib/db.bib")))
+
+;; Use latexmk for PDF export
+(setq org-latex-to-pdf-process (list "pdflatex %f"
+				     "pdflatex %f"
+				     "bibtex %b"
+				     "pdflatex %b"))
