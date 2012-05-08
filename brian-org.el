@@ -35,10 +35,10 @@
        ("~/code/research/papers/bib/db.bib")))
 
 ;; Use latexmk for PDF export
-(setq org-latex-to-pdf-process (list "pdflatex %f"
-				     "pdflatex %f"
+(setq org-latex-to-pdf-process (list "pdflatex -shell-escape %f"
+				     "pdflatex -shell-escape %f"
 				     "bibtex %b"
-				     "pdflatex %b"))
+				     "pdflatex -shell-escape %b"))
 
 (add-to-list 'org-export-latex-classes
 	     '("brianthesis" "\\documentclass[10pt, b5paper, twoside]{article}"
@@ -47,3 +47,9 @@
 	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
 	       ("\\paragraph{%s}" . "\\paragraph*{%s}")
 	       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+
+;;(add-to-list 'org-export-latex-packages-alist '("" "listings")
+;; (add-to-list 'org-export-latex-packages-alist '("" "color"))
+(setq org-export-latex-listings 'minted)
+(add-to-list 'org-export-latex-packages-alist '("" "minted"))
+(setq org-src-fontify-natively t)
