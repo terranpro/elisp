@@ -17,14 +17,11 @@
       (soap-invoke ideone-wsdl "Ideone_Service_v1Port" "getLanguages" 
 		   "terranpro" "capp1234"))
 
-(assoc-string "languages" ideone-supported-languages t)
-
-(setq ideone-testme '(("language" . "C") ("language" . "C++")))
-(rassoc "C" ideone-supported-languages)
-
-(length ideone-supported-languages)
 (car (car ideone-supported-languages))
 
+(mapcar '(lambda (l) 
+	   (rassoc "languages" l :key #'(lambda) ))
+	(car ideone-supported-languages))
 ;; ((item (key . foo) (value
 ;; 	  . bar)(item (key . foo) (value bar))) to an alist you could write
 (defun convert-pair (pair) `(,(cdr (third pair)) . ,(cdr (second
