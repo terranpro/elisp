@@ -11,6 +11,7 @@
 (load-library "brian-yasnippet")
 (load-library "brian-muse")
 (load-library "brian-cmake")
+(load-library "brian-ideone")
 
 ;;; tramp 
 (setq tramp-default-method "scpc")
