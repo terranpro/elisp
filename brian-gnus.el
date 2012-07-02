@@ -119,3 +119,38 @@
 (require 'bbdb)
 (bbdb-initialize)
 (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+
+;; TESTING
+(setq-default
+     gnus-summary-line-format "%U%R%z %(%&user-date;  %-20,20n  %B%s%)\n"
+     gnus-user-date-format-alist '(((gnus-seconds-today)
+				    . "  %H:%M")
+				   ((gnus-seconds-year)
+				    . "  %m-%d")
+				   (t . "%Y-%m"))
+     gnus-summary-thread-gathering-function 'gnus-gather-threads-by-references
+     gnus-thread-sort-functions '((not gnus-thread-sort-by-number))
+     gnus-article-sort-functions '((not gnus-article-sort-by-number))
+     gnus-sum-thread-tree-false-root ""
+     gnus-sum-thread-tree-indent " "
+     gnus-sum-thread-tree-leaf-with-other "├► "
+     gnus-sum-thread-tree-root ""
+     gnus-sum-thread-tree-single-leaf "╰► "
+     gnus-sum-thread-tree-vertical "│")
+
+
+(setq gnus-parameters
+      '(("*" 
+	 (display . 100))
+	("INBOX" 
+	 (charset . euc-kr)
+	 (display . 100)
+	 (posting-style
+	  (name "Brian Fransioli")
+	  (address "terranpro@capp.snu.ac.kr")))))
+
+;; (set-face-font 'default "BatangChe")
+;; (set-fontset-font "fontset-default" '(#x1100 . #xffdc)
+;; 		  '("BatangChe" . "unicode-bmp"))
+;; (set-fontset-font "fontset-default" '(#xe0bc . #xf66e)
+;; 		  '("BatangChe" . "unicode-bmp"))
