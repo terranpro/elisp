@@ -1,6 +1,7 @@
 ;; Gnus Mail and News Reader
 (setq load-path (cons (expand-file-name "~/code/gnus/lisp") load-path))
 (require 'gnus-load)
+(require 'brian-config)
 
 (if (featurep 'xemacs)
     (add-to-list 'Info-directory-list "~/code/gnus/texi/")
@@ -148,6 +149,12 @@
 	 (posting-style
 	  (name "Brian Fransioli")
 	  (address "terranpro@capp.snu.ac.kr")))))
+
+(add-to-list 'default-frame-alist 
+	     '(width . 150))
+(add-to-list 'default-frame-alist 
+	     '(height . 60))
+	      
 
 ;; (set-face-font 'default "BatangChe")
 ;; (set-fontset-font "fontset-default" '(#x1100 . #xffdc)
