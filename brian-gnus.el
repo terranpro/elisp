@@ -142,13 +142,25 @@
 
 (setq gnus-parameters
       '(("*" 
-	 (display . 100))
+	 (display . 250))
 	("INBOX" 
 	 (charset . euc-kr)
 	 (display . 100)
 	 (posting-style
 	  (name "Brian Fransioli")
-	  (address "terranpro@capp.snu.ac.kr")))))
+	  (address "terranpro@capp.snu.ac.kr")))
+	("terranpro-gmail" 
+	 (charset . euc-kr)
+	 (display . 100)
+	 (posting-style
+	  (name "Brian Fransioli")
+	  (address "terranpro@gmail.com")))
+	("assem-gmail" 
+	 (charset . euc-kr)
+	 (display . 100)
+	 (posting-style
+	  (name "Brian Fransioli")
+	  (address "assem@gmail.com")))))
 
 (add-to-list 'default-frame-alist 
 	     '(width . 150))
