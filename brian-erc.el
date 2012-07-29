@@ -29,14 +29,6 @@
     ;; 	     :nick "terranpro")
     (setq tls-program tls-program-copy)))
 
-;; Try to fix end of buffer to always go to the right place for input
-(define-key erc-mode-map (kbd "M->")
-  '(lambda ()
-     (interactive)
-     (goto-char (point-max))
-     (erc-end-of-input-line)))
-
-
 ;; Tiny URL converter for ERC 
 (setq brian-detect-long-http-length 60)
 (setq brian-make-tinyurl-enabled 0)
@@ -175,3 +167,20 @@ If STRING is nil, the function does nothing."
              (>= (point) erc-input-marker))
     (recenter erc-input-line-position)))
 (add-hook 'window-configuration-change-hook 'damd-window-configuration-change-hook)
+
+;; Brian window mods
+;; Try to fix end of buffer to always go to the right place for input
+(setq scroll-conservatively 2)
+(define-key erc-mode-map (kbd "M->")
+  '(lambda ()
+     (interactive)
+     (goto-char (point-max))
+     (widen)
+     (recenter erc-input-line-position)))
+;; Fix C-l to recenter at the bottom, correctly.
+(define-key erc-mode-map (kbd "C-l")
+  '(lambda ()
+     (interactive)
+     (goto-char (point-max))
+     (widen)
+     (recenter erc-input-line-position)))
