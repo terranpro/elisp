@@ -35,21 +35,57 @@
        ("~/code/research/papers/bib/db.bib")))
 
 ;; Use latexmk for PDF export
-(setq org-latex-to-pdf-process (list "pdflatex -shell-escape %f"
-				     "pdflatex -shell-escape %f"
-				     "bibtex %b"
-				     "pdflatex -shell-escape %b"))
+;; Because this pdflatex stuff is B0rked!
+;; 7/24/2012
+;; (setq org-latex-to-pdf-process (list "pdflatex -shell-escape %f"
+;; 				     "bibtex %b"
+;; 				     "pdflatex -shell-escape %f"
+;; 				     "bibtex %b"
+;; 				     "pdflatex -shell-escape %b"))
+
+;; clean up files first, then make with --shell-escape for minted
+(setq org-latex-to-pdf-process 
+      (list "latexmk -c"
+	    "latexmk -gg -pdf -pdflatex='pdflatex --shell-escape' %b"))
+
+;; for my cygwin windows box, system default is broken
+;; and i can't reach adobe or evince - so use garbage xpdf
+(when (null (or (executable-find "adobe")
+		(executable-find "evince")))
+  (aput 'org-file-apps "\\.pdf\\'" "xpdf %s"))
 
 (add-to-list 'org-export-latex-classes
-	     '("brianthesis" "\\documentclass[10pt, b5paper, twoside]{article}"
+	     '("brianthesis" "\\documentclass[11pt, b5paper, twoside]{article}"
 	       ("\\section{%s}" . "\\section*{%s}")
 	       ("\\subsection{%s}" . "\\subsection*{%s}")
 	       ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
 	       ("\\paragraph{%s}" . "\\paragraph*{%s}")
 	       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
+(add-to-list 'org-export-latex-classes
+	     '("brianletter" "\\documentclass[11pt, b5paper]{letter}"
+	       ("\\begin{letter}{%s}" . "\\begin{letter}{%s}") 
+	       ("\\opening{%s}" . "\\opening{%s}")
+))
+
 ;;(add-to-list 'org-export-latex-packages-alist '("" "listings")
 ;; (add-to-list 'org-export-latex-packages-alist '("" "color"))
 (setq org-export-latex-listings 'minted)
 (add-to-list 'org-export-latex-packages-alist '("" "minted"))
 (setq org-src-fontify-natively t)
+
+;; Org mode timestampage!
+(setq org-time-stamp-rounding-minutes '(0 1))
+(add-hook 'org-mode-hook
+	  '(lambda ()
+	     (local-set-key (kbd "C-c T u") 'org-timestamp-up)
+	     (local-set-key (kbd "C-c T d") 'org-timestamp-down)))
+
+;; Org mode templates
+;; Fast Figure template with placement set to fixed position
+(add-to-list 'org-structure-template-alist 
+	     (list "f"
+		   (concat "#+CAPTION: ?\n"
+			   "#+LABEL: fig:?\n"
+			   "#+ATTR_LATEX: placement=[H]\n"
+			   "[[./images/?]]")))
