@@ -6,6 +6,6 @@
 (add-to-list 'load-path "~/elisp/")
 
 (require 'brian-config)
-
+(require 'brian-paredit)
 ;; done
 (provide 'brian-minimal)
