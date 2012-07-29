@@ -54,10 +54,12 @@
 (setq ido-default-buffer-method 'selected-window)
 (setq ido-default-file-method 'selected-window)
 (setq ido-auto-merge-work-directories-length -1)
-(setq ido-everywhere t)
+;(setq ido-everywhere t)
+(ido-everywhere t)
 
 ;TODO: (temp) some default tweaking for window sizing
-(add-to-list 'default-frame-alist '(height . 70))
+(add-to-list 'default-frame-alist '(height . 65))
+(add-to-list 'default-frame-alist '(width  . 80))
 
 ; Emacs24 default font on one of my debian sids was 
 ; fucking stupid huge; so put this so the default font is 
@@ -88,11 +90,23 @@
 (defalias 'yes-or-no-p 'y-or-n-p) ; y or n is enough
 (defalias 'list-buffers 'ibuffer) ; always use ibuffer
 
+;; StackOverflow Answer for Question:
+;; Nice Work Brian ! :)
+;; http://tinyurl.com/7epdvlz
+(defun brian-comment-offset (langelem)
+  (save-excursion
+    (back-to-indentation)
+    (cond ((re-search-forward (regexp-quote "//+") (point-at-eol) t)
+	   '+)
+	  (t
+	   nil))))
+
 ;; Customs for C and C++ Programming styles I like
 (c-add-style 
  "briancpp" '((c-basic-offset . 2)
 	    (c-comment-only-line-offset . 0)
 	    (c-offsets-alist
+	     (comment-intro . brian-comment-offset)
 	     (defun-open . 0)
 	     (defun-close . 0)
 	     (statement-block-intro . +)
