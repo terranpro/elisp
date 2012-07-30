@@ -184,3 +184,5 @@ If STRING is nil, the function does nothing."
      (goto-char (point-max))
      (widen)
      (recenter erc-input-line-position)))
+
+(provide 'brian-erc)
