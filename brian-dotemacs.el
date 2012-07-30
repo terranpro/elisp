@@ -4,8 +4,10 @@
 ;;(load-library "brian-dotemacs")
 
 (load-library "brian-config")
-(load-library "brian-cedet")
-(load-library "brian-gnus")
+(load-library "brian-autocomplete")
+;;(load-library "brian-cedet")
+;;(load-library "brian-clang")
+;;(load-library "brian-gnus")
 (load-library "brian-paredit")
 (load-library "brian-org")
 (load-library "brian-yasnippet")
@@ -24,7 +26,8 @@
 
 
 ;; Reopen files/buffers from previous session on startup
-(desktop-save-mode 1)
+(desktop-save-mode)
+(desktop-read)
 
 ;;; org-mode dev version
 (setq load-path (cons "~/code/org-mode/lisp" load-path))
