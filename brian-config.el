@@ -78,6 +78,9 @@
 ;; Never use backup files (garbage with tildes at end)
 (setq make-backup-files nil)
 
+;; Turn off that stupid startup screen
+(setq inhibit-startup-screen t)
+
 ;; dired find file in new frame
 (require 'dired)
 (defun brian-dired-find-file-other-frame ()
