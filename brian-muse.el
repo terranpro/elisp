@@ -73,3 +73,5 @@ the current date, as reported by the shell command \"date\""
 
 
 (add-hook 'before-save-hook 'my-muse-update-directive-date())
+
+(provide 'brian-muse)
