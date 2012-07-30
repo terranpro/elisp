@@ -1,71 +1,17 @@
 ;; brian-cedet.el
 ;; Contains my personal configuration for CEDET
 
-;; Loads for CEDET 
-;;(load-file "/home/terranpro/code/cedet/common/cedet.el")
-
-;; Use the NEWTRUNK branch of CEDET? or TRUNK?
-;; Currently TRUNK has a nasty bug when using ede-root-cpp-proj
-;; feb16 2012
-(setq brian-cedet-use-newtrunk 0)
-
-(if (= brian-cedet-use-newtrunk 1)
-  (setq brian-cedet-loadfile 
-	"~/code/cedet-newtrunk/cedet-devel-load.el")
-  (setq brian-cedet-loadfile "~/code/cedet/common/cedet.el"))
-
-(load-file brian-cedet-loadfile)
-
-(if (= brian-cedet-use-newtrunk 1)
-    (add-to-list 'Info-default-directory-list
-		 (expand-file-name "~/code/cedet-newtrunk/doc/info"))
-
-  (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet/common"))
-  (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet/common"))
-
-  (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet/semantic/doc"))
-  (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet/eieio"))
-  (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet/speedbar"))
-  (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet/cogre"))
-  (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet/ede"))
-  (add-to-list 'Info-default-directory-list
-	       (expand-file-name "~/code/cedet/srecode")))
-
+(require 'brian-cedet-minimal)
 
 (require 'ede)
 (require 'semantic)
-(when (= brian-cedet-use-newtrunk 1)
-  (require 'semantic/decorate)
-  (require 'semantic/ia)
-  (require 'ede/proj)
-  (require 'ede/cpp-root)
-  (require 'semantic)
-  (require 'semantic/complete)
-  (require 'semantic/db)
-  (require 'semantic/db-cscope)
-  (require 'semantic/db-global)
-  (require 'semantic/bovine/c)
-  (require 'ede/m3)
-  (require 'srecode/m3)
-  (require 'semantic/m3)
-  (require 'cedet-m3)
-  (require 'cedet-global)
-  ;; Add minor-modes which should be loaded
-  (add-to-list 'semantic-default-submodes 'global-semantic-idle-summary-mode)
-  (add-to-list 'semantic-default-submodes 'global-semantic-mru-bookmark-mode)
-  ;; Activate semantic
-  (semantic-mode 1))
+
+(add-to-list 'semantic-default-submodes 
+	       'global-semantic-idle-completions-mode t)
 
 (global-ede-mode 1)
 (setq srecode-map-save-file "~/elisp/srecode/srecode-map")
-(global-srecode-minor-mode 1)
+;;(global-srecode-minor-mode 1)
 (add-to-list 'srecode-map-load-path "~/elisp/srecode/")
 
 ;; (setq srecode-map-load-path 
@@ -74,9 +20,9 @@
 
  
 ;;(semantic-load-enable-minimum-features)
-(semantic-load-enable-code-helpers)
-;;(semantic-load-enable-gaudy-code-helpers)
-(semantic-load-enable-excessive-code-helpers)
+;;(semantic-load-enable-code-helpers)
+(semantic-load-enable-gaudy-code-helpers)
+;;(semantic-load-enable-excessive-code-helpers)
 ;;(semantic-load-enable-semantic-debugging-helpers)
 
 ;; CEDET-devel mailing list said these werent needed
@@ -92,61 +38,41 @@
 ;;(require 'semanticdb-global)
 
 ;;(require 'semantic-c)
-(setq semantic-load-turn-useful-things-on t)
 
-(semantic-add-system-include "/usr/include/glib-2.0" 'c-mode)
-(semantic-add-system-include "/usr/include/glib-2.0" 'c++-mode)
-(semantic-add-system-include "/usr/include/gtk-3.0" 'c-mode)
-(semantic-add-system-include "/usr/include/gtk-3.0" 'c++-mode)
+;;(setq semantic-load-turn-useful-things-on t)
 
-(semantic-add-system-include "/usr/local/include/" 'c-mode)
-(semantic-add-system-include "/usr/local/include/" 'c++-mode)
+;; Add C++ include search path given by gcc
+(mapcar (lambda (includedir)
+	  (semantic-add-system-include includedir 'c++-mode))
+	(split-string 
+	 (let*
+	     ((out (shell-command-to-string "gcc -x c++ -v /dev/null"))
+	      (st (string-match "> search starts here" out))
+	      (se (match-end 0))
+	      (eb (string-match "End of" out)))
+	   (with-temp-buffer
+	     (insert out)
+	     (goto-char se)
+	     (end-of-line)
+	     (forward-char 1)
+	     (let
+		 ((buf (buffer-substring-no-properties (point) eb)))
+	       buf)))))
 
-(semantic-add-system-include "/usr/local/include/opencv" 'c-mode)
-(semantic-add-system-include "/usr/local/include/opencv" 'c++-mode)
+(require 'brian-cedet-includes)
 
-;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
+(setq semantic-complete-inline-analyzer-displayor-class
+      'semantic-displayor-tooltip)
 
-;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
+(setq semantic-complete-inline-analyzer-idle-displayor-class
+      'semantic-displayor-tooltip)
 
-;; (add-to-list 'semantic-lex-c-preprocessor-symbol-file 
-;; 	     '"/usr/local/include/opencv2/core/types_c.h")
-;; (add-to-list 'semantic-lex-c-preprocessor-symbol-file 
-;; 	     '"/usr/local/include/opencv2/imgproc/types_c.h")
-
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_PROP_RW" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS_W_SIMPLE" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS_W" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_EXPORTS_W_MAP" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_INLINE" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_IN_OUT" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_OUT" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_PROP" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_PROP_RW" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_WRAP" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_WRAP_AS" . ""))
-(add-to-list 'semantic-lex-c-preprocessor-symbol-map '("CV_WRAP_DEFAULT" . ""))
-
-;;(require 'ede)
-;;(global-ede-mode t)
-;;(setq ede-locate-setup-options '(ede-locate-global ede-locate-base))
+(setq semantic-displayor-tooltip-initial-max-tags 25)
+(setq semantic-displayor-tooltip-max-tags 25)
 
 ;; COGRE settings
 ;; Unicode characters make the lines/arrows pretty!
 (cogre-uml-enable-unicode)
-
-;;DIDNT WORK... T.T
-;;(semantic-add-system-include "/usr/local/include/opencv" 'c-mode)
-;;(semantic-add-system-include "/usr/local/include/opencv2" 'c++-mode)
-
-;; (defun my-cedet-hook ()
-;;  (local-set-key [(control return)] 'semantic-ia-complete-symbol)
-;;  (local-set-key "\C-c?" 'semantic-ia-complete-symbol-menu)
-;;  (local-set-key "\C-c>" 'semantic-complete-analyze-inline)
-;;  (local-set-key "\C-cp" 'semantic-analyze-proto-impl-toggle))
-;; (add-hook 'c-mode-common-hook 'my-cedet-hook)
-
 
 (defun my-cedet-hook ()
   (local-set-key [(control return)] 'semantic-ia-complete-symbol)
@@ -161,9 +87,11 @@
   (local-set-key "\C-c-" 'semantic-tag-folding-fold-block)
   (local-set-key "\C-c\C-c+" 'semantic-tag-folding-show-all)
   (local-set-key "\C-c\C-c-" 'semantic-tag-folding-fold-all)
+  (local-set-key [(meta return)] 'semantic-ia-complete-tip)
 
   (local-set-key "\C-cf" 'ede-find-file)
   (local-set-key "\C-c\C-f" 'ede-find-file))
+
 (add-hook 'c-mode-common-hook 'my-cedet-hook)
 (add-hook 'emacs-lisp-mode-hook 'my-cedet-hook)
 (add-hook 'lisp-interaction-mode-hook 'my-cedet-hook)
@@ -185,19 +113,19 @@
 
 (setq ede-locate-setup-options '(ede-locate-base))
   
-(when (cedet-cscope-version-check t)  ; Is it ok?
-  ;; Configurations for CScope and CEDET.
-  (setq ede-locate-setup-options
-	(append '(ede-locate-cscope) ede-locate-setup-options))
-  (semanticdb-enable-cscope-databases))
+;; (when (cedet-cscope-version-check t)  ; Is it ok?
+;;   ;; Configurations for CScope and CEDET.
+;;   (setq ede-locate-setup-options
+;; 	(append '(ede-locate-cscope) ede-locate-setup-options))
+;;   (semanticdb-enable-cscope-databases))
 
-(when (cedet-gnu-global-version-check t)
-  (setq ede-locate-setup-options
-	(append '(ede-locate-global) ede-locate-setup-options))
-  (semanticdb-enable-gnu-global-databases 'c-mode)
-  (semanticdb-enable-gnu-global-databases 'c++-mode))
+;; (when (cedet-gnu-global-version-check t)
+;;   (setq ede-locate-setup-options
+;; 	(append '(ede-locate-global) ede-locate-setup-options))
+;;   (semanticdb-enable-gnu-global-databases 'c-mode)
+;;   (semanticdb-enable-gnu-global-databases 'c++-mode))
 
-(setq semantic-idle-scheduler-idle-time 1)
+(setq semantic-idle-scheduler-idle-time 0.25)
 
 ;; face customizations
 
@@ -270,5 +198,6 @@
   "")
 
 
-(define-key srecode-mode-map (kbd "C-c / U") 'srecode-map-update-map)
+;;(define-key srecode-mode-map (kbd "C-c / U") 'srecode-map-update-map)
 
+(provide 'brian-cedet)
