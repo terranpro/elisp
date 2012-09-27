@@ -98,9 +98,10 @@ tag in the semantic database and return a formatted docstring."
     (symbol . "bs")))
 
 (defun my-ac-cc-mode-setup ()
-  (setq ac-sources '(ac-source-brian-semantic
+  (setq ac-sources '(;ac-source-semantic
+		     ;ac-source-semantic-raw
+		     ac-source-brian-semantic
 		     ac-source-brian-semantic-raw
-		     ;ac-source-brian-semantic
 		     ac-source-yasnippet))
 
   (semantic-mode t)
@@ -109,7 +110,9 @@ tag in the semantic database and return a formatted docstring."
 
 (defun my-ac-config ()
   (setq-default ac-sources 
-		'(ac-source-brian-semantic 
+		'(;ac-source-semantic 
+		  ;ac-source-semantic-raw
+		  ac-source-brian-semantic 
 		  ac-source-brian-semantic-raw
 		  ac-source-abbrev 
 		  ac-source-dictionary))
@@ -122,5 +125,29 @@ tag in the semantic database and return a formatted docstring."
 
 (my-ac-config)
 (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
+
+;;
+;; readline-complete
+;;
+(setq explicit-shell-file-name "bash")
+(setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
+(setq comint-process-echoes t)
+
+;; ASIDE: if you call ssh from shell directly, add "-t" to
+;; explicit-ssh-args to enable terminal.
+
+(add-to-list 'load-path "~/code/readline-complete.el/")
+(require 'readline-complete)
+
+(add-to-list 'ac-modes 'shell-mode)
+(setq shell-mode-hook nil)
+(add-hook 'shell-mode-hook 
+	  '(lambda ()
+	     (setq comint-preinput-scroll-to-bottom t)
+	     (setq comint-move-point-for-output t)
+	     (setq comint-buffer-maximum-size 5000)
+	     (setq rlc-attempts 30)
+	     (setq rlc-timeout 0.03)
+	     (ac-rlc-setup-sources)))
 
 (provide 'brian-autocomplete)

@@ -1,54 +1,114 @@
-;; (load-library "clang-completion-mode")
-;; (setq c++-mode-hook nil)
-;; (add-hook 'c++-mode-hook (lambda () 
-;; 			   (c-set-style "briancpp")
-;; 			   (define-key 
-;; 			     c++-mode-map 
-;; 			     (kbd "RET") 
-;; 			     'newline-and-indent)))
+(require 'brian-autocomplete)
 
-;; (setq clang-flags 
-      
-;;       (concat "-w " " -ferror-limit" " 1 "
-;; 	      " -I/usr/include/c++/4.7.0"
-;; 	      " -I/usr/include"
-;; 	      " -I/usr/include/c++/4.7.0/i486-linux-gnu/"
-;; 	      " -I/usr/include/c++/4.7.0/backward"
-;; 	      " -I/usr/include/clang/3.1/include/"
-;; 	      " -I/usr/local/include"))
-
-;;(load-library "~")
-(setq ac-dictionary-directories "~/code/auto-complete/dict_brian")
-(add-to-list 'load-path "~/code/auto-complete")
-(require 'auto-complete-config)
-(ac-config-default)
-
-(load-library "ac-clang")
+(load-library "auto-complete-clang")
+(setq ac-clang-executable (executable-find "clang++"))
 (setq ac-clang-flags
       (mapcar (lambda (item)(concat "-I" item))
-              (split-string
-"/usr/include/c++/4.7
- /usr/include/c++/4.7/i486-linux-gnu
- /usr/include/c++/4.7/backward
- /usr/lib/gcc/i486-linux-gnu/4.7/include
+	      (split-string
+	       " /home/Brian/build/gcc-4_7/lib/gcc/i686-pc-cygwin/4.7.1/../../../../include/c++/4.7.1
+ /home/Brian/build/gcc-4_7/lib/gcc/i686-pc-cygwin/4.7.1/../../../../include/c++/4.7.1/i686-pc-cygwin
+ /home/Brian/build/gcc-4_7/lib/gcc/i686-pc-cygwin/4.7.1/../../../../include/c++/4.7.1/backward
+ /home/Brian/build/gcc-4_7/lib/gcc/i686-pc-cygwin/4.7.1/include
  /usr/local/include
- /usr/lib/gcc/i486-linux-gnu/4.7/include-fixed
- /usr/include/i386-linux-gnu
+ /home/Brian/build/gcc-4_7/include
+ /home/Brian/build/gcc-4_7/lib/gcc/i686-pc-cygwin/4.7.1/include-fixed
  /usr/include
-")))
+ /usr/lib/../include/w32api
+ /home/Brian/code/research/sift_opflow
+ /home/Brian/code/research/util
+ /home/Brian/code/research/motion
+"
+	       ;; 	       "/usr/include/c++/4.7
+	       ;; /usr/include/c++/4.7/i486-linux-gnu
+	       ;; /usr/include/c++/4.7/backward
+	       ;; /usr/lib/gcc/i486-linux-gnu/4.7/include
+	       ;; /usr/local/include
+	       ;; /usr/lib/gcc/i486-linux-gnu/4.7/include-fixed
+	       ;; /usr/include/i386-linux-gnu
+	       ;; /usr/include"
+	       )))
 
-(setq ac-auto-start t)
-(setq ac-quick-help-delay 0.5)
-(define-key ac-mode-map  [(control tab)] 'auto-complete)
-(defun my-ac-config ()
-  (setq-default ac-sources '(ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
-  ;;(add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
-  ;; (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
-  ;;(add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-  ;;(add-hook 'css-mode-hook 'ac-css-mode-setup)
-  ;;(add-hook 'auto-complete-mode-hook 'ac-common-setup)
-  (global-auto-complete-mode t))
+(setq ac-clang-flags
+      (mapcar (lambda (item)
+		(concat "-I" item))
+	      (split-string 
+
+	       (let*
+		   ((out (shell-command-to-string "gcc -x c++ -v /dev/null"))
+		    (st (string-match "> search starts here" out))
+		    (se (match-end 0))
+		    (eb (string-match "End of" out)))
+		 (with-temp-buffer
+		   (insert out)
+		   (goto-char se)
+		   (end-of-line)
+		   (forward-char 1)
+		   (let
+		       ((buf (buffer-substring-no-properties (point) eb)))
+		     buf))))))
+;;(setq ac-clang-flags (concat "-std=c++0x " (car ac-clang-flags)))
+;;(add-to-list 'ac-clang-flags "-stdlib=libc++")
+(add-to-list 'ac-clang-flags "-stdlib=c++0x")
+;;(add-to-list 'ac-clang-flags "-U__GXX_EXPERIMENTAL_CXX0X__")
+
+(define-key ac-mode-map (kbd "C-c c") 'ac-complete-clang)
+
+(defvar brian-use-clang nil)
+
+(unless (null brian-use-clang)
+  (setq brian-cedet-loadfile "~/code/cedet/cedet-devel-load.el")
+  (load-file brian-cedet-loadfile)
+
+  (add-to-list 'Info-default-directory-list
+	       (expand-file-name "~/code/cedet/doc/info"))
+
+
+  (global-semantic-decoration-mode t)
+  (global-semantic-highlight-func-mode t)
+  (global-semantic-show-unmatched-syntax-mode t)
+
+  
+
+  (ac-define-source brian-semantic
+    '((available . (or (require 'semantic-ia nil t)
+		       (require 'semantic/ia nil t)))
+      (candidates . (ac-semantic-candidates ac-prefix))
+					;(prefix . c-dot-ref)
+      (requires . 2)
+      (symbol . "m"))))
+
+(defun brian-ac-semantic-candidates (prefix)
+    (with-no-warnings
+      (delete ""            ; semantic sometimes returns an empty string
+	      (mapcar 'semantic-tag-name
+		      (ignore-errors
+			(or (semantic-analyze-possible-completions
+			     (semantic-analyze-current-context))
+			    (senator-find-tag-for-completion prefix)))))))
+
 (defun my-ac-cc-mode-setup ()
-  (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))
-(add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
-(my-ac-config)
+  (setq ac-sources '(ac-source-semantic
+		     ;ac-source-semantic-raw
+		     ;ac-source-brian-semantic
+		     ac-source-yasnippet))
+  (if (null brian-use-clang)
+    (semantic-mode t))
+
+  (define-key ac-completing-map "\t" 'ac-complete)
+
+  (when brian-use-clang
+    (setq ac-sources '(ac-source-clang ac-source-yasnippet))
+
+    ;;(semantic-clang-activate)
+    (setq semantic-clang-binary (executable-find "clang++"))
+    ))
+
+
+
+
+;; (setq ac-use-menu-map nil)
+;; (define-key ac-menu-map "\M-n" 'ac-next)
+;; (define-key ac-menu-map "\M-p" 'ac-previous)
+
+
+(provide 'brian-clang)

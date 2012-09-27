@@ -38,6 +38,17 @@
 (global-set-key (kbd "C-c M") 'maximize-frame-height)
 ;;
 
+;; smoother scrolling - no jumpiness
+(setq scroll-conservatively 1000)
+
+;; ace jump
+(add-to-list 'load-path "~/elisp/foreign/ace-jump-mode")
+(require 'ace-jump-mode)
+(define-key global-map (kbd "C-c p") 'ace-jump-mode)
+(define-key global-map (kbd "C-c l") 'ace-jump-line-mode)
+(define-key global-map (kbd "C-c C-p") 'ace-jump-mode)
+(define-key global-map (kbd "C-c C-l") 'ace-jump-line-mode)
+
 ;; Let X's clipboard play nice with emacs
 (setq x-select-enable-clipboard t)
 
@@ -56,6 +67,19 @@
 (setq ido-auto-merge-work-directories-length -1)
 ;(setq ido-everywhere t)
 (ido-everywhere t)
+
+;; ido with imenu for fast symbol jumping
+(require 'idomenu)
+(global-set-key (kbd "C-c m") 'idomenu)
+
+;; smex for smart M-x using ido
+(add-to-list 'load-path "~/code/smex")
+(require 'smex)
+(smex-initialize)
+(global-set-key (kbd "M-x") 'smex)
+(global-set-key (kbd "M-X") 'smex-major-mode-commands)
+;; This is your old M-x.
+(global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
 ;TODO: (temp) some default tweaking for window sizing
 (add-to-list 'default-frame-alist '(height . 65))

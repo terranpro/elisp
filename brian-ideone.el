@@ -3,7 +3,7 @@
 (setq ideone-user "terranpro")
 (setq ideone-pass "capp1234")
 ;;(setq ideone-pass (read-passwd "IDEone API PW: "))
-(ideone-enable-debug)
+;;(ideone-enable-debug)
 (ideone-init)
 
 ;; (ideone-submission-details "mxV38")

@@ -1,13 +1,17 @@
 (require 'erc)
 (require 'tls)
+(require 'brian-minimal)
 (require 'brian-config)
 (require 'brian-ideone)
+(require 'brian-themes)
 
 (setq erc-user-full-name "assem")
 (setq erc-server-auto-reconnect t)
 
 ;; Limit buffer size (defaults to 30k chars)
 (erc-truncate-mode)
+(setq erc-input-line-position -2)
+(setq scroll-conservatively 1000)
 
 (defun brian-irc ()
   (interactive)
@@ -184,3 +188,10 @@ If STRING is nil, the function does nothing."
      (goto-char (point-max))
      (widen)
      (recenter erc-input-line-position)))
+
+
+;; Miscellaneous settings
+(setq erc-kill-buffer-on-part t)
+(setq erc-hide-list '("JOIN" "PART" "QUIT"))
+
+(provide 'brian-erc)

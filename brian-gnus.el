@@ -1,7 +1,9 @@
 ;; Gnus Mail and News Reader
 (setq load-path (cons (expand-file-name "~/code/gnus/lisp") load-path))
 (require 'gnus-load)
+(require 'brian-minimal)
 (require 'brian-config)
+(require 'brian-themes)
 
 (if (featurep 'xemacs)
     (add-to-list 'Info-directory-list "~/code/gnus/texi/")

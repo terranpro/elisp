@@ -10,14 +10,6 @@
 	       'global-semantic-idle-completions-mode t)
 
 (global-ede-mode 1)
-(setq srecode-map-save-file "~/elisp/srecode/srecode-map")
-;;(global-srecode-minor-mode 1)
-(add-to-list 'srecode-map-load-path "~/elisp/srecode/")
-
-;; (setq srecode-map-load-path 
-;;       (list "~/.srecode"
-;; 	    "~/code/cedet-newtrunk/etc/srecode"))
-
  
 ;;(semantic-load-enable-minimum-features)
 ;;(semantic-load-enable-code-helpers)
@@ -60,6 +52,7 @@
 	       buf)))))
 
 (require 'brian-cedet-includes)
+(require 'brian-srecode)
 
 (setq semantic-complete-inline-analyzer-displayor-class
       'semantic-displayor-tooltip)
@@ -170,34 +163,5 @@
 ;;                    (cons "/usr/local/include/opencv2/imgproc/types_c.h"
 ;;                      semantic-lex-c-preprocessor-symbol-file)))))
 
-(defun brian-srecode-projname-replace-and-comment (str)
-  (let* ((dict srecode-inserter-variable-current-dictionary)
-	 (projname (srecode-dictionary-lookup-name dict "PROJECTNAME"))
-	 (cs (or (and dict
-		      (srecode-dictionary-lookup-name dict "comment_prefix"))
-		 (and comment-multi-line comment-continue)
-		 (and (not comment-multi-line) comment-start)))
-	 (strs (split-string str "\n"))
-	 (newstr "")
-	 )
-    (while strs
-      (cond ((and (not comment-multi-line) (string= (car strs) ""))
-	     )
-	    (t
-	     (setq newstr (concat newstr cs " " (car strs)))))
-      (setq strs (cdr strs))
-      (when strs (setq newstr (concat newstr "\n"))))
-
-    (setq newstr (replace-regexp-in-string "{{PROJECTNAME}}" 
-					   projname 
-					   newstr
-					   t))
-    newstr))
-
-(defun brian-srecode-string-killer (str)
-  "")
-
-
-;;(define-key srecode-mode-map (kbd "C-c / U") 'srecode-map-update-map)
 
 (provide 'brian-cedet)

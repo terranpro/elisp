@@ -8,20 +8,12 @@
 (require 'ob-ditaa)
 (require 'ob-plantuml)
 (require 'org-drill)
+(require 'assoc)
 
-;; org-drill customizations
-(setq org-drill-hide-item-headings-p t)
-
-(setq org-drill-maximum-items-per-session 40)
-(setq org-drill-maximum-duration 30)   ; 30 minutes
-
-(setq org-drill-save-buffers-after-drill-sessions-p nil)
-
-(setq org-drill-spaced-repetition-algorithm 'simple8)
-
-(setq org-drill-add-random-noise-to-intervals-p t)
-
-(setq org-drill-adjust-intervals-for-early-and-late-repetitions-p t)
+;; indents and folding
+(setq org-startup-folded 'showall)
+(setq org-startup-indented 'indent)
+(setq org-startup-with-inline-images t)
 
 ;; org-babel setup
 (setq org-confirm-babel-evaluate nil)
@@ -89,3 +81,67 @@
 			   "#+LABEL: fig:?\n"
 			   "#+ATTR_LATEX: placement=[H]\n"
 			   "[[./images/?]]")))
+
+
+;; org protocol and drill!
+(require 'org-protocol)
+(require 'org-drill)
+
+(setq org-capture-templates
+      (quote
+       (("w"
+         "Default template"
+         entry
+         (file+headline "~/elisp/org/capture.org" "Notes")
+         "* %^{Title}\n\n  Source: %u, %c\n\n  %i"
+         :empty-lines 1)
+        ;; ... more templates here ...
+        )))
+
+
+(setq org-capture-templates
+       `(("u"
+         "Task: Read this URL"
+         entry
+         (file+headline "~/elisp/org/inc-reading.org" "Articles To Read")
+         ,(concat "* TODO Read article: '%:description'\nURL: %c\n\n")
+         :empty-lines 1
+         :immediate-finish t)
+
+	 ("k"
+         "Korean Language Study"
+         entry
+         (file+headline "~/elisp/org/drill/korean/korean.org" "Inbox")
+         ,(concat "* Fact: '%^{prompt|Question|%i}'        :"
+                  (format "%s" org-drill-question-tag)
+                  ":\n:PROPERTIES:\n:DATE_ADDED: %u\n:SOURCE_URL: %c\n"
+		  ":END:\n\n%\\1\n%?\n"
+		  "** Response\n%^{Response|%i}")
+         :empty-lines 1
+	 :immediate-finish t)
+
+        ("w"
+         "Capture web snippet"
+         entry
+         (file+headline "~/elisp/org/drill/my-facts.org" "Inbox")
+         ,(concat "* Fact: '%:description'        :"
+                  (format "%s" org-drill-question-tag)
+                  ":\n:PROPERTIES:\n:DATE_ADDED: %u\n:SOURCE_URL: %c\n:END:\n\n%i\n%?\n")
+         :empty-lines 1
+         :immediate-finish t)
+        ;; ...other capture templates...
+    ))
+
+;; account for lumpiness: periods of nothing followed by adding lots
+;; of facts at one time)
+(setq org-drill-add-random-noise-to-intervals-p t)
+(setq org-drill-adjust-intervals-for-early-and-late-repetitions-p t)
+(setq org-drill-hide-item-headings-p t)
+;; org-drill customizations
+
+(setq org-drill-maximum-items-per-session 40)
+(setq org-drill-maximum-duration 30)   ; 30 minutes
+(setq org-drill-save-buffers-after-drill-sessions-p nil)
+(setq org-drill-spaced-repetition-algorithm 'simple8)
+
+(provide 'brian-org)
