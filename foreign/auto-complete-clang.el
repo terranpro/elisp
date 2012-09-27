@@ -98,6 +98,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
 (defconst ac-clang-error-buffer-name "*clang error*")
 
 (defun ac-clang-parse-output (prefix)
+  ;(message (format "Output: %s" (buffer-substring-no-properties (point-min) (point-max))))
   (goto-char (point-min))
   (let ((pattern (format ac-clang-completion-pattern
                          (regexp-quote prefix)))
@@ -105,6 +106,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
         (prev-match ""))
     (while (re-search-forward pattern nil t)
       (setq match (match-string-no-properties 1))
+      (pp (match-string-no-properties))
       (unless (string= "Pattern" match)
         (setq detailed_info (match-string-no-properties 2))
       
@@ -122,9 +124,9 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
           (setq prev-match match)
           (when detailed_info
             (setq match (propertize match 'ac-clang-help detailed_info)))
-          (push match lines))))    
+          (push match lines)))
+      )    
     lines))
-
 
 (defun ac-clang-handle-error (res args)
   (goto-char (point-min))
@@ -148,6 +150,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
         (setq buffer-read-only t)
         (goto-char (point-min))))))
 
+;; Original
 (defun ac-clang-call-process (prefix &rest args)
   (let ((buf (get-buffer-create "*clang-output*"))
         res)
@@ -162,6 +165,51 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
       ;; Still try to get any useful input.
       (ac-clang-parse-output prefix))))
 
+;; Brian Mods
+(defun brian-ac-clang-completion-sentinel (proc event)
+  (message (format "Process %s had event %s" proc event)))
+
+(defun brian-ac-clang-completion-stash-filter (proc string)
+  (setq clang-result-string (concat clang-result-string string)))
+
+(defun brian-ac-clang-call-process (prefix &rest args)
+  (let* ((clang-pname "ClangCC")
+	 (clang-buffer (generate-new-buffer-name 
+			(concat clang-pname " for " (buffer-name))))
+	 (clang-cmd (append (list  clang-pname
+				   clang-buffer
+				   ac-clang-executable)
+				   (car args)
+				   (cdr args)))
+	 (clang-proc (apply 'start-process
+			    (append (list  clang-pname
+					   clang-buffer
+					   ac-clang-executable)
+				   (car args)
+				   (cdr args))))
+	 (code (buffer-substring-no-properties (point-min)
+					       (point-max)))
+	 (clang-result )
+	 )
+    ;(set-process-sentinel clang-proc 'brian-ac-clang-completion-sentinel)
+    (process-send-string clang-proc code)
+    ;(accept-process-output clang-proc 0.5e0 nil t)
+    (sit-for 1)
+    (process-send-eof clang-proc)
+    (message (format "Using cmd: %s" clang-cmd))
+    ;;(message (format "Sending code:\n%s" code))
+    
+    (setq clang-result (process-exit-status clang-proc))
+    ;;(interrupt-process clang-proc)
+    (with-current-buffer (process-buffer clang-proc)
+      ;(message (format "Result: %s" clang-result))
+      (unless (not (null clang-result))
+	(ac-clang-handle-error clang-result (car args))
+	)
+      (ac-clang-parse-output prefix))))
+
+;; (defun ac-clang-call-process (prefix &rest args)
+;;   (brian-ac-clang-call-process prefix args))
 
 (defsubst ac-clang-build-location (pos)
   (save-excursion
@@ -232,6 +280,7 @@ This variable will typically contain include paths, e.g., ( \"-I~/MyProject\", \
          (basic-save-buffer))
     (save-restriction
       (widen)
+      ;;(message (format "%s" (ac-clang-build-complete-args (- (point) (length ac-prefix)))))
       (apply 'ac-clang-call-process
              ac-prefix
              (ac-clang-build-complete-args (- (point) (length ac-prefix)))))))
