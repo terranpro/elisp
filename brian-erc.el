@@ -189,7 +189,6 @@ If STRING is nil, the function does nothing."
      (widen)
      (recenter erc-input-line-position)))
 
-
 ;; Miscellaneous settings
 (setq erc-kill-buffer-on-part t)
 (setq erc-hide-list '("JOIN" "PART" "QUIT"))

@@ -175,3 +175,5 @@
 ;; 		  '("BatangChe" . "unicode-bmp"))
 ;; (set-fontset-font "fontset-default" '(#xe0bc . #xf66e)
 ;; 		  '("BatangChe" . "unicode-bmp"))
+
+(provide 'brian-gnus)

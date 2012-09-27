@@ -88,14 +88,14 @@ tag in the semantic database and return a formatted docstring."
     (document . brian-ac-semantic-document)
     (prefix . c-dot-ref)
     (requires . 0)
-    (symbol . "bm")))
+    (symbol . "m")))
 
 (ac-define-source brian-semantic-raw
   '((available . (or (require 'semantic-ia nil t)
                      (require 'semantic/ia nil t)))
     (candidates . (ac-semantic-candidates ac-prefix))
     (document . brian-ac-semantic-document)
-    (symbol . "bs")))
+    (symbol . "s")))
 
 (defun my-ac-cc-mode-setup ()
   (setq ac-sources '(;ac-source-semantic
