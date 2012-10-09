@@ -1,0 +1,6 @@
+[submodule "foreign/magit"]
+	path = foreign/magit
+	url = https://github.com/magit/magit.git
+[submodule "foreign/auto-complete"]
+	path = foreign/auto-complete
+	url = https://github.com/auto-complete/auto-complete.git

@@ -73,5 +73,21 @@
 (setq semantic-lex-c-preprocessor-symbol-file 
       '("/home/Brian/build/gcc-4_7/include/c++/4.7.1/i686-pc-cygwin/bits/c++config.h"))
  
+;; (add-to-list 'semantic-lex-c-preprocessor-symbol-file
+;; 	     '"/usr/include/elementary-0/Elementary.h")
 
+(semantic-add-system-include "/usr/include/ecore-1" 'c-mode)
+(semantic-add-system-include "/usr/include/eina-1" 'c-mode)
+(semantic-add-system-include "/usr/include/eina-1/eina" 'c-mode)
+(semantic-add-system-include "/usr/include/elementary-0" 'c-mode)
+(semantic-add-system-include "/usr/include/evas-1" 'c-mode)
+
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map 
+	     '("EINA_PURE" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map 
+	     '("EINA_ARG_NONNULL" . ""))
+(add-to-list 'semantic-lex-c-preprocessor-symbol-map 
+	     '("EINA_WARN_UNUSED_RESULT" . ""))
+
+(message "*** Includes Loaded ***")
 (provide 'brian-cedet-includes)

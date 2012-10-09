@@ -2,7 +2,7 @@
 ;; Contains my personal configuration for CEDET
 
 (require 'brian-cedet-minimal)
-
+(require 'brian-cedet-includes)
 (require 'ede)
 (require 'semantic)
 

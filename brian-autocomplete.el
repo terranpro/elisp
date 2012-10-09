@@ -2,10 +2,12 @@
 (require 'brian-cedet-includes)
 
 ;; Auto Complete w/ Clang!
-(setq ac-dictionary-directories "~/code/auto-complete/dict_brian")
-(add-to-list 'load-path "~/code/auto-complete")
+(setq ac-dictionary-directories "~/elisp/foreign/auto-complete/dict_brian")
+(add-to-list 'load-path "~/elisp/foreign/auto-complete")
+(add-to-list 'load-path "~/elisp/foreign/auto-complete/lib/popup")
+(add-to-list 'load-path "~/elisp/foreign/auto-complete/lib/fuzzy")
 (add-to-list 'Info-default-directory-list
-	     (expand-file-name "~/code/auto-complete/doc"))
+	     (expand-file-name "~/elisp/foreign/auto-complete/doc"))
 
 (require 'auto-complete-config)
 (ac-config-default)
@@ -24,6 +26,9 @@
 (define-key ac-mode-map  [(control tab)] 'auto-complete)
 (define-key ac-mode-map [(control return)] 'ac-fuzzy-complete)
 (define-key ac-mode-map (kbd "C-c h") 'ac-last-quick-help)
+(define-key ac-mode-map (kbd "C-c h") '(lambda ()
+					 (interactive)
+					 (ac-persist-help)))
 (define-key ac-mode-map (kbd "C-c H") 'ac-last-help)
 
 (define-key ac-complete-mode-map (kbd "M-n") 'ac-next)
@@ -98,10 +103,11 @@ tag in the semantic database and return a formatted docstring."
     (symbol . "s")))
 
 (defun my-ac-cc-mode-setup ()
-  (setq ac-sources '(;ac-source-semantic
-		     ;ac-source-semantic-raw
-		     ac-source-brian-semantic
-		     ac-source-brian-semantic-raw
+  (setq ac-sources '(
+		     ac-source-semantic
+		     ac-source-semantic-raw
+		     ;ac-source-brian-semantic
+		     ;ac-source-brian-semantic-raw
 		     ac-source-yasnippet))
 
   (semantic-mode t)
@@ -110,10 +116,11 @@ tag in the semantic database and return a formatted docstring."
 
 (defun my-ac-config ()
   (setq-default ac-sources 
-		'(;ac-source-semantic 
-		  ;ac-source-semantic-raw
-		  ac-source-brian-semantic 
-		  ac-source-brian-semantic-raw
+		'(
+		  ac-source-semantic 
+		  ac-source-semantic-raw
+		  ;ac-source-brian-semantic 
+		  ;ac-source-brian-semantic-raw
 		  ac-source-abbrev 
 		  ac-source-dictionary))
   ;;(add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
@@ -136,7 +143,7 @@ tag in the semantic database and return a formatted docstring."
 ;; ASIDE: if you call ssh from shell directly, add "-t" to
 ;; explicit-ssh-args to enable terminal.
 
-(add-to-list 'load-path "~/code/readline-complete.el/")
+(add-to-list 'load-path "~/elisp/foreign/readline-complete.el/")
 (require 'readline-complete)
 
 (add-to-list 'ac-modes 'shell-mode)

@@ -35,7 +35,7 @@
 (global-set-key "\C-\M-^" 'enlarge-frame-height)
 (global-set-key (kbd "C-M-}") 'enlarge-frame-width)
 (global-set-key (kbd "C-M-{") 'shrink-frame-width)
-(global-set-key (kbd "C-c M") 'maximize-frame-height)
+;;(global-set-key (kbd "C-c M") 'maximize-frame-height)
 ;;
 
 ;; smoother scrolling - no jumpiness
@@ -44,9 +44,9 @@
 ;; ace jump
 (add-to-list 'load-path "~/elisp/foreign/ace-jump-mode")
 (require 'ace-jump-mode)
-(define-key global-map (kbd "C-c p") 'ace-jump-mode)
+(define-key global-map (kbd "C-c c") 'ace-jump-char-mode)
 (define-key global-map (kbd "C-c l") 'ace-jump-line-mode)
-(define-key global-map (kbd "C-c C-p") 'ace-jump-mode)
+(define-key global-map (kbd "C-c w") 'ace-jump-mode)
 (define-key global-map (kbd "C-c C-l") 'ace-jump-line-mode)
 
 ;; Let X's clipboard play nice with emacs
@@ -73,7 +73,7 @@
 (global-set-key (kbd "C-c m") 'idomenu)
 
 ;; smex for smart M-x using ido
-(add-to-list 'load-path "~/code/smex")
+(add-to-list 'load-path "~/elisp/foreign/smex")
 (require 'smex)
 (smex-initialize)
 (global-set-key (kbd "M-x") 'smex)
@@ -88,7 +88,7 @@
 ; Emacs24 default font on one of my debian sids was 
 ; fucking stupid huge; so put this so the default font is 
 ; size 10pt.
-(set-face-attribute 'default nil :height 90)
+(set-face-attribute 'default nil :height 105)
 ;(set-face-attribute 'default nil :font "")
 
 ; Hotkey for compiling like in other IDEs

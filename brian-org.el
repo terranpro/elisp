@@ -1,6 +1,11 @@
 ;;; org-mode dev version
-(setq load-path (cons "~/code/org-mode/lisp" load-path))
-(setq load-path (cons "~/code/org-mode/contrib/lisp" load-path))
+(setq load-path (cons "~/elisp/foreign/org-mode/lisp" load-path))
+(setq load-path (cons "~/elisp/foreign/org-mode/contrib/lisp" load-path))
+
+;; org-mode Info directory
+(add-to-list 'Info-default-directory-list
+             (expand-file-name "~/elisp/foreign/org-mode/doc"))
+
 (require 'org-install)
 (require 'org-latex)
 (require 'org-habit)
@@ -62,8 +67,12 @@
 
 ;;(add-to-list 'org-export-latex-packages-alist '("" "listings")
 ;; (add-to-list 'org-export-latex-packages-alist '("" "color"))
-(setq org-export-latex-listings 'minted)
-(add-to-list 'org-export-latex-packages-alist '("" "minted"))
+;; (setq org-export-latex-listings 'minted)
+;; (add-to-list 'org-export-latex-packages-alist '("" "minted"))
+
+;; TODO: Temporarily dont include minted until i fix install on
+;; ubuntu12.04
+(setq org-export-latex-packages-alist nil)
 (setq org-src-fontify-natively t)
 
 ;; Org mode timestampage!
