@@ -4,3 +4,9 @@
 [submodule "foreign/auto-complete"]
 	path = foreign/auto-complete
 	url = https://github.com/auto-complete/auto-complete.git
+[submodule "foreign/ace-jump-mode"]
+	path = foreign/ace-jump-mode
+	url = https://github.com/winterTTr/ace-jump-mode.git
+[submodule "foreign/cedet"]
+	path = foreign/cedet
+	url = https://git.randomsample.de/cedet.git
