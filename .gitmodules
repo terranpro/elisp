@@ -7,6 +7,15 @@
 [submodule "foreign/ace-jump-mode"]
 	path = foreign/ace-jump-mode
 	url = https://github.com/winterTTr/ace-jump-mode.git
+[submodule "foreign/smex"]
+	path = foreign/smex
+	url = https://github.com/nonsequitur/smex.git
+[submodule "foreign/readline-complete.el"]
+	path = foreign/readline-complete.el
+	url = https://github.com/monsanto/readline-complete.el.git
+[submodule "foreign/org-mode"]
+	path = foreign/org-mode
+	url = git://orgmode.org/org-mode.git
 [submodule "foreign/cedet"]
 	path = foreign/cedet
-	url = https://git.randomsample.de/cedet.git
+	url = https://github.com/emacsmirror/cedet.git
