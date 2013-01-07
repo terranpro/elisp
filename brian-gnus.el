@@ -1,5 +1,5 @@
 ;; Gnus Mail and News Reader
-(setq load-path (cons (expand-file-name "~/code/gnus/lisp") load-path))
+(setq load-path (cons (expand-file-name "~/elisp/foreign/gnus/lisp") load-path))
 (require 'gnus-load)
 (require 'brian-minimal)
 (require 'brian-config)
@@ -9,27 +9,37 @@
     (add-to-list 'Info-directory-list "~/code/gnus/texi/")
   (add-to-list 'Info-default-directory-list "~/code/gnus/texi/"))
 
+(setq gnus-select-method '(nntp ""))
 
-(setq gnus-select-method 
-      '(nnimap "capp.snu.ac.kr"
-	       (nnimap-address "capp.snu.ac.kr")
-	       (nnimap-stream network)
-	       (nnimap-streaming t))	; no special config
-)
+;; (setq gnus-select-method 
+;;       '(nnimap "capp.snu.ac.kr"
+;; 	       (nnimap-address "capp.snu.ac.kr")
+;; 	       (nnimap-stream network)
+;; 	       (nnimap-streaming t))	; no special config
+;; )
 
-(setq gnus-secondary-select-methods
-      '((nnimap "assem-gmail"
-	       (nnimap-address "imap.gmail.com")
-	       (nnimap-server-port 993)
-	       (nnimap-stream ssl))
+(setq mail-sources
 
-	(nnimap "terranpro-gmail"
-	       (nnimap-address "imap.gmail.com")
-	       (nnimap-server-port 993)
-	       (nnimap-stream ssl))
+      '((pop
+	 :user "br.fransioli"
+	 :server "pop3.samsung.com"
+	 )))
 
-;;	(nntp "nntp.aioe.org")
-	))
+(setq gnus-secondary-select-methods '((nnml "")))
+
+;; (setq gnus-secondary-select-methods
+;;       '((nnimap "assem-gmail"
+;; 	       (nnimap-address "imap.gmail.com")
+;; 	       (nnimap-server-port 993)
+;; 	       (nnimap-stream ssl))
+
+;; 	(nnimap "terranpro-gmail"
+;; 	       (nnimap-address "imap.gmail.com")
+;; 	       (nnimap-server-port 993)
+;; 	       (nnimap-stream ssl))
+
+;; ;;	(nntp "nntp.aioe.org")
+;; 	))
 
 (setq gnus-posting-styles
       '(((header "to" "assem@terranpro.org")
@@ -93,35 +103,39 @@
 
 (setq gnus-agent-max-fetch-size 10000000)
 
-; w3m-el
-(setq load-path (cons (expand-file-name "~/code/emacs-w3m") load-path))
 
-(if (featurep 'xemacs)
-    (add-to-list 'Info-directory-list (expand-file-name "~/code/emacs-w3m/doc"))
-  (add-to-list 'Info-default-directory-list 
-	       (expand-file-name "~/code/emacs-w3m/doc")))
+;; TEMP DISABLE~
+;; ; w3m-el
+;; (setq load-path (cons (expand-file-name "~/code/emacs-w3m") load-path))
 
-;; (setq Info-directory-list (append '("/home/terranpro/code/emacs-w3m/doc") 
-;; 				  Info-directory-list))
-;; (setq Info-directory-list (append  Info-directory-list
-;; 				   '("/home/terranpro/code/emacs-w3m/doc")))
+;; (if (featurep 'xemacs)
+;;     (add-to-list 'Info-directory-list (expand-file-name "~/code/emacs-w3m/doc"))
+;;   (add-to-list 'Info-default-directory-list 
+;; 	       (expand-file-name "~/code/emacs-w3m/doc")))
 
-(require 'w3m-load)
-;(require 'mime-w3m)
-(setq mm-text-html-renderer 'w3m)
-(setq mm-inline-text-html-with-images t)
-(setq mm-w3m-safe-url-regexp nil)
+;; ;; (setq Info-directory-list (append '("/home/terranpro/code/emacs-w3m/doc") 
+;; ;; 				  Info-directory-list))
+;; ;; (setq Info-directory-list (append  Info-directory-list
+;; ;; 				   '("/home/terranpro/code/emacs-w3m/doc")))
 
-;; BBDB
-(require 'bbdb-loaddefs "~/code/bbdb/lisp/bbdb-loaddefs.el")
-(if (featurep 'xemacs)
-    (add-to-list 'Info-directory-list "~/bbdb/doc/")
-  (add-to-list 'Info-default-directory-list "~/code/bbdb/doc/"))
+;; (require 'w3m-load)
+;; ;(require 'mime-w3m)
+;; (setq mm-text-html-renderer 'w3m)
+;; (setq mm-inline-text-html-with-images t)
+;; (setq mm-w3m-safe-url-regexp nil)
+
+;; ;; BBDB
+;; (require 'bbdb-loaddefs "~/code/bbdb/lisp/bbdb-loaddefs.el")
+;; (if (featurep 'xemacs)
+;;     (add-to-list 'Info-directory-list "~/bbdb/doc/")
+;;   (add-to-list 'Info-default-directory-list "~/code/bbdb/doc/"))
 
  	
-(require 'bbdb)
-(bbdb-initialize)
-(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+;; (require 'bbdb)
+;; (bbdb-initialize)
+;; (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+
+
 
 ;; TESTING
 (setq-default

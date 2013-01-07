@@ -49,6 +49,10 @@
 (define-key global-map (kbd "C-c w") 'ace-jump-mode)
 (define-key global-map (kbd "C-c C-l") 'ace-jump-line-mode)
 
+;; after ace jump 1.0, they added a scope feature
+;; it's still buggy in global mode
+(setq ace-jump-mode-scope 'frame)
+
 ;; Let X's clipboard play nice with emacs
 (setq x-select-enable-clipboard t)
 
@@ -117,6 +121,18 @@
 (defalias 'yes-or-no-p 'y-or-n-p) ; y or n is enough
 (defalias 'list-buffers 'ibuffer) ; always use ibuffer
 
+;; winner mode
+(require 'winner)
+(winner-mode t)
+
+;; hide compile window on successful compile
+(setq compilation-finish-functions 'brian-compile-finish)
+(defun brian-compile-finish (buffer outstr)
+  (cond ((string-match "finished" outstr)
+	 (winner-undo))
+	((t)))
+    (message "Finished!"))
+
 ;; StackOverflow Answer for Question:
 ;; Nice Work Brian ! :)
 ;; http://tinyurl.com/7epdvlz
@@ -128,22 +144,111 @@
 	  (t
 	   nil))))
 
+
+
+;; Check if the line with the < contains any other
+;; definitions/types, if so, base lineup of subsequent lines
+;; on the starting column position of the type; 
+
+;; e.g. template<    class X
+;; lineup here:      ^
+
+;; otherwise, add a c-basic-offset to the previous indentation
+;; this is useful for something like:
+;; template<
+;; ,,class T
+;; ...
+;; example where c-basic-offset=2
+	  
+(defvar brian-c-lineup-template-closebracket 'under 
+  "Control the indentation of the closing template bracket, >.
+Possible values and consequences:
+'under : Align directly under (same column) the opening bracket.
+t      : Align at the beginning of the line (or current indentation level.
+nil    : Align at the same column of previous types (e.g. col of class T).")
+
+(defun brian-c-lineup-template--closebracket-p ()
+  "Return t if the line contains only a template close bracket, >."
+  (save-excursion 
+    (beginning-of-line)
+    ;; Check if this line is empty except for the trailing bracket, >
+    (looking-at (rx (zero-or-more blank)
+		    ">"
+		    (zero-or-more blank)))))
+
+(defun brian-c-lineup-template--pos-to-col (pos)
+  (save-excursion
+    (goto-char pos)
+    (current-column)))
+
+(defun brian-c-lineup-template--calc-open-bracket-pos (langelem)
+  "Calculate the column position of a template declaration opening bracket."
+  (save-excursion 
+    (c-with-syntax-table c++-template-syntax-table
+      (goto-char (c-langelem-pos langelem))
+      (1- (re-search-forward "<" (point-max) 'move)))))
+
+(defun brian-c-lineup-template--calc-indent-offset (ob-pos)
+  "Calculate the indentation offset for lining up types given the
+opening bracket position, OB-POS."
+  (save-excursion
+    (c-with-syntax-table c++-template-syntax-table
+      (goto-char (1+ ob-pos))
+      (cond ((re-search-forward (rx 
+				 (or "class"
+				     "typename"
+				     (one-or-more (not blank))))
+				(c-point 'eol)
+				'move)
+	     (goto-char (match-beginning 0))
+	     (current-column))
+	    (t
+	     (back-to-indentation)
+	     (+ c-basic-offset (current-column)))))))
+
+(defun brian-c-lineup-template-args (langelem)
+  "Align template arguments and the closing bracket in a semi-custom manner."
+  (let* ((ob-pos (brian-c-lineup-template--calc-open-bracket-pos langelem))
+	 (ob-col (brian-c-lineup-template--pos-to-col ob-pos))
+	 (offset (brian-c-lineup-template--calc-indent-offset ob-pos)))
+
+    ;; Optional check for a line consisting of only a closebracket and
+    ;; line it up either at the start of indentation, or underneath the
+    ;; column of the opening bracket
+    (message (format "%d %d %d" ob-pos ob-col offset))
+    (cond ((and brian-c-lineup-template-closebracket
+		  (brian-c-lineup-template--closebracket-p))
+	     (cond ((eq brian-c-lineup-template-closebracket 'under)
+		    (vector ob-col))
+		   (t
+		    0)))
+	    (t
+	     (vector offset)))))
+(setq brian-c-lineup-template-closebracket 'under)
 ;; Customs for C and C++ Programming styles I like
 (c-add-style 
  "briancpp" '((c-basic-offset . 2)
-	    (c-comment-only-line-offset . 0)
-	    (c-offsets-alist
-	     (comment-intro . brian-comment-offset)
-	     (defun-open . 0)
-	     (defun-close . 0)
-	     (statement-block-intro . +)
-	     (substatement-open . 0)
-	     (substatement-label . 0)
-	     (label . 0)
-	     (statement-cont . +)
-	     (inline-open . 0)
-	     (inline-close . 0)
-	     (innamespace . 0))))
+	      (c-comment-only-line-offset . 0)
+	      (c-cleanup-list . (brace-else-brace
+				 brace-elseif-brace
+				 brace-catch-brace
+				 empty-defun-braces
+				 space-before-funcall))
+	      (c-offsets-alist
+	       (comment-intro . brian-comment-offset)
+	       (defun-open . 0)
+	       (defun-close . 0)
+	       (arglist-close . c-lineup-arglist-close-under-paren)
+	       (arglist-cont-nonempty . c-lineup-arglist)
+	       (template-args-cont . brian-c-lineup-template-args)
+	       (statement-block-intro . +)
+	       (substatement-open . 0)
+	       (substatement-label . 0)
+	       (label . 0)
+	       (statement-cont . +)
+	       (inline-open . 0)
+	       (inline-close . 0)
+	       (innamespace . 0))))
 
 (add-hook 'c++-mode-hook (lambda () 
 			   (c-set-style "briancpp")
@@ -151,6 +256,7 @@
 			     c++-mode-map 
 			     (kbd "RET") 
 			     'newline-and-indent)))
+
 
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)

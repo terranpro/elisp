@@ -6,7 +6,8 @@
 (add-to-list 'Info-default-directory-list
              (expand-file-name "~/elisp/foreign/org-mode/doc"))
 
-(require 'org-install)
+;(require 'org-install)
+(require 'org)
 (require 'org-latex)
 (require 'org-habit)
 (require 'ob)
