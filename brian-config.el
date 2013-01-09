@@ -215,7 +215,7 @@ opening bracket position, OB-POS."
     ;; Optional check for a line consisting of only a closebracket and
     ;; line it up either at the start of indentation, or underneath the
     ;; column of the opening bracket
-    (message (format "%d %d %d" ob-pos ob-col offset))
+    ;;(message (format "%d %d %d" ob-pos ob-col offset))
     (cond ((and brian-c-lineup-template-closebracket
 		  (brian-c-lineup-template--closebracket-p))
 	     (cond ((eq brian-c-lineup-template-closebracket 'under)
@@ -224,7 +224,7 @@ opening bracket position, OB-POS."
 		    0)))
 	    (t
 	     (vector offset)))))
-(setq brian-c-lineup-template-closebracket 'under)
+
 ;; Customs for C and C++ Programming styles I like
 (c-add-style 
  "briancpp" '((c-basic-offset . 2)

@@ -17,22 +17,22 @@
 (setq ac-delay 0.25)
 (setq ac-auto-start 2)
 (setq ac-use-quick-help t)
-(setq ac-quick-help-delay 1.0)
+(setq ac-quick-help-delay 0.5)
 (setq ac-auto-show-menu 0.25)
-(setq ac-menu-height 20)
+(setq ac-menu-height 30)
 (setq ac-fuzzy-enable t)
 
 ;; Key Bindings
 (define-key ac-mode-map  [(control tab)] 'auto-complete)
 (define-key ac-mode-map [(control return)] 'ac-fuzzy-complete)
 (define-key ac-mode-map (kbd "C-c h") 'ac-last-quick-help)
-(define-key ac-mode-map (kbd "C-c h") '(lambda ()
+(define-key ac-mode-map (kbd "C-c H") '(lambda ()
 					 (interactive)
-					 (ac-persist-help)))
-(define-key ac-mode-map (kbd "C-c H") 'ac-last-help)
+					 (ac-last-help t)))
 
 (define-key ac-complete-mode-map (kbd "M-n") 'ac-next)
 (define-key ac-complete-mode-map (kbd "M-p") 'ac-previous)
+(define-key ac-complete-mode-map (kbd "C-s") 'ac-isearch)
 
 (define-key ac-completing-map (kbd "M-n") 'ac-next)
 (define-key ac-completing-map (kbd "M-p") 'ac-previous)
