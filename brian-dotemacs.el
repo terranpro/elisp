@@ -5,8 +5,9 @@
 (add-to-list 'load-path "~/elisp/foreign")
 
 (require 'brian-config)
-(require 'brian-autocomplete)
-;;(require 'brian-cedet)
+;;(require 'brian-autocomplete)
+(require 'brian-cedet)
+;;(require 'brian-tizen)
 ;;(require 'brian-clang)
 ;;(require 'brian-gnus)
 (require 'brian-paredit)
@@ -16,6 +17,7 @@
 (require 'brian-cmake)
 ;;(require 'brian-ideone)
 (require 'brian-themes)
+(require 'brian-magit)
 
 ;;; tramp 
 (setq tramp-default-method "scpc")

@@ -109,6 +109,20 @@
 ;; Turn off that stupid startup screen
 (setq inhibit-startup-screen t)
 
+;; Destroy emacs server gracefully
+(defun shutdown-emacs-server () 
+  (interactive)
+  (when (not (eq window-system 'x))
+    (message "Initializing x windows system.")
+    (x-initialize-window-system)
+    (when (not x-display-name) 
+      (setq x-display-name (getenv "DISPLAY")))
+    (select-frame 
+     (make-frame-on-display x-display-name '((window-system . x)))))
+  (let ((last-nonmenu-event nil)
+	(window-system "x"))
+    (save-buffers-kill-emacs)))
+
 ;; dired find file in new frame
 (require 'dired)
 (defun brian-dired-find-file-other-frame ()
