@@ -5,7 +5,7 @@
 (add-to-list 'load-path "~/elisp/foreign")
 
 (require 'brian-config)
-;;(require 'brian-autocomplete)
+(require 'brian-autocomplete)
 (require 'brian-cedet)
 ;;(require 'brian-tizen)
 ;;(require 'brian-clang)

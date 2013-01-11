@@ -2,7 +2,11 @@
 ;; error, incase other files do (require 'brian-cedet)
 (add-to-list 'load-path "~/elisp/foreign/cedet/")
 (require 'cedet-devel-load)
-(require 'semantic)
+;;(require 'semantic)
+(semantic-mode t)
+
+(require 'semantic/ia)
+(require 'semantic/bovine/gcc)
 
 (add-to-list 'Info-default-directory-list
 		 (expand-file-name "~/elisp/foreign/cedet-newtrunk/doc/info"))

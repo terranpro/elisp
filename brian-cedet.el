@@ -4,16 +4,16 @@
 (require 'brian-cedet-minimal)
 (require 'brian-cedet-includes)
 (require 'ede)
-(require 'semantic)
+;;(require 'semantic)
 
-(add-to-list 'semantic-default-submodes 
-	       'global-semantic-idle-completions-mode t)
+;; (add-to-list 'semantic-default-submodes 
+;; 	       'global-semantic-idle-completions-mode t)
 
 (global-ede-mode 1)
- 
+
 ;;(semantic-load-enable-minimum-features)
 ;;(semantic-load-enable-code-helpers)
-(semantic-load-enable-gaudy-code-helpers)
+;;(semantic-load-enable-gaudy-code-helpers)
 ;;(semantic-load-enable-excessive-code-helpers)
 ;;(semantic-load-enable-semantic-debugging-helpers)
 
@@ -34,22 +34,22 @@
 ;;(setq semantic-load-turn-useful-things-on t)
 
 ;; Add C++ include search path given by gcc
-(mapcar (lambda (includedir)
-	  (semantic-add-system-include includedir 'c++-mode))
-	(split-string 
-	 (let*
-	     ((out (shell-command-to-string "gcc -x c++ -v /dev/null"))
-	      (st (string-match "> search starts here" out))
-	      (se (match-end 0))
-	      (eb (string-match "End of" out)))
-	   (with-temp-buffer
-	     (insert out)
-	     (goto-char se)
-	     (end-of-line)
-	     (forward-char 1)
-	     (let
-		 ((buf (buffer-substring-no-properties (point) eb)))
-	       buf)))))
+;; (mapcar (lambda (includedir)
+;; 	  (semantic-add-system-include includedir 'c++-mode))
+;; 	(split-string 
+;; 	 (let*
+;; 	     ((out (shell-command-to-string "gcc -x c++ -v /dev/null"))
+;; 	      (st (string-match "> search starts here" out))
+;; 	      (se (match-end 0))
+;; 	      (eb (string-match "End of" out)))
+;; 	   (with-temp-buffer
+;; 	     (insert out)
+;; 	     (goto-char se)
+;; 	     (end-of-line)
+;; 	     (forward-char 1)
+;; 	     (let
+;; 		 ((buf (buffer-substring-no-properties (point) eb)))
+;; 	       buf)))))
 
 (require 'brian-cedet-includes)
 (require 'brian-srecode)
@@ -92,7 +92,7 @@
 (setq global-semantic-tag-folding-mode 1)
 
 ;; speedbar customizations
-
+(require 'semantic/sb)
 (setq speedbar-frame-parameters
       '((minibuffer)
 	(width . 42)
@@ -105,7 +105,9 @@
 ;;EDE options
 
 (setq ede-locate-setup-options '(ede-locate-base))
-  
+;; (semanticdb-enable-gnu-global-databases 'c-mode t)
+;; (semanticdb-enable-gnu-global-databases 'c++-mode t)
+
 ;; (when (cedet-cscope-version-check t)  ; Is it ok?
 ;;   ;; Configurations for CScope and CEDET.
 ;;   (setq ede-locate-setup-options
@@ -122,12 +124,12 @@
 
 ;; face customizations
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(semantic-tag-boundary-face ((t nil))))
+;; (custom-set-faces
+;;  ;; custom-set-faces was added by Custom.
+;;  ;; If you edit it by hand, you could mess it up, so be careful.
+;;  ;; Your init file should contain only one such instance.
+;;  ;; If there is more than one, they won't work right.
+;;  '(semantic-tag-boundary-face ((t nil))))
 
 ;; (ede-cpp-root-project "cpp-tests"
 ;; 		      :name "Research"
@@ -162,6 +164,5 @@
 ;;                  (cons "/usr/local/include/opencv2/core/types_c.h"
 ;;                    (cons "/usr/local/include/opencv2/imgproc/types_c.h"
 ;;                      semantic-lex-c-preprocessor-symbol-file)))))
-
 
 (provide 'brian-cedet)
