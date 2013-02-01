@@ -1,9 +1,9 @@
 set mode "c++-mode"
-set priority "95"
+set priority "105"
 
-set comment_start "//"
-set comment_end    "//"
-set comment_prefix "//"
+set comment_start "/*"
+set comment_end    " */"
+set comment_prefix " *"
 ;; Used for Doxygen, should be the same as last char
 ;; of comment_start
 set comment_extra "//"
@@ -13,29 +13,6 @@ prompt PROJECTNAME "Project: "
 set HEADEREXT ".hpp"
 
 context file
-
-;; This is not used because I wrote my own lisp function to
-;; do the substitutions i wanted from a dictionary string
-;; e.g. the COPYRIGHT variable (see brian-cedet.el)
-;; brian-srecode-projname-replace-and-comment , etc.
-template gpl_copyright
-----
-{{comment_prefix}} This file is part of {{?PROJECTNAME}}
-{{comment_prefix}} 
-{{comment_prefix}} {{PROJECTNAME}} is free software: you can redistribute it and/or modify
-{{comment_prefix}} it under the terms of the GNU General Public License as published by
-{{comment_prefix}} the Free Software Foundation, either version 3 of the License, or
-{{comment_prefix}} (at your option) any later version.
-{{comment_prefix}} 
-{{comment_prefix}} {{PROJECTNAME}} is distributed in the hope that it will be useful,
-{{comment_prefix}} but WITHOUT ANY WARRANTY; without even the implied warranty of
-{{comment_prefix}} MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-{{comment_prefix}} GNU General Public License for more details.
-{{comment_prefix}} 
-{{comment_prefix}} You should have received a copy of the GNU General Public License
-{{comment_prefix}} along with {{PROJECTNAME}}.  If not, see <http://www.gnu.org/licenses/>.
-{{comment_prefix}} 
-----
 
 prompt PROJECTNAME "Enter Project Name: "
 set COPYRIGHT "This file is part of {{PROJECTNAME}}
@@ -52,6 +29,26 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with {{PROJECTNAME}}.  If not, see <http://www.gnu.org/licenses/>.
+"
+
+set SAMSUNGCOPYRIGHT "
+Copyright (c) 2012 Samsung Electronics Co., Ltd All Rights Reserved
+
+PROPRIETARY/CONFIDENTIAL
+
+This software is the confidential and proprietary information of
+SAMSUNG ELECTRONICS (\"Confidential Information\").  You agree and
+acknowledge that this software is owned by Samsung and you shall not
+disclose such Confidential Information and shall use it only in
+accordance with the terms of the license agreement you entered into
+with SAMSUNG ELECTRONICS.  
+
+SAMSUNG make no representations or warranties about the suitability of
+the software, either express or implied, including but not limited to
+the implied warranties of merchantability, fitness for a particular
+purpose, or non-infringement.  SAMSUNG shall not be liable for any
+damages suffered by licensee arising out of or related to this
+software.
 "
 
 template header_guard :file :blank
@@ -91,6 +88,36 @@ set PROJECTNAMEHACK macro "?PROJECTNAME" "-hack"
 {{comment_prefix}}
 {{comment_prefix}} Copyright (C) {{YEAR}} {{?AUTHOR}}
 {{comment_end}}{{comment_extra}}
+----
+
+context samsung
+
+template empty :time :user :file :cpp
+"Optional docstring."
+----
+{{<A:filecomment}}{{?DESCRIPTION}}{{/A}}
+{{#NOTHEADER}}
+{{^}}
+{{/NOTHEADER}}
+{{#HEADER}}
+{{>:file:header_guard}}
+{{/HEADER}}
+----
+
+template filecomment :file :user :time
+sectiondictionary "A"
+set PROJECTNAMEHACK macro "?PROJECTNAME" "-hack"
+set AUTHOR "Brian Fransioli <br.fransioli@samsung.com>"
+----
+{{comment_start}}
+{{#A}}{{SAMSUNGCOPYRIGHT:brian-srecode-projname-replace-and-comment}}{{/A}}
+{{comment_end}}
+
+{{comment_start}}
+{{comment_prefix}} {{FILENAME}}
+{{comment_prefix}} 
+{{comment_prefix}} Author: {{#A}}{{AUTHOR}}{{/A}}
+{{comment_end}}
 ----
 
 context declaration

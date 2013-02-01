@@ -38,6 +38,11 @@
 ;;(global-set-key (kbd "C-c M") 'maximize-frame-height)
 ;;
 
+(setq backup-directory-alist
+      `((".*" . ,temporary-file-directory)))
+(setq auto-save-file-name-transforms
+      `((".*" ,temporary-file-directory t)))
+
 ;; smoother scrolling - no jumpiness
 (setq scroll-conservatively 1000)
 
@@ -142,10 +147,13 @@
 ;; hide compile window on successful compile
 (setq compilation-finish-functions 'brian-compile-finish)
 (defun brian-compile-finish (buffer outstr)
-  (cond ((string-match "finished" outstr)
-	 (winner-undo))
-	((t)))
-    (message "Finished!"))
+  (cond ((string-match "grep" (buffer-name buffer))
+	 nil)
+	((string-match "finished" outstr)
+	 (winner-undo)
+	 t)
+	(t
+	 nil)))
 
 ;; StackOverflow Answer for Question:
 ;; Nice Work Brian ! :)
@@ -247,7 +255,8 @@ opening bracket position, OB-POS."
 				 brace-elseif-brace
 				 brace-catch-brace
 				 empty-defun-braces
-				 space-before-funcall))
+				 ;space-before-funcall
+				 ))
 	      (c-offsets-alist
 	       (comment-intro . brian-comment-offset)
 	       (defun-open . 0)

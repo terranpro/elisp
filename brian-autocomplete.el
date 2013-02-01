@@ -43,7 +43,7 @@
 		     ac-source-semantic-raw
 		     ac-source-yasnippet))
 
-  (semantic-mode t)
+  ;(semantic-mode t)
   (define-key ac-completing-map "\t" 'ac-complete)
   )
 
@@ -62,7 +62,8 @@
   (global-auto-complete-mode t))
 
 (my-ac-config)
-(add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)
+;; append hook - don't prepend
+(add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup t)
 
 ;;
 ;; readline-complete

@@ -1,15 +1,16 @@
 ;; replaced w/load-path and require to try to eliminate a double load
 ;; error, incase other files do (require 'brian-cedet)
-(add-to-list 'load-path "~/elisp/foreign/cedet/")
-(require 'cedet-devel-load)
-;;(require 'semantic)
-(semantic-mode t)
+;;(add-to-list 'load-path "~/elisp/foreign/cedet/")
 
-(require 'semantic/ia)
-(require 'semantic/bovine/gcc)
+(setq cedet-root-path (file-name-as-directory "~/code/cedet/"))
+(add-to-list 'load-path (concat cedet-root-path "contrib"))
+(load-file (concat cedet-root-path "cedet-devel-load.el"))
+;;(require 'cedet-devel-load)
+;;(require 'semantic)
+(semantic-mode 1)
 
 (add-to-list 'Info-default-directory-list
-		 (expand-file-name "~/elisp/foreign/cedet-newtrunk/doc/info"))
+		 (expand-file-name (concat cedet-root-path "doc/info")))
 
 
 ;; test
