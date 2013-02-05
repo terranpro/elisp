@@ -72,6 +72,10 @@ save the pointer marker if tag is found"
 (add-hook 'c-mode-common-hook 'my-cedet-hook)
 (add-hook 'emacs-lisp-mode-hook 'my-cedet-hook)
 (add-hook 'lisp-interaction-mode-hook 'my-cedet-hook)
-
+;; just open .h files in c++ mode since all these retard who coders
+;; don't know wtf they are doing name them garbage.h - TILT
+(setq auto-mode-alist
+      (append '(("\\.h\\'" . c++-mode))
+	      auto-mode-alist))
 
 (provide 'brian-cedet-minimal)
