@@ -58,6 +58,12 @@
 
 ;;(define-key srecode-mode-map (kbd "C-c / U") 'srecode-map-update-map)
 
+(defun brian-srecode-dash-2-underscore (str)
+  (while (string-match (regexp-quote "-")
+		       str)
+    (setq str (replace-match "_" nil nil str)))
+  str)
+
 (provide 'brian-srecode)
 
 ;;; brian-srecode.el ends here

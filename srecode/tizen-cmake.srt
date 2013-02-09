@@ -1,0 +1,119 @@
+set mode "cmake-mode"
+
+context tizen
+
+template set
+""
+----
+SET( {{^}} )
+----
+bind "s"
+
+template executable
+""
+----
+add_executable( 
+${PROJECT_NAME}
+{{^}}
+)
+----
+bind "e"
+
+template includedir
+""
+----
+include_directories(
+${PROJECT_SOURCE_DIR}/include
+{{^}}
+)
+----
+bind "i"
+
+template include
+""
+----
+INCLUDE( {{^}} )
+----
+bind "I"
+
+template linkdir
+""
+----
+link_directories( {{^}})
+----
+
+template linklibs
+""
+----
+target_link_libraries( ${PROJECT_NAME} {{^}})
+----
+
+template pkgcheck
+""
+----
+{{<:include}}FindPkgConfig{{/}}
+pkg_check_modules(pkgs REQUIRED {{^}}
+)
+----
+bind "p"
+
+template definitions
+""
+----
+add_definitions(
+  -g
+  -Wall
+  -std=c++0x
+  {{^}}
+)
+----
+bind "d"
+
+template sources
+""
+----
+FILE( GLOB_RECURSE ALL_SRC src/*.cpp src/*.c )
+----
+
+template empty
+""
+----
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+PROJECT({{?PNAME}})
+
+{{<:set}}PREFIX ${CMAKE_INSTALL_PREFIX}{{/}}
+
+{{<:pkgcheck}}
+elementary
+appcore-common
+appcore-efl
+ecore-x
+dali
+dali-core
+dali-toolkit
+{{/}}
+
+{{<:sources}}{{/}}
+
+{{<:executable}}
+${ALL_SRC}
+{{/}}
+
+{{<:includedir}}
+${pkgs_INCLUDE_DIRS}
+{{/}}
+
+{{<:linkdir}}
+${pkgs_LIBRARY_DIRS}
+{{/}}
+
+{{<:linklibs}}
+${pkgs_LIBRARIES} 
+{{/}}
+
+{{<:definitions}}{{/}}
+
+INSTALL( TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_PREFIX} )
+
+----
+bind "E"

@@ -1,5 +1,5 @@
 set mode "c++-mode"
-set priority "105"
+set priority "80"
 
 set comment_start "/*"
 set comment_end    " */"
@@ -88,36 +88,6 @@ set PROJECTNAMEHACK macro "?PROJECTNAME" "-hack"
 {{comment_prefix}}
 {{comment_prefix}} Copyright (C) {{YEAR}} {{?AUTHOR}}
 {{comment_end}}{{comment_extra}}
-----
-
-context samsung
-
-template empty :time :user :file :cpp
-"Optional docstring."
-----
-{{<A:filecomment}}{{?DESCRIPTION}}{{/A}}
-{{#NOTHEADER}}
-{{^}}
-{{/NOTHEADER}}
-{{#HEADER}}
-{{>:file:header_guard}}
-{{/HEADER}}
-----
-
-template filecomment :file :user :time
-sectiondictionary "A"
-set PROJECTNAMEHACK macro "?PROJECTNAME" "-hack"
-set AUTHOR "Brian Fransioli <br.fransioli@samsung.com>"
-----
-{{comment_start}}
-{{#A}}{{SAMSUNGCOPYRIGHT:brian-srecode-projname-replace-and-comment}}{{/A}}
-{{comment_end}}
-
-{{comment_start}}
-{{comment_prefix}} {{FILENAME}}
-{{comment_prefix}} 
-{{comment_prefix}} Author: {{#A}}{{AUTHOR}}{{/A}}
-{{comment_end}}
 ----
 
 context declaration

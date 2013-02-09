@@ -1,0 +1,113 @@
+set mode "sh-mode"
+
+set comment_start "####"
+set comment_end "####"
+set comment_prefix "#"
+set comment_extra "#"
+
+set PCT "%"
+set LB "{"
+set RB "}"
+
+context tizen
+
+template comment-header
+"create a pretty comment heading w/a variable title"
+----
+{{comment_start}}
+{{comment_prefix}} {{^}}
+{{comment_end}}
+----
+
+template test-comment-header
+"test comment-header"
+sectiondictionary "A"
+----
+{{<A:comment-header}} hi {{/A}}
+----
+
+template buildrequires
+"Add a BuildRequires directive"
+----
+BuildRequires:  {{^}}
+----
+
+template requires
+"Add a Requires directive"
+----
+Requires:  {{^}}
+----
+
+template provides
+"Insert a provides directive"
+----
+provides:  {{^}}
+----
+
+template spec :file :blank
+"Create boiler-plate RPM spec file usable for GBS building!"
+sectiondictionary "A"
+set NAME macro "?PROJECTNAME"
+----
+Name:       {{?NAME}}
+Summary:    TO_BE_FILLED
+Version:    0.1.0
+Release:    1
+Group:      System/TO_BE_FILLED
+License:    Samsung Proprietary License
+URL:        TO_BE_FILLED
+Source:     %{name}-%{version}.tar.gz
+
+Requires(post): /sbin/ldconfig
+Requires(postun): /sbin/ldconfig
+{{<A:buildrequires}}cmake{{/A}}
+{{<A:buildrequires}}pkgconfig{{/A}}
+{{<A:buildrequires}}pkgconfig(appcore-common){{/A}}
+{{<A:buildrequires}}pkgconfig(appcore-efl){{/A}}
+{{<A:buildrequires}}pkgconfig(elementary){{/A}}
+{{<A:buildrequires}}pkgconfig(ecore-x){{/A}}
+{{<A:buildrequires}}pkgconfig(dlog){{/A}}
+{{<A:buildrequires}}dali-toolkit-devel{{/A}}
+
+%description
+{{?DESCRIPTION}}
+
+{{<A:comment-header}} Preparation {{/A}}
+%prep
+%setup -q
+%define {{NAME:brian-srecode-dash-2-underscore}}_app_ro_dir       /usr/apps/com.samsung.{{NAME}}
+%define {{NAME:brian-srecode-dash-2-underscore}}_app_exe_dir      {{PCT}}{{LB}}{{NAME:brian-srecode-dash-2-underscore}}_app_ro_dir}/
+
+{{<A:comment-header}} Build {{/A}}
+%build
+
+%ifarch %{arm}
+EXTRA_CONFIGURE_OPTIONS=" --host=arm"
+%endif
+
+cmake . -DCMAKE_INSTALL_PREFIX={{PCT}}{{LB}}{{NAME:brian-srecode-dash-2-underscore}}_app_ro_dir}
+
+VERBOSE=1 make %{?jobs:-j%jobs}
+
+{{<A:comment-header}} Installation {{/A}}
+%install
+rm -rf %{buildroot}
+
+%make_install
+
+{{<A:comment-header}} Post Install {{/A}}
+%post
+/sbin/ldconfig
+exit 0
+
+{{<A:comment-header}} Post Uninstall {{/A}}
+%postun
+/sbin/ldconfig
+exit 0
+
+{{<A:comment-header}} Files in Binary Packages {{/A}}
+%files
+%defattr(-,root,root,-)
+{{PCT}}{{LB}}{{NAME:brian-srecode-dash-2-underscore}}_app_exe_dir}/*
+#{{PCT}}{{LB}}{{NAME:brian-srecode-dash-2-underscore}}_app_ro_dir}/images/*
+----
