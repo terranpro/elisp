@@ -26,8 +26,8 @@
 ;;; Code:
 
 (setq srecode-map-save-file "~/elisp/srecode/srecode-map")
-(global-srecode-minor-mode 1)
 (add-to-list 'srecode-map-load-path "~/elisp/srecode/")
+(global-srecode-minor-mode 1)
 
 (defun brian-srecode-projname-replace-and-comment (str)
   (let* ((dict srecode-inserter-variable-current-dictionary)

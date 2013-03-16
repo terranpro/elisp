@@ -37,33 +37,65 @@
 (define-key ac-completing-map (kbd "M-n") 'ac-next)
 (define-key ac-completing-map (kbd "M-p") 'ac-previous)
 
-(defun my-ac-cc-mode-setup ()
-  (setq ac-sources '(
-		     ac-source-semantic
-		     ac-source-semantic-raw
-		     ac-source-yasnippet))
 
-  ;(semantic-mode t)
+;; AC Clang!!!
+(defvar brian-clangcomplete-async-dir "~/elisp/foreign/clang-complete-async")
+
+(add-to-list 'load-path brian-clangcomplete-async-dir)
+(require 'auto-complete-clang-async)
+
+(defun ac-cc-mode-setup ()
+  (let ((exec-path (add-to-list 'exec-path brian-clangcomplete-async-dir)))
+   (setq ac-clang-complete-executable (executable-find "clang-complete")))
+
+  (setq ac-sources '(ac-source-clang-async
+		     ;ac-source-semantic
+		     ;ac-source-semantic-raw
+		     ))
+
   (define-key ac-completing-map "\t" 'ac-complete)
-  )
+
+(let ((process-environment 
+       (add-to-list 'process-environment
+		    "LD_LIBRARY_PATH=/usr/local/lib")))
+  (ac-clang-launch-completion-process)))
 
 (defun my-ac-config ()
-  (setq-default ac-sources 
-		'(
-		  ac-source-semantic 
-		  ac-source-semantic-raw
-		  ac-source-abbrev 
-		  ac-source-dictionary))
-  ;;(add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
-  ;; (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
-  ;;(add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-  ;;(add-hook 'css-mode-hook 'ac-css-mode-setup)
-  ;;(add-hook 'auto-complete-mode-hook 'ac-common-setup)
+  (add-hook 'c-mode-common-hook 'ac-cc-mode-setup t)
+  (add-hook 'auto-complete-mode-hook 'ac-common-setup t)
   (global-auto-complete-mode t))
 
 (my-ac-config)
-;; append hook - don't prepend
-(add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup t)
+;; AC Clang Awesomeness END!
+
+;; OLD KungFu
+;; (defun my-ac-cc-mode-setup ()
+;;   (setq ac-sources '(
+;; 		     ac-source-semantic
+;; 		     ac-source-semantic-raw
+;; 		     ac-source-yasnippet))
+
+;;   ;(semantic-mode t)
+;;   (define-key ac-completing-map "\t" 'ac-complete)
+;;   )
+
+;; (defun my-ac-config ()
+;;   (setq-default ac-sources 
+;; 		'(
+;; 		  ac-source-semantic 
+;; 		  ac-source-semantic-raw
+;; 		  ac-source-abbrev 
+;; 		  ac-source-dictionary))
+;;   ;;(add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
+;;   ;; (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
+;;   ;;(add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+;;   ;;(add-hook 'css-mode-hook 'ac-css-mode-setup)
+;;   ;;(add-hook 'auto-complete-mode-hook 'ac-common-setup)
+;;   (global-auto-complete-mode t))
+
+;; (my-ac-config)
+;; ;; append hook - don't prepend
+;; (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup t)
 
 ;;
 ;; readline-complete

@@ -1,5 +1,6 @@
 ;; Brian's LISP Code
 (setq ring-bell-function 'ignore)
+(setq enable-local-eval t)
 
 (defun enlarge-frame-height ()
   "Enlarge frame height by one"

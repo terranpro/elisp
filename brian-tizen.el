@@ -27,7 +27,37 @@
 (add-to-list 'load-path "/home/terranpro/elisp/foreign/auto-complete/lib/popup")
 (require 'popup)
 
-(defvar tizen-gbs-chroot "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0")
+;; TODO: very useful function needed for my dir locals
+;; move it elsewhere later
+;; Modified it to not ignore "." so it retrns passed root directory too
+(defun folder-dirs (folder)
+  (delete-if-not 'file-directory-p
+    (mapcar (lambda(arg) (file-name-as-directory (concat (file-name-as-directory folder) arg)))
+      (delete-if (lambda (arg) (or (string= ".." arg) (string= "." arg)))
+        (directory-files folder)))))
+
+(defun folder-dirs-recursive-impl (func folder)
+  (when (and (not (null folder))
+	     (file-directory-p folder))
+    (funcall func folder)
+    (mapcar '(lambda (folder)
+	       (folder-dirs-recursive-impl func folder))
+	    (folder-dirs folder))
+    t))
+
+(defun folder-dirs-recursive (folder)
+  (let ((output (list "")))
+    (folder-dirs-recursive-impl 
+     '(lambda (arg)
+	(add-to-list 'output
+		     arg
+		     t))
+     folder)
+    output))
+
+;;(folder-dirs-recursive "/home/terranpro/tizen/git/ebook/include/")
+
+(defvar tizen-gbs-chroot "/home/terranpro/tizen/HQ/build/local/scratch.armv7l.0")
 (defvar tizen-gerrit-server-address "165.213.149.219")
 (defvar tizen-gerrit-server-port "29418")
 (defvar tizen-gerrit-server-userid "br.fransioli"
@@ -393,6 +423,37 @@
 				 "/root/"
 				 (file-name-nondirectory image)))))
 
+(defun tizen-ldd-executable ()
+  ""
+  (interactive)
+  (let* ((exec-path )
+	 ()
+	 (cmd))
+    ))
+
+;; TODO: finish
+(defun tizen-create-barebone-project (&optional parent-dir project-name)
+  ""
+  (interactive "D")
+  (save-window-excursion
+    (let* ((parentdir (expand-file-name 
+		       (or parent-dir 
+			   (ido-read-directory-name 
+			    "Project Parent Directory: "
+			    default-directory))))
+	   (prj-dir (expand-file-name 
+		     (or parent-dir 
+			 (ido-read-directory-name 
+			  "Project Name (Directory): "
+			  parentdir))))
+	   (prj-name (file-name-directory prj-dir))
+	   (spec-file (concat prj-dir
+			      "/"
+			      prj-name
+			      ".spec")))
+
+      )))
+
 (defun tizen-get-cur-directory-name (&optional dir)
   ""
   (car (last (split-string (directory-file-name (or dir 
@@ -441,20 +502,31 @@
     (save-window-excursion
       (find-file file)
       (goto-char (point-min))
-      (while (search-forward-regexp 
-	      (rx "pkg_check_modules" 
-		  (group (zero-or-more any))
-		  ")"
-		  (zero-or-more any)
-		  line-end)
-	      (point-max)
-	      t)
+      (while (progn
+	       (search-forward-regexp 
+		(rx "pkg_check_modules") 
+		(point-max)
+		'move)
+	       (search-forward-regexp
+		"("
+		(point-max)
+		t)
+	       (search-forward-regexp
+		(rx
+		 (minimal-match
+		  (and (group (one-or-more (not (any ")"))))
+		       ")")))
+		(point-max)
+		t))
+
+	
 	
 	(let ((libs (split-string (match-string 1) nil t))
 	      (pkgconfigpath 
 	       (concat "PKG_CONFIG_PATH="
 		       tizen-gbs-chroot
 		       "/usr/lib/pkgconfig")))
+	  ;(message (format "libs: %s" libs))
 	  (setq incs 
 		(concat
 		 incs 
@@ -539,7 +611,13 @@
 ;; (tizen-ede-cpp-root-project 
 ;;  "/home/terranpro/tizen/gbs-git/ebook/CMakeLists.txt")
 
+;; (tizen-ede-cpp-root-project 
+;;  "/home/terranpro/eb-git/ebookviewer/CMakeLists.txt")
 (tizen-ede-cpp-root-project 
- "/home/terranpro/eb-git/ebookviewer/CMakeLists.txt")
-
+ "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
+(tizen-ede-cpp-root-project 
+ "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
+(tizen-ede-cpp-root-project 
+ "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
+(tizen-system-include-paths "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
 ;;; brian-tizen.el ends here

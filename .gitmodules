@@ -28,3 +28,9 @@
 [submodule "external/mo-git-blame"]
 	path = external/mo-git-blame
 	url = https://github.com/mbunkus/mo-git-blame.git
+[submodule "foreign/clang-complete-async"]
+	path = foreign/clang-complete-async
+	url = https://github.com/Golevka/emacs-clang-complete-async.git
+[submodule "foreign/wgrep"]
+	path = foreign/wgrep
+	url = https://github.com/mhayashi1120/Emacs-wgrep.git

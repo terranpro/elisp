@@ -53,6 +53,7 @@ template empty :time :file :cpp
 {{>:file:header_guard}}
 {{/HEADER}}
 ----
+bind "e"
 
 template class :indent :blank
 "Insert a C++ class.  For use by user insertion.
