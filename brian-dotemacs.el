@@ -8,7 +8,7 @@
 (require 'brian-cedet)
 (require 'brian-autocomplete)
 (require 'brian-srecode)
-(require 'brian-tizen)
+;;(require 'brian-tizen)
 ;;(require 'brian-clang)
 ;;(require 'brian-gnus)
 (require 'brian-paredit)

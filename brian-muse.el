@@ -1,3 +1,4 @@
+
 (setq load-path 
       (add-to-list 'load-path "~/code/muse/lisp"))
 
@@ -72,6 +73,6 @@ the current date, as reported by the shell command \"date\""
 	    (insert " " (shell-command-to-string "date"))))))
 
 
-(add-hook 'before-save-hook 'my-muse-update-directive-date())
+(add-hook 'before-save-hook 'my-muse-update-directive-date)
 
 (provide 'brian-muse)
