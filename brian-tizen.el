@@ -57,7 +57,8 @@
 
 ;;(folder-dirs-recursive "/home/terranpro/tizen/git/ebook/include/")
 
-(defvar tizen-gbs-chroot "/home/terranpro/tizen/HQ/build/local/scratch.armv7l.0")
+(defvar tizen-gbs-chroot
+ "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0")
 (defvar tizen-gerrit-server-address "165.213.149.219")
 (defvar tizen-gerrit-server-port "29418")
 (defvar tizen-gerrit-server-userid "br.fransioli"
@@ -339,11 +340,11 @@
 		      (tizen-gerrit-address nil t nil)
 		      " "
 		      "gerrit ls-projects"))
-	 (projs (split-string (shell-command-to-string cmd))))
+	 ;(projs (split-string (shell-command-to-string cmd)))
+	 (projs (shell-command-to-string cmd))
+	 )
     projs))
-
-; (tizen-gerrit-ls-projects)
-
+;(with-output-to-temp-buffer "Tizen" (insert (tizen-gerrit-ls-projects)))
 
 (defun tizen-download-binary ()
   ""
@@ -619,5 +620,7 @@
  "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
 (tizen-ede-cpp-root-project 
  "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
-(tizen-system-include-paths "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
+;(tizen-system-include-paths "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
+(tizen-system-include-paths
+ "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
 ;;; brian-tizen.el ends here

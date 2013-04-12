@@ -34,3 +34,9 @@
 [submodule "foreign/wgrep"]
 	path = foreign/wgrep
 	url = https://github.com/mhayashi1120/Emacs-wgrep.git
+[submodule "foreign/emacs-powerline"]
+	path = foreign/emacs-powerline
+	url = https://github.com/jonathanchu/emacs-powerline.git
+[submodule "foreign/expand-region"]
+	path = foreign/expand-region
+	url = https://github.com/magnars/expand-region.el.git

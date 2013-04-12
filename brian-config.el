@@ -59,6 +59,25 @@
 ;; it's still buggy in global mode
 (setq ace-jump-mode-scope 'frame)
 
+;; emacs powerline
+(add-to-list 'load-path "~/elisp/foreign/emacs-powerline")
+(require 'powerline)
+
+;; (setq powerline-arrow-shape 'arrow)   ;; the default
+;; (setq powerline-arrow-shape 'curve)   ;; give your mode-line curves
+;; (setq powerline-arrow-shape 'arrow14) ;; best for small fonts
+(setq powerline-arrow-shape 'arrow)
+
+;; (setq powerline-color1 "grey22")
+(setq powerline-color1 "chocolate2")
+;; (setq powerline-color2 "grey40")
+(setq powerline-color2 "goldenrod")
+
+;; expand region
+(add-to-list 'load-path "~/elisp/foreign/expand-region")
+(require 'expand-region)
+(global-set-key (kbd "C-=") 'er/expand-region)
+
 ;; Let X's clipboard play nice with emacs
 (setq x-select-enable-clipboard t)
 
