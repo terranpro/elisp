@@ -120,6 +120,11 @@
 (set-face-attribute 'default nil :height 105)
 ;(set-face-attribute 'default nil :font "")
 
+;; postip and tooltip configs
+;; Use emacs tooltips instead of GTK+ so we can control the color scheme!
+(setq x-gtk-use-system-tooltips nil)
+(require 'pos-tip)
+
 ; Hotkey for compiling like in other IDEs
 (global-set-key (kbd "<f5>") 'compile)
 
