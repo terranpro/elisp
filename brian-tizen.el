@@ -346,10 +346,110 @@
     projs))
 ;(with-output-to-temp-buffer "Tizen" (insert (tizen-gerrit-ls-projects)))
 
-(defun tizen-download-binary ()
+(defun tizen-download-binary-catch-tarballs (path)
+  (let ((cmd (concat "curl "
+		     path 
+		     " 2>/dev/null | w3m -dump -T text/html | awk '/tar.gz/ { print $3; } '")))
+    (message cmd)
+    (split-string (shell-command-to-string cmd))))
+
+(defvar tizen-chosen-binary-files nil "")
+(defun tizen-download-binary (snapshot)
   ""
+  (interactive "sSnapshot URL: ")
+  (let* ((img-dir (concat snapshot "/images/"))
+	   (boot-dir (concat img-dir "/BOOT-REDWOOD453G-ENG/"))
+	   (fs-dir (concat img-dir "/REDWOOD453G-EUR-OPEN/"))
+	   (csc-dir (concat img-dir "/CSC-I8800-OXA/"))
+	   (file-rx (shell-quote-wildcard-pattern "*tar*"))
+	   (subdirs (split-string
+		     (shell-command-to-string
+		      (concat "curl "
+			      img-dir
+			      " 2>/dev/null | w3m -dump -T text/html | awk '/DIR/ { if ($2 != \"Parent\") print $2; }' "))))
+	   (tmp-buf (generate-new-buffer "Tizen Binary Download")))
+  
+    (with-current-buffer tmp-buf
+      
+      (setq tizen-chosen-binary-files nil)
+      (pp subdirs)
+      (tizen-create-binary-form-pre)
+      (mapcar '(lambda (subdir) (tizen-create-subdir-checkboxes
+				 subdir 
+				 (tizen-download-binary-catch-tarballs 
+				  (concat img-dir subdir))))
+	      subdirs)
+      (tizen-create-binary-form-post img-dir)
+      (goto-char (point-min)))
+    (switch-to-buffer tmp-buf)))
+
+(defun tizen-download-binary-worker (img-dir files)
+  (message "Entering Binary Download Worker")
+  (let ((temp-directory (make-temp-name
+			 (concat tizen-binaries-directory
+				 "/"
+				 (format-time-string "%Y-%m-%d")
+				 "-")))
+	(old-directory default-directory))
+    (if (file-exists-p temp-directory)
+     (delete-directory temp-directory t))
+    (make-directory temp-directory)
+    (cd temp-directory)
+
+    (mapcar '(lambda (file)
+	       (shell-command (concat "wget "
+				      img-dir
+				      file
+				      " &")
+			      (generate-new-buffer "Tizen: wget")))
+	    files)
+
+    (cd old-directory))
+  (message "Done!"))
+
+(defun tizen-create-binary-form-pre ()
   (interactive)
-  )
+  (kill-all-local-variables)
+  (erase-buffer)
+)
+
+(defun tizen-create-binary-form-post (img-dir)
+  (interactive)
+
+  (widget-insert "\n\n")
+  (widget-create 'push-button 
+		 :notify (lambda (widget &rest ignore)
+			   (tizen-download-binary-worker 
+			    (car (widget-get widget :sibling-args))
+			    tizen-chosen-binary-files))
+		 :sibling-args (list img-dir)
+		 "Download")
+  (use-local-map widget-keymap)
+  (widget-setup)
+)
+
+(defun tizen-create-subdir-checkboxes (dir files)
+  (widget-insert (concat dir "\n"))
+
+  (mapcar '(lambda (file)
+	     (widget-create 
+	      'checkbox 
+	      :notify (lambda (widget &rest ignore)
+			(if (widget-value widget)
+			    (setq tizen-chosen-binary-files 
+				  (cons (car (widget-get widget :sibling-args)) 
+					tizen-chosen-binary-files))
+			  (setq tizen-chosen-binary-files
+				(delete (car (widget-get widget :sibling-args)) 
+					tizen-chosen-binary-files)))
+			(pp tizen-chosen-binary-files))
+	      :sibling-args (list (concat dir file))
+	      nil)
+	     (widget-insert (concat "\t" file "\n"))
+	     )
+	  files)
+  (widget-insert "\n"))
+
 (defun tizen-flash-binary ()
   ""
   (interactive)
