@@ -40,3 +40,6 @@
 [submodule "foreign/expand-region"]
 	path = foreign/expand-region
 	url = https://github.com/magnars/expand-region.el.git
+[submodule "foreign/multiple-cursors"]
+	path = foreign/multiple-cursors
+	url = https://github.com/emacsmirror/multiple-cursors
