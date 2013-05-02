@@ -110,6 +110,12 @@
 ;; This is your old M-x.
 (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
 
+(add-to-list 'load-path "~/elisp/foreign/multiple-cursors")
+(require 'multiple-cursors)
+(global-set-key (kbd "C-c M m") 'mc/edit-lines)
+(global-set-key (kbd "C-c M n") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-c M p") 'mc/mark-previous-like-this)
+
 ;TODO: (temp) some default tweaking for window sizing
 (add-to-list 'default-frame-alist '(height . 65))
 (add-to-list 'default-frame-alist '(width  . 80))
