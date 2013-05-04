@@ -43,3 +43,7 @@
 [submodule "foreign/multiple-cursors"]
 	path = foreign/multiple-cursors
 	url = https://github.com/emacsmirror/multiple-cursors
+[submodule "foreign/ecb"]
+	path = foreign/ecb
+	url = https://github.com/emacsmirror/ecb.git
+
