@@ -54,10 +54,29 @@
 
   (define-key ac-completing-map "\t" 'ac-complete)
 
-(let ((process-environment 
-       (add-to-list 'process-environment
-		    "LD_LIBRARY_PATH=/usr/local/lib")))
-  (ac-clang-launch-completion-process)))
+  (let ((process-environment 
+	 (add-to-list 'process-environment
+		      "LD_LIBRARY_PATH=/usr/local/lib")))
+    (ac-clang-launch-completion-process))
+
+  (setq ac-clang-cflags (append 
+			 (list "-std=c++11")
+			 (mapcar '(lambda (inc) (concat "-I" inc))
+				 (split-string 
+				  (let*
+				      ((out (shell-command-to-string "gcc -x c++ -v /dev/null"))
+				       (st (string-match "> search starts here" out))
+				       (se (match-end 0))
+				       (eb (string-match "End of" out)))
+				    (with-temp-buffer
+				      (insert out)
+				      (goto-char se)
+				      (end-of-line)
+				      (forward-char 1)
+				      (let
+					  ((buf (buffer-substring-no-properties (point) eb)))
+					buf)))))))
+  (ac-clang-update-cmdlineargs))
 
 (defun my-ac-config ()
   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup t)

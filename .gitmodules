@@ -47,3 +47,6 @@
 	path = foreign/ecb
 	url = https://github.com/emacsmirror/ecb.git
 
+[submodule "foreign/powerline"]
+	path = foreign/powerline
+	url = https://github.com/milkypostman/powerline.git
