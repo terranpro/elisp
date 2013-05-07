@@ -33,12 +33,42 @@
 (define-key ac-complete-mode-map (kbd "M-n") 'ac-next)
 (define-key ac-complete-mode-map (kbd "M-p") 'ac-previous)
 (define-key ac-complete-mode-map (kbd "C-s") 'ac-isearch)
+(define-key ac-complete-mode-map (kbd "M-s") 'ac-isearch-doc)
 
 (define-key ac-completing-map (kbd "M-n") 'ac-next)
 (define-key ac-completing-map (kbd "M-p") 'ac-previous)
 
 ;; AC Clang!!!
 (defvar brian-clangcomplete-async-dir "~/elisp/foreign/clang-complete-async")
+(defvar-local brian-clang-cflags-use-global t
+  "Specify on buffer load/reload whether to append the global
+  cflags to the `ac-clang-cflags' variable for use in code
+  completion.")
+
+(defvar brian-clangcomplete-cflags-global
+  (append 
+   (list "-std=c++11")
+   (mapcar '(lambda (inc) (concat "-I" inc))
+	   (split-string 
+	    (let*
+		((out (shell-command-to-string "gcc -x c++ -v /dev/null"))
+		 (st (string-match "> search starts here" out))
+		 (se (match-end 0))
+		 (eb (string-match "End of" out)))
+	      (with-temp-buffer
+		(insert out)
+		(goto-char se)
+		(end-of-line)
+		(forward-char 1)
+		(let
+		    ((buf (buffer-substring-no-properties (point) eb)))
+		  buf))))))
+  "Global CFlags that should be added to `ac-clang-cflags' via
+  the callback in `c-mode-common-hook' based on the buffer local
+  variable `brian-clang-cflags-use-global'.
+
+This is useful for excluding system global cflags for ecosystem
+based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 
 (add-to-list 'load-path brian-clangcomplete-async-dir)
 (require 'auto-complete-clang-async)
@@ -59,23 +89,9 @@
 		      "LD_LIBRARY_PATH=/usr/local/lib")))
     (ac-clang-launch-completion-process))
 
-  (setq ac-clang-cflags (append 
-			 (list "-std=c++11")
-			 (mapcar '(lambda (inc) (concat "-I" inc))
-				 (split-string 
-				  (let*
-				      ((out (shell-command-to-string "gcc -x c++ -v /dev/null"))
-				       (st (string-match "> search starts here" out))
-				       (se (match-end 0))
-				       (eb (string-match "End of" out)))
-				    (with-temp-buffer
-				      (insert out)
-				      (goto-char se)
-				      (end-of-line)
-				      (forward-char 1)
-				      (let
-					  ((buf (buffer-substring-no-properties (point) eb)))
-					buf)))))))
+  (if brian-clang-cflags-use-global
+      (setq ac-clang-cflags 
+	    (append ac-clang-cflags brian-clangcomplete-cflags-global)))
   (ac-clang-update-cmdlineargs))
 
 (defun my-ac-config ()
