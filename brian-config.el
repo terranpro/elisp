@@ -39,6 +39,11 @@
 ;;(global-set-key (kbd "C-c M") 'maximize-frame-height)
 ;;
 
+;; windmove
+;; Navigate windows via Super+[wasd]
+(windmove-default-keybindings 'super)
+(setq windmove-wrap-around t)
+
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
