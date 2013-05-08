@@ -62,7 +62,7 @@
 
 ;; after ace jump 1.0, they added a scope feature
 ;; it's still buggy in global mode
-(setq ace-jump-mode-scope 'frame)
+(setq ace-jump-mode-scope 'window)
 
 ;; emacs powerline
 (add-to-list 'load-path "~/elisp/foreign/emacs-powerline")
@@ -121,15 +121,17 @@
 (global-set-key (kbd "C-c M n") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-c M p") 'mc/mark-previous-like-this)
 
-;TODO: (temp) some default tweaking for window sizing
-(add-to-list 'default-frame-alist '(height . 65))
-(add-to-list 'default-frame-alist '(width  . 80))
-
 ; Emacs24 default font on one of my debian sids was 
 ; fucking stupid huge; so put this so the default font is 
 ; size 10pt.
 (set-face-attribute 'default nil :height 105)
 ;(set-face-attribute 'default nil :font "")
+
+;TODO: (temp) some default tweaking for window sizing
+(add-to-list 'default-frame-alist '(height . 65))
+;;(add-to-list 'default-frame-alist '(width  . 80))
+;; TODO: experiment with using 3 windows in one big frame!
+(add-to-list 'default-frame-alist '(width  . 240))
 
 ;; postip and tooltip configs
 ;; Use emacs tooltips instead of GTK+ so we can control the color scheme!
