@@ -41,7 +41,10 @@
 
 ;; windmove
 ;; Navigate windows via Super+[wasd]
-(windmove-default-keybindings 'super)
+(global-set-key (kbd "s-a") 'windmove-left)
+(global-set-key (kbd "s-d") 'windmove-right)
+(global-set-key (kbd "s-w") 'windmove-up)
+(global-set-key (kbd "s-s") 'windmove-down)
 (setq windmove-wrap-around t)
 
 (setq backup-directory-alist
@@ -168,6 +171,7 @@
 
 ;; dired find file in new frame
 (require 'dired)
+(require 'dired-x)
 (defun brian-dired-find-file-other-frame ()
   (interactive)
   (find-file-other-frame (dired-get-file-for-visit)))

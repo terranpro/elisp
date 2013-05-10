@@ -97,12 +97,15 @@
 (require 'org-protocol)
 (require 'org-drill)
 
+(defvar brian-org-capture-dir "~/org/capture/")
 (setq org-capture-templates
       (quote
        (("w"
          "Default template"
          entry
-         (file+headline "~/elisp/org/capture.org" "Notes")
+         (file+headline (concat (file-name-directory brian-org-capture-dir)
+				"inbox.org") 
+			"Notes")
          "* %^{Title}\n\n  Source: %u, %c\n\n  %i"
          :empty-lines 1)
         ;; ... more templates here ...
@@ -113,7 +116,9 @@
        `(("u"
          "Task: Read this URL"
          entry
-         (file+headline "~/elisp/org/inc-reading.org" "Articles To Read")
+         (file+headline (concat (file-name-directory brian-org-capture-dir)
+				"inc-reading.org")
+			"Articles To Read")
          ,(concat "* TODO Read article: '%:description'\nURL: %c\n\n")
          :empty-lines 1
          :immediate-finish t)
@@ -121,7 +126,9 @@
 	 ("k"
          "Korean Language Study"
          entry
-         (file+headline "~/elisp/org/drill/korean/korean.org" "Inbox")
+         (file+headline  (concat (file-name-directory brian-org-capture-dir)
+				 "korean.org")
+			 "Inbox")
          ,(concat "* Fact: '%^{prompt|Question|%i}'        :"
                   (format "%s" org-drill-question-tag)
                   ":\n:PROPERTIES:\n:DATE_ADDED: %u\n:SOURCE_URL: %c\n"
@@ -133,7 +140,9 @@
         ("w"
          "Capture web snippet"
          entry
-         (file+headline "~/elisp/org/drill/my-facts.org" "Inbox")
+         (file+headline (concat (file-name-directory brian-org-capture-dir)
+				"my-facts.org")
+			"Inbox")
          ,(concat "* Fact: '%:description'        :"
                   (format "%s" org-drill-question-tag)
                   ":\n:PROPERTIES:\n:DATE_ADDED: %u\n:SOURCE_URL: %c\n:END:\n\n%i\n%?\n")
