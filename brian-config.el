@@ -69,7 +69,10 @@
 
 ;; emacs powerline
 (add-to-list 'load-path "~/elisp/foreign/emacs-powerline")
+;;(add-to-list 'load-path "~/elisp/foreign/powerline")
 (require 'powerline)
+;;(powerline-default-theme)
+;;(powerline-center-theme)
 
 ;; (setq powerline-arrow-shape 'arrow)   ;; the default
 ;; (setq powerline-arrow-shape 'curve)   ;; give your mode-line curves
