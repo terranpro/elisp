@@ -2,6 +2,15 @@
 (setq ring-bell-function 'ignore)
 (setq enable-local-eval t)
 
+(add-to-list 'default-frame-alist
+	     `(width  . ,(+ 240
+			    (/ (frame-parameter nil 'left-fringe) (frame-char-width))
+			    (/ (frame-parameter nil 'right-fringe) (frame-char-width)))))
+
+(add-to-list 'default-frame-alist
+	     `(height  . ,(- (/ (display-pixel-height) (frame-char-height))
+			     2)))
+
 (defun enlarge-frame-height ()
   "Enlarge frame height by one"
   (interactive)
@@ -45,6 +54,7 @@
 (global-set-key (kbd "s-d") 'windmove-right)
 (global-set-key (kbd "s-w") 'windmove-up)
 (global-set-key (kbd "s-s") 'windmove-down)
+
 (setq windmove-wrap-around t)
 
 (setq backup-directory-alist
@@ -130,14 +140,13 @@
 ; Emacs24 default font on one of my debian sids was 
 ; fucking stupid huge; so put this so the default font is 
 ; size 10pt.
-(set-face-attribute 'default nil :height 105)
+;;(set-face-attribute 'default nil :height 105)
 ;(set-face-attribute 'default nil :font "")
 
 ;TODO: (temp) some default tweaking for window sizing
-(add-to-list 'default-frame-alist '(height . 65))
+;;(add-to-list 'default-frame-alist '(height . 65))
 ;;(add-to-list 'default-frame-alist '(width  . 80))
 ;; TODO: experiment with using 3 windows in one big frame!
-(add-to-list 'default-frame-alist '(width  . 240))
 
 ;; postip and tooltip configs
 ;; Use emacs tooltips instead of GTK+ so we can control the color scheme!
