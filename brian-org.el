@@ -137,7 +137,19 @@
          :empty-lines 1
 	 :immediate-finish t)
 
-        ("w"
+        ("b"
+         "Capture emacs buffer snippet"
+         entry
+         (file+headline (concat (file-name-directory brian-org-capture-dir)
+				"my-facts.org")
+			"Inbox")
+         ,(concat "* Fact: '%^{Title}'      " 
+                  ":" (format "%s" org-drill-question-tag) ":"
+                  "\n:PROPERTIES:\n:DATE_ADDED: %u\n:END:\n\n%i\n%?\n")
+         :empty-lines 1
+         :immediate-finish t)
+
+	 ("w"
          "Capture web snippet"
          entry
          (file+headline (concat (file-name-directory brian-org-capture-dir)
