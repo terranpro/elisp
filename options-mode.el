@@ -32,12 +32,22 @@
 (defun options-mode-build-window ())
 
 (defclass Option () 
-  ((key :initarg :key
+  ((hidden :initarg :hidden
+	   :initform nil)
+   (key :initarg :key
 	:initform nil)
    (desc :initarg :desc)
+   (face :initarg :face
+	 :initform 'ac-selection-face)
    (onactivate :initarg :onactivate)) 
 
-  "A basic option!")
+  "A basic option!
+HIDDEN will effectively hide the option from being displayed in the window.
+KEY should be a bindable key that `kbd' recognizes.
+DESC is a description that will be rendered in the option window for guidance.
+FACE is the default face to use when displaying in the option window (TODO).
+ONACTIVATE is the user callback that is called when the option activated.
+The one argument passed to the callback is the Option obj. ")
 
 (defclass Options ()
   ((elems :initarg :elems))
@@ -47,48 +57,67 @@
 (defmethod CreateKeymap ((obj Options))
   (with-slots (elems) obj 
     (let ((keymap (make-sparse-keymap)))
-	(mapc #'(lambda (option)
-		  (with-slots (key onactivate) option
-		    (define-key keymap (kbd key) onactivate)))
-	      elems)
-	keymap)))
-
-(CreateKeymap (Options "opts"
-	       :elems
-	       (list (Option "a" :key "q" :onactivate 'kill-buffer-and-window)
-		     (Option "e" :key "RET" :onactivate 'switch-to-prev-buffer))))
+      (mapc #'(lambda (option)
+		(with-slots (key onactivate) option
+		  (define-key keymap (kbd key) 
+		    ;; TODO: FIX!
+		    '(lambda () 
+		       (interactive)
+		       (message (format "Callback hit! Obj:\n"))
+		       (pp option)
+		       (funcall onactivate option)))))
+	    elems)
+      keymap)))
 
 (defmethod Redraw ((obj Option))
   "Redraw an individual Option"
-  (format "%s!" (oref obj key)))
+  (with-slots (hidden) obj 
+    (format "%s" (if hidden
+		     "" 
+		   (oref obj key)))))
 
 (defmethod Redraw ((obj Options))
   "Redraw an Options group"
   (with-slots (elems) obj
       (mapcar 'Redraw elems)))
 
+(defclass Switch (Option)
+  ((active :initform nil
+	   :initarg :active)
+   (active-face :initform 'ac-candidate-face
+		:initarg :active-face))
+  "Options to represent command-line switches (e.g. --clean)")
+
 (defmethod Redraw ((obj Switch))
-  (with-slots (key desc active) obj
-    (let ((key-face (if active 'ac-candidate-face 'ac-selection-face))
+  (with-slots (key desc active face active-face) obj
+    (let ((key-face (if active active-face face))
 	  (desc-face 'ac-selection-face))
       (format "%s : %s" 
 	      (propertize key 'face key-face)
 	      desc))))
 
-(defclass Switch (Option)
-  ((active :initform nil
-	   :initarg :active))
-  "Options to represent command-line switches (e.g. --clean)")
 
+(defclass SwitchArg (Switch)
+  ((arg :initform ""
+	:initarg :arg))
+  "A Switch that also has a trailing arg (e.g. --profile SLP")
+
+(defmethod Redraw ((obj SwitchArg))
+  (with-slots (arg) obj
+    (let ((switchstr (call-next-method)))
+      (format "%s %s" 
+	      switchstr 
+	      arg))))
 
 (Redraw (Options "arf!" 
 		 :elems
 		 (list (Option "opt")
-		       (Switch "switch" :key "--switch" :desc "amazing"))))
+		       (SwitchArg "switch" :key "--switch" :desc "amazing"
+				  :arg "SLP" :face 'ac-candidate-face))))
 
 (oref (Switch "opt" :key "Magic" :desc "Forever!" :active t) active)
 
-(Redraw (Option "opt"))
+(Redraw (Option "opt" :hidden t))
 
 
 (defclass Command ()
@@ -108,16 +137,27 @@
   (mapcar 'Invoke (oref obj elems)))
 
 (defmethod Invoke ((obj Option))
+  "Return the option if active or an empty option"
   (with-slots (key) obj 
     `(,(make-symbol (concat ":"key)) . ,key)))
 
 (symbol-value :key)
 (make-symbol (concat ":" "key"))
 
+(Redraw (Options "options"
+		 :elems
+		 (list (Option "opt1" :key "--clean")
+		       (Option "opt2" :key "--noinit" :hidden t)))
+
+	)
+
+(insert "")
 (Invoke (Options "options"
 		 :elems
 		 (list (Option "opt1" :key "--clean")
-		       (Option "opt2" :key "--noinit"))))
+		       (Option "opt2" :key "--noinit" :hidden t)))
+
+)
 
 
 
@@ -126,9 +166,9 @@
 		 'pp
 		 :options 
 		 (Options "options"
-		 :elems
-		 (list (Option "opt1" :key "--clean")
-		       (Option "opt2" :key "--noinit")))))
+			  :elems
+			  (list (Option "opt1" :key "--clean")
+				(Option "opt2" :key "--noinit")))))
 
 (eieio-build-class-alist)
 
@@ -150,22 +190,28 @@
    (mapc '(lambda (str) (insert (format "%s\n" str)))
 	 (Redraw options))))
 
-(options-mode-new "gbs-build"
-		  (Command "gbs-build"
-			   :command
-			   'pp
-			   :options 
-			   (Options 
-			    "options"
-			    :elems
-			    (list (Option "opt1" 
-					  :key "C"
-					  :desc "--clean"
-					  :onactivate 'kill-buffer-and-window)
-				  (Switch "opt2"
-					  :key "I"
-					  :desc "--noinit"
-					  :onactivate 'switch-to-prev-buffer)))))
+(options-mode-new 
+ "gbs-build"
+ (Command "gbs-build"
+	  :command
+	  'pp
+	  :options 
+	  (Options 
+	   "options"
+	   :elems
+	   (list (Switch "--clean" 
+			 :key "C"
+			 :desc "Clean the GBS buildroot & cached pkgs"
+			 :onactivate 'kill-buffer-and-window)
+		 (Switch "--noinit"
+			 :key "I"
+			 :desc "Do not check the state of GBS buildroot; fast"
+			 :onactivate 'switch-to-prev-buffer)
+		 (SwitchArg "--profile"
+			    :key "P"
+			    :desc "Specify the GBS profile to be used"
+			    :arg "slp"
+			    :onactivate 'pp)))))
 
 (provide 'options-mode)
 
