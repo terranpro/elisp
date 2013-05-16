@@ -2,14 +2,27 @@
 (setq ring-bell-function 'ignore)
 (setq enable-local-eval t)
 
-(add-to-list 'default-frame-alist
-	     `(width  . ,(+ 240
-			    (/ (frame-parameter nil 'left-fringe) (frame-char-width))
-			    (/ (frame-parameter nil 'right-fringe) (frame-char-width)))))
+(add-to-list
+ 'default-frame-alist
+ `(width  . ,(+ 240
+		(/ (frame-parameter nil 'left-fringe) (frame-char-width))
+		(/ (frame-parameter nil 'right-fringe) (frame-char-width)))))
 
-(add-to-list 'default-frame-alist
-	     `(height  . ,(- (/ (display-pixel-height) (frame-char-height))
-			     2)))
+(add-to-list
+ 'default-frame-alist
+ `(height  . ,(- (/ (display-pixel-height) (frame-char-height))
+		 2)))
+
+; Emacs24 default font on one of my debian sids was 
+; fucking stupid huge; so put this so the default font is 
+; size 10pt.
+(set-face-attribute 'default nil :font "Ubuntu Mono 10") 
+;(set-face-attribute 'default nil :font "")
+
+;TODO: (temp) some default tweaking for window sizing
+;;(add-to-list 'default-frame-alist '(height . 65))
+;;(add-to-list 'default-frame-alist '(width  . 80))
+;; TODO: experiment with using 3 windows in one big frame!
 
 (defun enlarge-frame-height ()
   "Enlarge frame height by one"
@@ -137,17 +150,6 @@
 (global-set-key (kbd "C-c M n") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-c M p") 'mc/mark-previous-like-this)
 
-; Emacs24 default font on one of my debian sids was 
-; fucking stupid huge; so put this so the default font is 
-; size 10pt.
-;;(set-face-attribute 'default nil :height 105)
-;(set-face-attribute 'default nil :font "")
-
-;TODO: (temp) some default tweaking for window sizing
-;;(add-to-list 'default-frame-alist '(height . 65))
-;;(add-to-list 'default-frame-alist '(width  . 80))
-;; TODO: experiment with using 3 windows in one big frame!
-
 ;; postip and tooltip configs
 ;; Use emacs tooltips instead of GTK+ so we can control the color scheme!
 (setq x-gtk-use-system-tooltips nil)
@@ -180,6 +182,25 @@
   (let ((last-nonmenu-event nil)
 	(window-system "x"))
     (save-buffers-kill-emacs)))
+
+;;; Follow-mode smarter!
+;; Automagically use the window immediately to the right (if present)
+;; to follow-mode scroll the current buffer; and if/when deactivated,
+;; pop the window to the right to the previous buffer.
+(defadvice follow-mode (before follow-buffer-to-right activate)
+  (let ((rightwin (window-right (get-buffer-window)))
+	(curr-buf (current-buffer)))
+    (when (and follow-mode 
+	       rightwin)
+      (with-selected-window rightwin 
+	(switch-to-prev-buffer)))
+
+    (when (and (not follow-mode)
+	       rightwin
+	       (not (eq (window-buffer rightwin) curr-buf)))
+      (message (format "Buffer: %s" curr-buf))
+      (with-selected-window rightwin
+	(switch-to-buffer curr-buf t t)))))
 
 ;; dired find file in new frame
 (require 'dired)

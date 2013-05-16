@@ -59,6 +59,7 @@
 
 (defvar tizen-gbs-chroot
  "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0")
+(defvar tizen-gbs-conf (expand-file-name  "~/.gbs.conf"))
 (defvar tizen-gerrit-server-address "165.213.149.219")
 (defvar tizen-gerrit-server-port "29418")
 (defvar tizen-gerrit-server-userid "br.fransioli"
@@ -101,6 +102,32 @@
 (defun tizen-mode ()
   ""
   )
+
+(defun tizen-translate-file-to-prjpath (gbsroot-file)
+  (interactive)
+  (let* ((prjdir "~/tizen/git/ebookviewer/")
+	 (before gbsroot-file)
+	 (reg (rx "/home/abuild/rpmbuild/BUILD/"
+		  (zero-or-more (not (any "/")))
+		  "/"
+		  (group (one-or-more any) "/")
+		  (group (one-or-more (not (any ":"))))))
+	 (dir-part)
+	 (file-part))
+    (if (string-match reg before)
+	(progn
+	  (setq dir-part (match-string 1 before))
+	  (setq file-part (match-string 2 before))
+	  (expand-file-name
+	   (concat prjdir
+		   dir-part
+		   file-part))))))
+
+(defun tizen-jump-to-prj-file (&optional file)
+  (interactive)
+  (unless file
+    (setq file (thing-at-point 'filename)))
+  (find-file (tizen-translate-file-to-prjpath file)))
 
 (defun tizen-gerrit-address (&optional proto user port)
   ""
@@ -476,16 +503,101 @@
     (shell-command cmd (get-buffer-create "LThor") nil)))
 ;(tizen-flash-binary)
 
-(defun tizen-build-package-gbs ()
+(defvar tizen-gbs-build-mode-map (make-sparse-keymap))
+(defvar tizen-gbs-build-profile nil)
+(defvar tizen-gbs-build-option-noinit nil)
+(defvar tizen-gbs-build-option-clean nil)
+
+(defvar tizen-gbs-build-options-list
+  '(switches
+    (noinit "I" "--noinit" tizen-gbs-build-mode-cb-noinit)
+    (clean "C" "--clean" tizen-gbs-build-mode-cb-clean)))
+
+(defun tizen-gbs-build-mode-redisplay-window (elems)
+  (erase-buffer)
+  (insert (propertize))
+  (insert "I :  --no-init\n")
+  (insert "C :  --clean\n")
+  (insert "P :  Choose Profile\n")
+  (insert "B :  Build!!!"))
+
+(defun tizen-gbs-build-options-window ()
+  (save-excursion
+    (split-window-below)
+    (other-window 1)
+    (switch-to-buffer "*tizen: GBS Build*")
+    (tizen-gbs-build-mode)
+    (tizen-gbs-build-mode-redisplay-window)))
+
+(defun tizen-gbs-build-mode-cb ())
+
+(defun tizen-gbs-build-mode-cb-noinit ()
+  (interactive)
+  (setq tizen-gbs-build-option-noinit (not tizen-gbs-build-option-noinit))
+  (tizen-gbs-build-mode-redisplay-window))
+
+(defun tizen-gbs-build-mode-cb-build ()
+  )
+
+(defun tizen-gbs-build-mode-cb-quit ()
+  (interactive)
+  (kill-buffer-and-window))
+
+(defun tizen-gbs-build-mode-build-keymap ()
+  (define-key tizen-gbs-build-mode-map (kbd "I")
+    'tizen-gbs-build-mode-cb-noinit)
+  (define-key tizen-gbs-build-mode-map (kbd "C")
+    'tizen-gbs-build-mode-cb-clean)
+  (define-key tizen-gbs-build-mode-map (kbd "P")
+    'tizen-gbs-build-mode-cb-profile)
+  (define-key tizen-gbs-build-mode-map (kbd "B")
+    'tizen-gbs-build-mode-cb-build)
+  (define-key tizen-gbs-build-mode-map (kbd "RET")
+    'tizen-gbs-build-mode-cb-build)
+  (define-key tizen-gbs-build-mode-map (kbd "C-g")
+    'tizen-gbs-build-mode-cb-quit)
+  (define-key tizen-gbs-build-mode-map (kbd "q")
+    'tizen-gbs-build-mode-cb-quit))
+
+(define-minor-mode tizen-gbs-build-mode ""
+  :lighter "GBS" :init-value nil
+  :keymap 'tizen-gbs-build-mode-map
+  (tizen-gbs-build-mode-build-keymap)
+  (tizen-gbs-build-mode-cb))
+
+(defun tizen-gbs-build ()
+  (interactive)
+  (tizen-gbs-build-options-window))
+;;(tizen-gbs-build)
+(defun tizen-build-package-gbs (&optional profile)
   ""
   (interactive)
-  (let* ((arch "armv7l")
+
+  (unless (stringp profile)
+    (setq profile
+	  (ido-completing-read 
+	   "Profile: "
+	   (split-string
+	    (shell-command-to-string 
+	     (concat
+	      "awk '/^\\[profile/ { print $0; }' "
+	      tizen-gbs-conf
+	      " | sed -e 's/\\[//' -e 's/\\]//' -e 's/profile.//'"))))))
+  
+  (tizen-gbs-build-options-window)
+  (let* ((process-environment
+	  ;; TODO: What's better than this double cons?! this can't be ideal
+	  (cons "http_proxy=" 
+		(cons "https_proxy=" 
+		      process-environment)))
+	 (arch "armv7l")
 	 (misc-args "--include-all")
 	 (cmd (concat "gbs build "
 		      "-A " arch " "
+		      "--profile " profile " "
 		      misc-args
 		      " &")))
-    ;(cd )
+    (message cmd)
     (shell-command cmd
 		   "Tizen GBS Build")))
 
@@ -523,6 +635,44 @@
 			  ;;"pkgcmd -i -t rpm -p "
 				 "/root/"
 				 (file-name-nondirectory image)))))
+
+(defun tizen-ssh-push-file (files &optional targetdir)
+  (let ((cmd (concat "scp "
+		     (if (listp files)
+			 (mapconcat 'identity files " ")
+		       files)
+		     " "
+		     "root@192.168.129.3:"
+		     targetdir 
+		     " &")))
+    (shell-command cmd "Tizen SCP File")))
+
+;; (tizen-ssh-push-file "/home/terranpro/tizen/SURC/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/com.samsung.ebookviewer-0.1.8-7.armv7l.rpm"
+;; 		     "/tmp/")
+
+;; (tizen-ssh-push-file 
+;;  (list  "/home/terranpro/tizen/SURC/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/com.samsung.ebookviewer-debugsource-0.1.8-7.armv7l.rpm"
+;; 	"/home/terranpro/tizen/SURC/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/com.samsung.ebookviewer-debuginfo-0.1.8-7.armv7l.rpm")
+;; 		     "/tmp/")
+
+(defun tizen-ssh-shell-cmd (cmd) 
+  (let ((sshcmd (concat "ssh " 
+			"root@192.168.129.3"
+			" "
+			" << 'EOF' \n"
+			cmd
+			"\nEOF")))
+    (shell-command sshcmd)))
+
+;; (tizen-ssh-shell-cmd
+;;  "ls -lrtha /tmp | awk ' {print $NF; }' | sort && echo $HOME")
+;; (tizen-ssh-shell-cmd
+;;  "ls -lrtha /tmp ")
+
+(defun tizen-ssh-install-rpm (&optional package)
+  (interactive)
+  
+)
 
 (defun tizen-ldd-executable ()
   ""

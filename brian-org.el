@@ -97,7 +97,7 @@
 (require 'org-protocol)
 (require 'org-drill)
 
-(defvar brian-org-capture-dir "~/org/capture/")
+(defvar brian-org-capture-dir "~/elisp/personal/org/capture/")
 (setq org-capture-templates
       (quote
        (("w"
