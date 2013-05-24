@@ -86,7 +86,8 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 
   (let ((process-environment 
 	 (add-to-list 'process-environment
-		      "LD_LIBRARY_PATH=/usr/local/lib")))
+		      (concat "LD_LIBRARY_PATH=/usr/local/lib:"
+			      (getenv "LD_LIBRARY_PATH")))))
     (ac-clang-launch-completion-process))
 
   (if brian-clang-cflags-use-global
