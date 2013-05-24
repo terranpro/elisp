@@ -104,7 +104,7 @@
          "Default template"
          entry
          (file+headline (concat (file-name-directory brian-org-capture-dir)
-				"inbox.org") 
+				"inbox.org.gpg") 
 			"Notes")
          "* %^{Title}\n\n  Source: %u, %c\n\n  %i"
          :empty-lines 1)
@@ -117,7 +117,7 @@
          "Task: Read this URL"
          entry
          (file+headline (concat (file-name-directory brian-org-capture-dir)
-				"inc-reading.org")
+				"inc-reading.org.gpg")
 			"Articles To Read")
          ,(concat "* TODO Read article: '%:description'\nURL: %c\n\n")
          :empty-lines 1
@@ -141,7 +141,7 @@
          "Capture emacs buffer snippet"
          entry
          (file+headline (concat (file-name-directory brian-org-capture-dir)
-				"my-facts.org")
+				"my-facts.org.gpg")
 			"Inbox")
          ,(concat "* Fact: '%^{Title}'      " 
                   ":" (format "%s" org-drill-question-tag) ":"
@@ -153,13 +153,13 @@
          "Capture web snippet"
          entry
          (file+headline (concat (file-name-directory brian-org-capture-dir)
-				"my-facts.org")
+				"my-facts.org.gpg")
 			"Inbox")
          ,(concat "* Fact: '%:description'        :"
                   (format "%s" org-drill-question-tag)
                   ":\n:PROPERTIES:\n:DATE_ADDED: %u\n:SOURCE_URL: %c\n:END:\n\n%i\n%?\n")
          :empty-lines 1
-         :immediate-finish t)
+         :immediate-finish nil)
         ;; ...other capture templates...
     ))
 
@@ -167,7 +167,7 @@
 ;; of facts at one time)
 (setq org-drill-add-random-noise-to-intervals-p t)
 (setq org-drill-adjust-intervals-for-early-and-late-repetitions-p t)
-(setq org-drill-hide-item-headings-p t)
+;;(setq org-drill-hide-item-headings-p t)
 ;; org-drill customizations
 
 (setq org-drill-maximum-items-per-session 40)

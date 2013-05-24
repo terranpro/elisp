@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: drillkey
+# key: drillkey
+# --
+*** Fact: Org-Mode Structural Editing Hotkeys  :drill:
+:PROPERTIES:
+:DRILL_CARD_TYPE: hide1cloze
+:VISIBILITY: content
+:END:
+
+[ ${1:Key} ]   [ ${2:(Function)} ]
+
+# $0
