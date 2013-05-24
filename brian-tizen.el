@@ -66,10 +66,17 @@
   "")
 (defvar tizen-packages-root-directory "/home/terranpro/tizen/gbs-git")
 
-(defvar tizen-lthor-executable "/home/terranpro/tizen/lthor"
+(defvar tizen-lthor-executable (let ((exec-path (append exec-path "/home/terranpro/tizen/")))
+				 (executable-find "lthor"))
   "")
+
 (defvar tizen-binaries-directory "/home/terranpro/tizen/binaries"
   "")
+
+(defvar tizen-binary-download-use-proxy t
+  "When nil, block the environment variables http_proxy and
+  https_proxy by clearing them before running a wget command.")
+
 (defvar tizen-gbs-built-rpm-directory "/home/terranpro/tizen/SURC/rpms"
   "")
 
@@ -424,7 +431,11 @@
     (cd temp-directory)
 
     (mapcar '(lambda (file)
-	       (shell-command (concat "wget "
+	       (shell-command (concat
+			       (if tizen-binary-download-use-proxy
+				   ""
+				 "http_proxy=\"\" https_proxy=\"\" ")
+			       "wget "
 				      img-dir
 				      file
 				      " &")
@@ -444,6 +455,12 @@
   (interactive)
 
   (widget-insert "\n\n")
+  (widget-create 'checkbox 
+		 :notify (lambda (widget &rest ignore)
+			   (setq tizen-binary-download-use-proxy (widget-value widget)))
+		 t)
+  (widget-insert "\tUse HTTP(S) Proxy for Downloading\n\n")
+
   (widget-create 'push-button 
 		 :notify (lambda (widget &rest ignore)
 			   (tizen-download-binary-worker 
@@ -472,8 +489,7 @@
 			(pp tizen-chosen-binary-files))
 	      :sibling-args (list (concat dir file))
 	      nil)
-	     (widget-insert (concat "\t" file "\n"))
-	     )
+	     (widget-insert (concat "\t" file "\n")))
 	  files)
   (widget-insert "\n"))
 
@@ -581,7 +597,7 @@
 	    (shell-command-to-string 
 	     (concat
 	      "awk '/^\\[profile/ { print $0; }' "
-	      tizen-gbs-conf
+	      gbs-conf
 	      " | sed -e 's/\\[//' -e 's/\\]//' -e 's/profile.//'"))))))
   
   (tizen-gbs-build-options-window)
@@ -605,7 +621,7 @@
   ""
   (let* ((local-file (and (file-exists-p file)
 			  file))
-	 (remote-dir "/root/")
+	 (remote-dir "/tmp/")
 	 (cmd (concat "sdb push "
 		      local-file
 		      " "
@@ -622,19 +638,19 @@
 
 (defun tizen-sdb-install-image-i  ()
   (interactive)
-  (let* ((image (ido-completing-read 
+  (let* ((image (ido-read-file-name
 		 "RPM: "
-		 (directory-files 
-		  tizen-gbs-built-rpm-directory
-		  t 
-		  (rx (one-or-more any ".rpm"))
-		  nil))))
+		 (if (file-directory-p tizen-gbs-built-rpm-directory)
+		      tizen-gbs-built-rpm-directory
+		    (expand-file-name "~")))))
+    (setq tizen-gbs-built-rpm-directory (file-name-directory image))
     (tizen-sdb-push-file image)
 ;; pkgcmd -i -t rpm -p PATH_TO_RPM
-    (tizen-sdb-shell-cmd (concat "rpm -ivh --force "
-			  ;;"pkgcmd -i -t rpm -p "
-				 "/root/"
-				 (file-name-nondirectory image)))))
+    (tizen-sdb-shell-cmd (concat
+			  ;;"rpm -ivh --force "
+			  "pkgcmd -i -q -t rpm -p "
+			  "/tmp/"
+			  (file-name-nondirectory image)))))
 
 (defun tizen-ssh-push-file (files &optional targetdir)
   (let ((cmd (concat "scp "
@@ -868,8 +884,10 @@
  "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
 (tizen-ede-cpp-root-project 
  "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
-(tizen-ede-cpp-root-project 
- "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
+
+;; (tizen-ede-cpp-root-project 
+;;  "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
+
 ;(tizen-system-include-paths "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
 (tizen-system-include-paths
  "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
