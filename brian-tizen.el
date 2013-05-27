@@ -529,9 +529,9 @@
     (noinit "I" "--noinit" tizen-gbs-build-mode-cb-noinit)
     (clean "C" "--clean" tizen-gbs-build-mode-cb-clean)))
 
-(defun tizen-gbs-build-mode-redisplay-window (elems)
+(defun tizen-gbs-build-mode-redisplay-window ()
   (erase-buffer)
-  (insert (propertize))
+  ;(insert (propertize))
   (insert "I :  --no-init\n")
   (insert "C :  --clean\n")
   (insert "P :  Choose Profile\n")
@@ -581,9 +581,86 @@
   (tizen-gbs-build-mode-build-keymap)
   (tizen-gbs-build-mode-cb))
 
+(defun tizen-gbs-build-worker (args)
+  (interactive)
+  (let ((cmd (concat "gbs build "
+		     (mapconcat 'identity
+				(remove-if 
+				 '(lambda (str)
+				    (or (string= str "")
+					(string= str " ")))
+				 args)
+				" ")
+		     " &")))
+    
+    (let* ((process-environment
+	    ;; TODO: What's better than this double cons?! this can't be ideal
+	    (cons "http_proxy=" 
+		  (cons "https_proxy=" 
+			process-environment))))
+      (message cmd)
+      (shell-command cmd "Tizen GBS Build"))))
+
+
+;(tizen-gbs-build-worker '("--include-all " "" " " "--no-init "))
+
+(require 'options-mode)
 (defun tizen-gbs-build ()
   (interactive)
-  (tizen-gbs-build-options-window))
+
+  (options-mode-new 
+   "gbs-build"
+   (Command "gbs-build"
+	    :command
+	    'tizen-gbs-build-worker
+	    :options 
+	    (Options 
+	     "options"
+	     :elems
+	     (list (Switch "--clean" 
+			   :key "C"
+			   :desc "Clean the GBS buildroot & cached pkgs"
+			   :onactivate '(lambda (opt)
+					  (pp (oref opt active))))
+		   (Switch "--noinit"
+			   :key "N"
+			   :desc "Do not check the state of GBS buildroot; fast"
+			   :onactivate '(lambda (opt)
+					  (message "")))
+
+		   (Switch "--keep-packs"
+			   :key "K"
+			   :desc "Keep unused packages in build root"
+			   :onactivate '(lambda (opt)
+					  (message "Toggled Keep Packs")))
+
+		   (Switch "--include-all"
+			   :key "I"
+			   :desc "Include uncommited changes and untracked files"
+			   :onactivate '(lambda (opt)
+					  (message "Toggled Include All")))
+		   
+		   (SwitchArg "--profile"
+			      :key "P"
+			      :desc "Specify the GBS profile to be used"
+			      :arg "slp"
+			      :onactivate '(lambda (opt)
+					     (ido-completing-read 
+					      "Profile: "
+					      (list "slp" "surc" "latest")
+					      "slp")))
+		   
+		   (SwitchArg "--arch"
+			      :key "A"
+			      :desc "Specify the GBS profile to be used"
+			      :arg "armv7l"
+			      :onactivate '(lambda (opt)
+					     (ido-completing-read 
+					      "Profile: "
+					      (list "armv7l" "i586")
+					      "armv7l"))))))))
+
+
 ;;(tizen-gbs-build)
 (defun tizen-build-package-gbs (&optional profile)
   ""
@@ -597,7 +674,7 @@
 	    (shell-command-to-string 
 	     (concat
 	      "awk '/^\\[profile/ { print $0; }' "
-	      gbs-conf
+	      tizen-gbs-conf
 	      " | sed -e 's/\\[//' -e 's/\\]//' -e 's/profile.//'"))))))
   
   (tizen-gbs-build-options-window)

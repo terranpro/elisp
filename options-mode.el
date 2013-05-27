@@ -38,7 +38,7 @@
 	:initform nil)
    (desc :initarg :desc)
    (face :initarg :face
-	 :initform 'ac-selection-face)
+	 :initform 'ac-candidate-face)
    (onactivate :initarg :onactivate)) 
 
   "A basic option!
@@ -59,13 +59,33 @@ The one argument passed to the callback is the Option obj. ")
     (let ((keymap (make-sparse-keymap)))
       (mapc #'(lambda (option)
 		(with-slots (key onactivate) option
+		  (setq options-callback-table 
+			(concatenate 
+			 'list  
+			 (list (list (kbd key) (list option)))
+			 options-callback-table))
+		  
 		  (define-key keymap (kbd key) 
 		    ;; TODO: FIX!
 		    '(lambda () 
 		       (interactive)
-		       (message (format "Callback hit! Obj:\n"))
-		       (pp option)
-		       (funcall onactivate option)))))
+		       (let ((option (car (second
+				       (assoc (key-description 
+					       (list last-input-event))
+					      options-callback-table)))))
+
+			 (Activate option)
+			 (options-redisplay)
+			 ;; (pp (or 
+			 ;;      (Option-p option)
+			 ;;      (Option-child-p option)))
+			 )
+
+		       ;;(pp (assoc key options-callback-table))
+		       ;(message (format "Callback hit! Obj:\n"))
+		       ;(pp option)
+		       ;(funcall onactivate option)
+		       ))))
 	    elems)
       keymap)))
 
@@ -74,51 +94,48 @@ The one argument passed to the callback is the Option obj. ")
   (with-slots (hidden) obj 
     (format "%s" (if hidden
 		     "" 
-		   (oref obj key)))))
+		   (object-name-string obj)))))
 
 (defmethod Redraw ((obj Options))
   "Redraw an Options group"
   (with-slots (elems) obj
-      (mapcar 'Redraw elems)))
+    (erase-buffer)
+    (goto-char (point-min))
+    
+    (mapc #'(lambda (option) 
+	      (insert (format "%s\n" (Redraw option))))
+	  elems)))
 
 (defclass Switch (Option)
   ((active :initform nil
 	   :initarg :active)
-   (active-face :initform 'ac-candidate-face
+   (active-face :initform 'ac-selection-face
 		:initarg :active-face))
   "Options to represent command-line switches (e.g. --clean)")
 
 (defmethod Redraw ((obj Switch))
   (with-slots (key desc active face active-face) obj
     (let ((key-face (if active active-face face))
-	  (desc-face 'ac-selection-face))
-      (format "%s : %s" 
+	  (name-face (if active active-face 'default))
+	  (desc-face 'ac-candidate-face))
+      (format "%s : %s [ %s ]" 
 	      (propertize key 'face key-face)
+	      (propertize (object-name-string obj) 'face name-face)
 	      desc))))
 
-
-(defclass SwitchArg (Switch)
+(defclass SwitchArg (Option)
   ((arg :initform ""
 	:initarg :arg))
+
   "A Switch that also has a trailing arg (e.g. --profile SLP")
 
 (defmethod Redraw ((obj SwitchArg))
-  (with-slots (arg) obj
-    (let ((switchstr (call-next-method)))
-      (format "%s %s" 
-	      switchstr 
+  (with-slots (key face arg) obj
+    (let ((objstr (call-next-method)))
+      (format "%s : %s %s" 
+	      (propertize key 'face face)
+	      (propertize (object-name-string obj) 'face face)
 	      arg))))
-
-(Redraw (Options "arf!" 
-		 :elems
-		 (list (Option "opt")
-		       (SwitchArg "switch" :key "--switch" :desc "amazing"
-				  :arg "SLP" :face 'ac-candidate-face))))
-
-(oref (Switch "opt" :key "Magic" :desc "Forever!" :active t) active)
-
-(Redraw (Option "opt" :hidden t))
-
 
 (defclass Command ()
   ((options :initform nil
@@ -126,6 +143,19 @@ The one argument passed to the callback is the Option obj. ")
    (command :initform nil
 	    :initarg :command))
   "A wrapper around a command that requires extra options!")
+
+(defmethod CreateKeymap ((obj Command) cmd-invoker)
+  (with-slots (options command) obj
+    (let ((keymap (CreateKeymap options)))
+      (define-key keymap (kbd "RET") 
+	(symbol-function cmd-invoker))
+      (define-key keymap (kbd "q")
+	'(lambda () (interactive)
+	   (switch-to-prev-buffer)))
+      (define-key keymap (kbd "Q")
+	'(lambda () (interactive) 
+	   (switch-to-prev-buffer)))
+      keymap)))
 
 (defmethod Invoke ((obj Command))
   "Invoke the command by dumping the current state of the options"
@@ -141,43 +171,51 @@ The one argument passed to the callback is the Option obj. ")
   (with-slots (key) obj 
     `(,(make-symbol (concat ":"key)) . ,key)))
 
-(symbol-value :key)
+(defmethod Activate ((obj Option))
+  (with-slots (onactivate) obj
+    (funcall onactivate obj)))
+
+(defmethod Activate ((obj Switch))
+  (with-slots (onactivate) obj
+    (oset option active (not (oref option active)))
+    (call-next-method)))
+
+(defmethod Activate ((obj SwitchArg))
+  (with-slots (onactivate arg) obj
+    (message (format "Entered SwitchArg Activate! %s" (oref option arg)))
+    (oset obj arg (call-next-method))))
+
+(defmethod BuildOption ((obj Switch))
+  (format "%s " (if (oref obj active) (object-name-string obj) "")))
+
+(defmethod BuildOption ((obj SwitchArg))
+  (format "%s %s " (object-name-string obj) (oref obj arg)))
+
+(defmethod BuildOptions ((obj Options))
+  (with-slots (elems) obj
+    (mapcar 'BuildOption elems)))
+
 (make-symbol (concat ":" "key"))
-
-(Redraw (Options "options"
-		 :elems
-		 (list (Option "opt1" :key "--clean")
-		       (Option "opt2" :key "--noinit" :hidden t)))
-
-	)
-
-(insert "")
-(Invoke (Options "options"
-		 :elems
-		 (list (Option "opt1" :key "--clean")
-		       (Option "opt2" :key "--noinit" :hidden t)))
-
-)
-
-
-
-(Invoke (Command "gbs-build"
-		 :command
-		 'pp
-		 :options 
-		 (Options "options"
-			  :elems
-			  (list (Option "opt1" :key "--clean")
-				(Option "opt2" :key "--noinit")))))
-
-(eieio-build-class-alist)
 
 (object-assoc-list 'elems (list (Options "a" :elems "123") (Options "b" :elems "678")))
 
-(defun options-redisplay (elems))
+(defun options-redisplay ()
+  (erase-buffer)
+  (goto-char (point-min))
+  (Redraw options-mode-options))
 
 (define-derived-mode options-mode nil "Options" 
   "")
+
+(defvar-local options-mode-command nil "")
+(defvar-local options-mode-options nil "")
+(defvar-local options-callback-table nil "")
+
+(defun options-mode-invoke-command ()
+  (interactive)
+  (funcall options-mode-command
+	   (BuildOptions options-mode-options))
+  (kill-buffer (current-buffer)))
 
 (defun options-mode-new (name cmd)
   (with-slots (command options) cmd
@@ -185,16 +223,18 @@ The one argument passed to the callback is the Option obj. ")
    (switch-to-buffer-other-window (concat "Options: " name))
    (erase-buffer)
    (options-mode)
-   (setq options-mode-map (CreateKeymap options))
-   (use-local-map options-mode-map)
-   (mapc '(lambda (str) (insert (format "%s\n" str)))
-	 (Redraw options))))
+   (setq options-mode-map (CreateKeymap cmd 'options-mode-invoke-command))
+   (setq options-mode-command command)
+   (setq options-mode-options options)
+   (use-local-map (CreateKeymap cmd 'options-mode-invoke-command))
+   (options-redisplay)
+   t))
 
 (options-mode-new 
  "gbs-build"
  (Command "gbs-build"
 	  :command
-	  'pp
+	  'tizen-gbs-build-worker
 	  :options 
 	  (Options 
 	   "options"
@@ -202,16 +242,45 @@ The one argument passed to the callback is the Option obj. ")
 	   (list (Switch "--clean" 
 			 :key "C"
 			 :desc "Clean the GBS buildroot & cached pkgs"
-			 :onactivate 'kill-buffer-and-window)
+			 :onactivate '(lambda (opt)
+					(pp (oref opt active))))
 		 (Switch "--noinit"
-			 :key "I"
+			 :key "N"
 			 :desc "Do not check the state of GBS buildroot; fast"
-			 :onactivate 'switch-to-prev-buffer)
+			 :onactivate '(lambda (opt)
+					(message "")))
+
+		 (Switch "--keep-packs"
+			 :key "K"
+			 :desc "Keep unused packages in build root"
+			 :onactivate '(lambda (opt)
+					(message "Toggled Keep Packs")))
+
+		 (Switch "--include-all"
+			 :key "I"
+			 :desc "Include uncommited changes and untracked files"
+			 :onactivate '(lambda (opt)
+					(message "Toggled Include All")))
+		 
 		 (SwitchArg "--profile"
 			    :key "P"
 			    :desc "Specify the GBS profile to be used"
 			    :arg "slp"
-			    :onactivate 'pp)))))
+			    :onactivate '(lambda (opt)
+					   (ido-completing-read 
+					    "Profile: "
+					    (list "slp" "surc" "latest")
+					    "slp")))
+		 
+		 (SwitchArg "--arch"
+			    :key "A"
+			    :desc "Specify the GBS profile to be used"
+			    :arg "armv7l"
+			    :onactivate '(lambda (opt)
+					   (ido-completing-read 
+					    "Profile: "
+					    (list "armv7l" "i586")
+					    "armv7l")))))))
 
 (provide 'options-mode)
 
