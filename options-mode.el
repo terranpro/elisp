@@ -215,7 +215,8 @@ The one argument passed to the callback is the Option obj. ")
   (interactive)
   (funcall options-mode-command
 	   (BuildOptions options-mode-options))
-  (kill-buffer (current-buffer)))
+  ;(kill-buffer (current-buffer))
+  )
 
 (defun options-mode-new (name cmd)
   (with-slots (command options) cmd
@@ -230,57 +231,57 @@ The one argument passed to the callback is the Option obj. ")
    (options-redisplay)
    t))
 
-(options-mode-new 
- "gbs-build"
- (Command "gbs-build"
-	  :command
-	  'tizen-gbs-build-worker
-	  :options 
-	  (Options 
-	   "options"
-	   :elems
-	   (list (Switch "--clean" 
-			 :key "C"
-			 :desc "Clean the GBS buildroot & cached pkgs"
-			 :onactivate '(lambda (opt)
-					(pp (oref opt active))))
-		 (Switch "--noinit"
-			 :key "N"
-			 :desc "Do not check the state of GBS buildroot; fast"
-			 :onactivate '(lambda (opt)
-					(message "")))
+;; (options-mode-new 
+;;  "gbs-build"
+;;  (Command "gbs-build"
+;; 	  :command
+;; 	  'tizen-gbs-build-worker
+;; 	  :options 
+;; 	  (Options 
+;; 	   "options"
+;; 	   :elems
+;; 	   (list (Switch "--clean" 
+;; 			 :key "C"
+;; 			 :desc "Clean the GBS buildroot & cached pkgs"
+;; 			 :onactivate '(lambda (opt)
+;; 					(pp (oref opt active))))
+;; 		 (Switch "--noinit"
+;; 			 :key "N"
+;; 			 :desc "Do not check the state of GBS buildroot; fast"
+;; 			 :onactivate '(lambda (opt)
+;; 					(message "")))
 
-		 (Switch "--keep-packs"
-			 :key "K"
-			 :desc "Keep unused packages in build root"
-			 :onactivate '(lambda (opt)
-					(message "Toggled Keep Packs")))
+;; 		 (Switch "--keep-packs"
+;; 			 :key "K"
+;; 			 :desc "Keep unused packages in build root"
+;; 			 :onactivate '(lambda (opt)
+;; 					(message "Toggled Keep Packs")))
 
-		 (Switch "--include-all"
-			 :key "I"
-			 :desc "Include uncommited changes and untracked files"
-			 :onactivate '(lambda (opt)
-					(message "Toggled Include All")))
+;; 		 (Switch "--include-all"
+;; 			 :key "I"
+;; 			 :desc "Include uncommited changes and untracked files"
+;; 			 :onactivate '(lambda (opt)
+;; 					(message "Toggled Include All")))
 		 
-		 (SwitchArg "--profile"
-			    :key "P"
-			    :desc "Specify the GBS profile to be used"
-			    :arg "slp"
-			    :onactivate '(lambda (opt)
-					   (ido-completing-read 
-					    "Profile: "
-					    (list "slp" "surc" "latest")
-					    "slp")))
+;; 		 (SwitchArg "--profile"
+;; 			    :key "P"
+;; 			    :desc "Specify the GBS profile to be used"
+;; 			    :arg "slp"
+;; 			    :onactivate '(lambda (opt)
+;; 					   (ido-completing-read 
+;; 					    "Profile: "
+;; 					    (list "slp" "surc" "latest")
+;; 					    "slp")))
 		 
-		 (SwitchArg "--arch"
-			    :key "A"
-			    :desc "Specify the GBS profile to be used"
-			    :arg "armv7l"
-			    :onactivate '(lambda (opt)
-					   (ido-completing-read 
-					    "Profile: "
-					    (list "armv7l" "i586")
-					    "armv7l")))))))
+;; 		 (SwitchArg "--arch"
+;; 			    :key "A"
+;; 			    :desc "Specify the GBS profile to be used"
+;; 			    :arg "armv7l"
+;; 			    :onactivate '(lambda (opt)
+;; 					   (ido-completing-read 
+;; 					    "Profile: "
+;; 					    (list "armv7l" "i586")
+;; 					    "armv7l")))))))
 
 (provide 'options-mode)
 

@@ -80,6 +80,10 @@
 (defvar tizen-gbs-built-rpm-directory "/home/terranpro/tizen/SURC/rpms"
   "")
 
+(defvar-local tizen-project-directory nil 
+  "Toplevel directory for a single Tizen package.
+Example:  /home/terranpro/tizen/git/ebookviewer/")
+
 (defvar tizen-mode-map 
   (let ((map (make-keymap)))
     (define-key map (kbd "F") 'tizen-flash-binary)
@@ -110,31 +114,53 @@
   ""
   )
 
-(defun tizen-translate-file-to-prjpath (gbsroot-file)
+(defun tizen-translate-file-to-prjpath (gbsroot-file prjdir)
+  "Takes a full path to source file building inside a GBS Root
+and translates it to a project directory based on PRJDIR. "
   (interactive)
-  (let* ((prjdir "~/tizen/git/ebookviewer/")
-	 (before gbsroot-file)
+  (let* ((file-info (split-string gbsroot-file ":" t))
+	 (before (first file-info))
 	 (reg (rx "/home/abuild/rpmbuild/BUILD/"
 		  (zero-or-more (not (any "/")))
 		  "/"
 		  (group (one-or-more any) "/")
 		  (group (one-or-more (not (any ":"))))))
 	 (dir-part)
-	 (file-part))
-    (if (string-match reg before)
-	(progn
-	  (setq dir-part (match-string 1 before))
-	  (setq file-part (match-string 2 before))
-	  (expand-file-name
-	   (concat prjdir
-		   dir-part
-		   file-part))))))
+	 (file-part)
+	 (line))
+    (list
+     (if (string-match reg before)
+	 (progn
+	   (setq dir-part (match-string 1 before))
+	   (setq file-part (match-string 2 before))
+	   (expand-file-name
+	    (concat prjdir
+		    dir-part
+		    file-part))))
+     (second file-info)
+     (third file-info))))
 
 (defun tizen-jump-to-prj-file (&optional file)
   (interactive)
   (unless file
     (setq file (thing-at-point 'filename)))
-  (find-file (tizen-translate-file-to-prjpath file)))
+  (let* ((file-info  (tizen-translate-file-to-prjpath 
+		      file
+		      (or tizen-project-directory
+			  default-directory)))
+	 (file (first file-info))
+	 (line-str  (second file-info))
+	 (line (unless (null line-str)
+		 (string-to-number line-str)))
+	 (col-str (third file-info))
+	 (col (unless (null col-str)
+		(string-to-number col-str))))
+    (find-file-other-window file)
+    (unless (null (second file-info))
+      (goto-char (point-min))
+      (forward-line (1- line))
+      (unless (null (third file-info))
+	(forward-char (1- (string-to-number (third file-info))))))))
 
 (defun tizen-gerrit-address (&optional proto user port)
   ""
@@ -599,7 +625,16 @@
 		  (cons "https_proxy=" 
 			process-environment))))
       (message cmd)
-      (shell-command cmd "Tizen GBS Build"))))
+      (shell-command cmd "Tizen GBS Build")
+      (save-window-excursion 
+	(switch-to-buffer "Tizen GBS Build")
+	(setq tizen-project-directory
+	      (locate-dominating-file
+	       (or buffer-file-name
+		   default-directory)
+	       ".dir-locals.el"))
+	(local-set-key (kbd "C-c j") 'tizen-jump-to-prj-file)
+	(local-set-key (kbd "C-c J") 'tizen-jump-to-prj-file)))))
 
 
 ;(tizen-gbs-build-worker '("--include-all " "" " " "--no-init "))
@@ -624,31 +659,40 @@
 					  (pp (oref opt active))))
 		   (Switch "--noinit"
 			   :key "N"
+			   :active t
 			   :desc "Do not check the state of GBS buildroot; fast"
 			   :onactivate '(lambda (opt)
 					  (message "")))
 
 		   (Switch "--keep-packs"
 			   :key "K"
+			   :active t
 			   :desc "Keep unused packages in build root"
 			   :onactivate '(lambda (opt)
 					  (message "Toggled Keep Packs")))
 
 		   (Switch "--include-all"
 			   :key "I"
+			   :active t
 			   :desc "Include uncommited changes and untracked files"
 			   :onactivate '(lambda (opt)
 					  (message "Toggled Include All")))
 		   
+		   (Switch "--incremental"
+			   :key "i"
+			   :desc "Incremental build - continue failed builds"
+			   :onactivate '(lambda (opt)
+					  (message "Toggled Incremental")))
+
 		   (SwitchArg "--profile"
 			      :key "P"
 			      :desc "Specify the GBS profile to be used"
-			      :arg "slp"
+			      :arg "surc"
 			      :onactivate '(lambda (opt)
 					     (ido-completing-read 
 					      "Profile: "
 					      (list "slp" "surc" "latest")
-					      "slp")))
+					      "surc")))
 		   
 		   (SwitchArg "--arch"
 			      :key "A"
@@ -775,28 +819,52 @@
 	 (cmd))
     ))
 
-;; TODO: finish
+;; Almost finished?!
+;; Improve later
 (defun tizen-create-barebone-project (&optional parent-dir project-name)
   ""
   (interactive "D")
   (save-window-excursion
-    (let* ((parentdir (expand-file-name 
-		       (or parent-dir 
-			   (ido-read-directory-name 
-			    "Project Parent Directory: "
-			    default-directory))))
-	   (prj-dir (expand-file-name 
+    (let* ((prj-dir (file-name-directory
 		     (or parent-dir 
 			 (ido-read-directory-name 
-			  "Project Name (Directory): "
+			  "Project Directory: "
 			  parentdir))))
-	   (prj-name (file-name-directory prj-dir))
-	   (spec-file (concat prj-dir
-			      "/"
-			      prj-name
-			      ".spec")))
+	   (prj-name (file-name-nondirectory (directory-file-name prj-dir)))
+	   (spec-file (concat
+		       prj-dir
+		       "packaging/"
+		       prj-name
+		       ".spec"))
+	   (cmake-file (concat 
+			prj-dir 
+			"CMakeLists.txt")))
 
-      )))
+      (message (format "1 %s 2 %s 3 %s 4 %s 5 %s" parent-dir prj-dir prj-name spec-file cmake-file))
+      (save-excursion
+	(find-file spec-file)
+	(let* ((tmp-name "tizen:spec")
+	       (tmp-tbl (srecode-template-get-table
+			 (srecode-get-mode-table 'sh-mode) tmp-name))
+	       (dict (srecode-create-dictionary)))
+	  (srecode-dictionary-set-value dict "NAME" prj-name)
+	  (srecode-dictionary-set-value dict "DESCRIPTION"
+					(concat "TODO: "
+						"Description for "
+						prj-name "."))
+	  (srecode-resolve-arguments tmp-tbl dict)
+	  (srecode-insert-fcn tmp-tbl dict)))
+
+      (save-excursion 
+       (find-file cmake-file)
+       (let* ((tmp-name "tizen:empty")
+	      (tmp-tbl (srecode-template-get-table  
+			(srecode-get-mode-table 'cmake-mode) tmp-name))
+	      (dict (srecode-create-dictionary)))
+	 (srecode-dictionary-set-value dict "PNAME" prj-name)
+	 (srecode-resolve-arguments tmp-tbl dict)
+	 (srecode-insert-fcn tmp-tbl dict))))))
+
 
 (defun tizen-get-cur-directory-name (&optional dir)
   ""
@@ -961,6 +1029,10 @@
  "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
 (tizen-ede-cpp-root-project 
  "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
+
+(when (file-exists-p "/home/terranpro/tizen/git/pte-standalone/CMakeLists.txt")
+ (tizen-ede-cpp-root-project 
+  "/home/terranpro/tizen/git/pte-standalone/CMakeLists.txt"))
 
 ;; (tizen-ede-cpp-root-project 
 ;;  "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
