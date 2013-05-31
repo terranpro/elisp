@@ -36,7 +36,8 @@
 	   :initform nil)
    (key :initarg :key
 	:initform nil)
-   (desc :initarg :desc)
+   (desc :initarg :desc
+	 :initform "")
    (face :initarg :face
 	 :initform 'ac-candidate-face)
    (onactivate :initarg :onactivate)) 
@@ -186,10 +187,10 @@ The one argument passed to the callback is the Option obj. ")
     (oset obj arg (call-next-method))))
 
 (defmethod BuildOption ((obj Switch))
-  (format "%s " (if (oref obj active) (object-name-string obj) "")))
+  (format "%s" (if (oref obj active) (object-name-string obj) "")))
 
 (defmethod BuildOption ((obj SwitchArg))
-  (format "%s %s " (object-name-string obj) (oref obj arg)))
+  (format "%s %s" (object-name-string obj) (oref obj arg)))
 
 (defmethod BuildOptions ((obj Options))
   (with-slots (elems) obj

@@ -738,11 +738,56 @@ and translates it to a project directory based on PRJDIR. "
     (shell-command cmd
 		   "Tizen GBS Build")))
 
-(defun tizen-sdb-push-file (file)
+(defun tizen-rpm-push-mode (&optional dir)
+  (interactive)
+  (let* ((rpm-dir (directory-file-name 
+		   (or dir tizen-gbs-built-rpm-directory)))
+	 (rpm-files (remove-if 
+		     'file-directory-p
+		     (directory-files rpm-dir t)))
+	 (counter 0)
+	 (options))
+    
+    (setq options 
+	  (loop for file in rpm-files
+		for count from 1 to (length rpm-files)
+		collect (Switch file 
+				:key (number-to-string count)
+				:active nil
+				:onactivate '(lambda (opt)
+					       (message "Toggled!")))))
+
+    (options-mode-new 
+     "RPMPush"
+     (Command "Tizen RPM Push"
+	      :command 
+	      '(lambda (files) 
+		 (interactive)
+		 (tizen-sdb-push-files 
+		  (remove-if '(lambda (f) (string= " " f))
+			     files)
+		  "/opt/usr"))
+	      :options
+	      (Options "options"
+		       :elems 
+		       options)))))
+
+(tizen-rpm-push-mode
+ "/home/terranpro/tizen/HQ/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/")
+
+(defun tizen-sdb-push-files (files &optional dstdir)
+  "FILES is a list of absolute paths of RPM files to be pushed to the device for installation in DSTDIR or /tmp"
+  (pp files)
+  (loop for file in files 
+	do 
+	(progn 
+	  (tizen-sdb-push-file file dstdir))))
+
+(defun tizen-sdb-push-file (file &optional dstdir)
   ""
   (let* ((local-file (and (file-exists-p file)
 			  file))
-	 (remote-dir "/tmp/")
+	 (remote-dir (or dstdir "/tmp/"))
 	 (cmd (concat "sdb push "
 		      local-file
 		      " "
