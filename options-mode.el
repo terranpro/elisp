@@ -34,6 +34,8 @@
 (defclass Option () 
   ((hidden :initarg :hidden
 	   :initform nil)
+   (display-name :initarg :display-name
+		 :initform nil)
    (key :initarg :key
 	:initform nil)
    (desc :initarg :desc
@@ -55,41 +57,6 @@ The one argument passed to the callback is the Option obj. ")
 
   "A Group of Options")
 
-(defmethod CreateKeymap ((obj Options))
-  (with-slots (elems) obj 
-    (let ((keymap (make-sparse-keymap)))
-      (mapc #'(lambda (option)
-		(with-slots (key onactivate) option
-		  (setq options-callback-table 
-			(concatenate 
-			 'list  
-			 (list (list (kbd key) (list option)))
-			 options-callback-table))
-		  
-		  (define-key keymap (kbd key) 
-		    ;; TODO: FIX!
-		    '(lambda () 
-		       (interactive)
-		       (let ((option (car (second
-				       (assoc (key-description 
-					       (list last-input-event))
-					      options-callback-table)))))
-
-			 (Activate option)
-			 (options-redisplay)
-			 ;; (pp (or 
-			 ;;      (Option-p option)
-			 ;;      (Option-child-p option)))
-			 )
-
-		       ;;(pp (assoc key options-callback-table))
-		       ;(message (format "Callback hit! Obj:\n"))
-		       ;(pp option)
-		       ;(funcall onactivate option)
-		       ))))
-	    elems)
-      keymap)))
-
 (defmethod Redraw ((obj Option))
   "Redraw an individual Option"
   (with-slots (hidden) obj 
@@ -100,11 +67,11 @@ The one argument passed to the callback is the Option obj. ")
 (defmethod Redraw ((obj Options))
   "Redraw an Options group"
   (with-slots (elems) obj
-    (erase-buffer)
-    (goto-char (point-min))
-    
     (mapc #'(lambda (option) 
-	      (insert (format "%s\n" (Redraw option))))
+	      (insert (propertize 
+		       (format "%s\n" (Redraw option))
+		       'option
+		       option)))
 	  elems)))
 
 (defclass Switch (Option)
@@ -115,14 +82,20 @@ The one argument passed to the callback is the Option obj. ")
   "Options to represent command-line switches (e.g. --clean)")
 
 (defmethod Redraw ((obj Switch))
-  (with-slots (key desc active face active-face) obj
+  (with-slots (key desc active face active-face display-name) obj
     (let ((key-face (if active active-face face))
 	  (name-face (if active active-face 'default))
 	  (desc-face 'ac-candidate-face))
-      (format "%s : %s [ %s ]" 
-	      (propertize key 'face key-face)
-	      (propertize (object-name-string obj) 'face name-face)
-	      desc))))
+      (format "%s : %s %s" 
+	      (if key 
+		  (propertize key 'face key-face)
+		" ")
+	      (propertize 
+	       (or display-name (object-name-string obj))
+	       'face name-face)
+	      (if (and desc (not (string= "" desc)))
+		  (concat " [ " desc " ] ")
+		"")))))
 
 (defclass SwitchArg (Option)
   ((arg :initform ""
@@ -142,12 +115,52 @@ The one argument passed to the callback is the Option obj. ")
   ((options :initform nil
 	    :initarg :options)
    (command :initform nil
-	    :initarg :command))
+	    :initarg :command)
+   (help-string :initarg :help-string
+		:initform ""))
   "A wrapper around a command that requires extra options!")
+
+(defmethod Redraw ((obj Command))
+  (with-slots (options help-string) obj
+    (insert (format "%s\n\n%s\n\n"
+		    (object-name-string obj)
+		    help-string))
+    (Redraw options)))
+
+(defmethod CreateKeymap ((obj Options))
+  (with-slots (elems) obj 
+    (let ((keymap (make-sparse-keymap)))
+      (mapc #'(lambda (option)
+		(with-slots (key onactivate) option
+		  (when key
+		    (setq options-callback-table 
+			  (concatenate 
+			   'list  
+			   (list (list (kbd key) (list option)))
+			   options-callback-table))
+
+		    (define-key keymap (kbd key) 
+		     '(lambda () 
+			(interactive)
+			(let ((option 
+			       (car (second
+				     (assoc (key-description 
+					     (list last-input-event))
+					    options-callback-table)))))
+			  (when option
+			    (Activate option)
+			    (options-redisplay))))))))
+	    elems)
+      keymap)))
 
 (defmethod CreateKeymap ((obj Command) cmd-invoker)
   (with-slots (options command) obj
     (let ((keymap (CreateKeymap options)))
+      (define-key keymap (kbd "SPC")
+	'(lambda () (interactive)
+	   (when (get-text-property (point) 'option)
+	     (Activate (get-text-property (point) 'option))
+	     (options-redisplay))))
       (define-key keymap (kbd "RET") 
 	(symbol-function cmd-invoker))
       (define-key keymap (kbd "q")
@@ -178,12 +191,12 @@ The one argument passed to the callback is the Option obj. ")
 
 (defmethod Activate ((obj Switch))
   (with-slots (onactivate) obj
-    (oset option active (not (oref option active)))
+    (oset obj active (not (oref obj active)))
     (call-next-method)))
 
 (defmethod Activate ((obj SwitchArg))
   (with-slots (onactivate arg) obj
-    (message (format "Entered SwitchArg Activate! %s" (oref option arg)))
+    (message (format "Entered SwitchArg Activate! %s" (oref obj arg)))
     (oset obj arg (call-next-method))))
 
 (defmethod BuildOption ((obj Switch))
@@ -196,25 +209,29 @@ The one argument passed to the callback is the Option obj. ")
   (with-slots (elems) obj
     (mapcar 'BuildOption elems)))
 
-(make-symbol (concat ":" "key"))
-
 (object-assoc-list 'elems (list (Options "a" :elems "123") (Options "b" :elems "678")))
 
 (defun options-redisplay ()
-  (erase-buffer)
-  (goto-char (point-min))
-  (Redraw options-mode-options))
+  (let ((inhibit-read-only t)
+	(old-line (line-number-at-pos (point))))
+    (erase-buffer)
+    (goto-char (point-min))
+    ;(Redraw options-mode-options)
+    (Redraw options-mode-command)
+    (goto-char (point-min))
+    (forward-line (1- old-line))))
 
-(define-derived-mode options-mode nil "Options" 
+(define-derived-mode options-mode special-mode "Options" 
   "")
 
 (defvar-local options-mode-command nil "")
+(defvar-local options-mode-command-callback nil "")
 (defvar-local options-mode-options nil "")
 (defvar-local options-callback-table nil "")
 
 (defun options-mode-invoke-command ()
   (interactive)
-  (funcall options-mode-command
+  (funcall options-mode-command-callback
 	   (BuildOptions options-mode-options))
   ;(kill-buffer (current-buffer))
   )
@@ -226,7 +243,8 @@ The one argument passed to the callback is the Option obj. ")
    (erase-buffer)
    (options-mode)
    (setq options-mode-map (CreateKeymap cmd 'options-mode-invoke-command))
-   (setq options-mode-command command)
+   (setq options-mode-command cmd)
+   (setq options-mode-command-callback command)
    (setq options-mode-options options)
    (use-local-map (CreateKeymap cmd 'options-mode-invoke-command))
    (options-redisplay)

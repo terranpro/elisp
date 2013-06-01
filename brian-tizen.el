@@ -26,6 +26,7 @@
 
 (add-to-list 'load-path "/home/terranpro/elisp/foreign/auto-complete/lib/popup")
 (require 'popup)
+(require 'options-mode)
 
 ;; TODO: very useful function needed for my dir locals
 ;; move it elsewhere later
@@ -616,18 +617,46 @@ and translates it to a project directory based on PRJDIR. "
 				    (or (string= str "")
 					(string= str " ")))
 				 args)
-				" ")
-		     " &")))
+				" "))))
     
     (let* ((process-environment
 	    ;; TODO: What's better than this double cons?! this can't be ideal
 	    (cons "http_proxy=" 
 		  (cons "https_proxy=" 
-			process-environment))))
+			process-environment)))
+	   (proc-buf-name (generate-new-buffer-name 
+			    "Tizen GBS Build"))
+	   (proc (apply 'start-process
+			"gbs-build" 
+			proc-buf-name
+			"gbs"
+			(cdr (split-string cmd " " t)))))
+      
       (message cmd)
-      (shell-command cmd "Tizen GBS Build")
+
+      ;;(set-process-filter proc 'ansi-color-for-comint-mode-on)      
+
+      (set-process-sentinel proc 
+			    '(lambda (proc event)
+			       (let ((status (process-status proc)))
+				 (if (eq 'exit status)
+				     (progn
+				       (message "Colorizing!")
+				       (with-current-buffer (process-buffer proc)
+					 
+					 (ansi-color-apply-on-region 
+					  (point-min)
+					  (point-max))
+					 (setq tizen-gbs-built-rpm-directory 
+					       (let ((regexp (rx "generated RPM packages can be found from local repo:"
+		  (zero-or-more (or whitespace ?\n))
+		  (group (zero-or-more not-newline))))
+						     (string (buffer-substring-no-properties (point-min) (point-max))))
+						 (if (string-match regexp string)
+      (match-string 1 string))))))))))
+      ;(shell-command cmd "Tizen GBS Build")
       (save-window-excursion 
-	(switch-to-buffer "Tizen GBS Build")
+	(switch-to-buffer proc-buf-name)
 	(setq tizen-project-directory
 	      (locate-dominating-file
 	       (or buffer-file-name
@@ -639,7 +668,11 @@ and translates it to a project directory based on PRJDIR. "
 
 ;(tizen-gbs-build-worker '("--include-all " "" " " "--no-init "))
 
-(require 'options-mode)
+(defvar tizen-gbs-build-help-string 
+  "Select options with their key prefix or SPC on the associated line.
+
+When all options are selected, press ENTER to launch gbs build.")
+
 (defun tizen-gbs-build ()
   (interactive)
 
@@ -648,6 +681,10 @@ and translates it to a project directory based on PRJDIR. "
    (Command "gbs-build"
 	    :command
 	    'tizen-gbs-build-worker
+	    :help-string
+	    (concat tizen-gbs-build-help-string
+		    "\n\nDetected Project Directory: "
+		    (or tizen-project-directory default-directory))
 	    :options 
 	    (Options 
 	     "options"
@@ -738,6 +775,20 @@ and translates it to a project directory based on PRJDIR. "
     (shell-command cmd
 		   "Tizen GBS Build")))
 
+(defun tizen-key-from-count (count)
+  (cond 
+   ((> count (+ 9 26)) nil)
+   ((> count 9) (char-to-string (- (+ ?A (- count 9)) 1)))
+   (t (number-to-string count))))
+
+(defvar tizen-rpm-push-mode-help-string 
+"Use SPC or the prefix key at the beginning of the line to toggle selection/installation of RPM files.
+
+Press ENTER when all files are selected, and they will be uploaded to the device.
+
+Directory:
+")
+
 (defun tizen-rpm-push-mode (&optional dir)
   (interactive)
   (let* ((rpm-dir (directory-file-name 
@@ -751,8 +802,9 @@ and translates it to a project directory based on PRJDIR. "
     (setq options 
 	  (loop for file in rpm-files
 		for count from 1 to (length rpm-files)
-		collect (Switch file 
-				:key (number-to-string count)
+		collect (Switch file
+				:display-name (file-name-nondirectory file)
+				:key (tizen-key-from-count count)
 				:active nil
 				:onactivate '(lambda (opt)
 					       (message "Toggled!")))))
@@ -760,6 +812,9 @@ and translates it to a project directory based on PRJDIR. "
     (options-mode-new 
      "RPMPush"
      (Command "Tizen RPM Push"
+	      :help-string
+	      (concat tizen-rpm-push-mode-help-string
+		      rpm-dir)
 	      :command 
 	      '(lambda (files) 
 		 (interactive)
@@ -772,8 +827,8 @@ and translates it to a project directory based on PRJDIR. "
 		       :elems 
 		       options)))))
 
-(tizen-rpm-push-mode
- "/home/terranpro/tizen/HQ/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/")
+;; (tizen-rpm-push-mode
+;;  "/home/terranpro/tizen/HQ/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/")
 
 (defun tizen-sdb-push-files (files &optional dstdir)
   "FILES is a list of absolute paths of RPM files to be pushed to the device for installation in DSTDIR or /tmp"
