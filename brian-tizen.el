@@ -683,7 +683,7 @@ When all options are selected, press ENTER to launch gbs build.")
 	    'tizen-gbs-build-worker
 	    :help-string
 	    (concat tizen-gbs-build-help-string
-		    "\n\nDetected Project Directory: "
+		    "\n\nDetected Project Directory:\n"
 		    (or tizen-project-directory default-directory))
 	    :options 
 	    (Options 
