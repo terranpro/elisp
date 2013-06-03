@@ -169,7 +169,7 @@
 (setq org-drill-adjust-intervals-for-early-and-late-repetitions-p t)
 ;;(setq org-drill-hide-item-headings-p t)
 ;; org-drill customizations
-
+(setq org-drill-scope 'directory)
 (setq org-drill-maximum-items-per-session 40)
 (setq org-drill-maximum-duration 30)   ; 30 minutes
 (setq org-drill-save-buffers-after-drill-sessions-p nil)
