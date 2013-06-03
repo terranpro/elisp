@@ -133,23 +133,11 @@ The one argument passed to the callback is the Option obj. ")
       (mapc #'(lambda (option)
 		(with-slots (key onactivate) option
 		  (when key
-		    (setq options-callback-table 
-			  (concatenate 
-			   'list  
-			   (list (list (kbd key) (list option)))
-			   options-callback-table))
-
 		    (define-key keymap (kbd key) 
-		     '(lambda () 
-			(interactive)
-			(let ((option 
-			       (car (second
-				     (assoc (key-description 
-					     (list last-input-event))
-					    options-callback-table)))))
-			  (when option
-			    (Activate option)
-			    (options-redisplay))))))))
+		      `(lambda () 
+			 (interactive)
+			 (Activate ,option)
+			 (options-redisplay))))))
 	    elems)
       keymap)))
 
@@ -227,7 +215,6 @@ The one argument passed to the callback is the Option obj. ")
 (defvar-local options-mode-command nil "")
 (defvar-local options-mode-command-callback nil "")
 (defvar-local options-mode-options nil "")
-(defvar-local options-callback-table nil "")
 
 (defun options-mode-invoke-command ()
   (interactive)

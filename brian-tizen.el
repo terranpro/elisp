@@ -792,7 +792,9 @@ Directory:
 (defun tizen-rpm-push-mode (&optional dir)
   (interactive)
   (let* ((rpm-dir (directory-file-name 
-		   (or dir tizen-gbs-built-rpm-directory)))
+		   (cond ((and dir (file-exists-p dir)) dir)
+			 ((file-exists-p tizen-gbs-built-rpm-directory) tizen-gbs-built-rpm-directory)
+			 ((file-exists-p default-directory) default-directory))))
 	 (rpm-files (remove-if 
 		     'file-directory-p
 		     (directory-files rpm-dir t)))
