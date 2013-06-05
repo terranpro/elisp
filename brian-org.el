@@ -21,8 +21,14 @@
 (setq org-startup-indented 'indent)
 (setq org-startup-with-inline-images t)
 
+
 ;; org-babel setup
 (setq org-confirm-babel-evaluate nil)
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((emacs-lisp . t)
+   (C . t)))
+
 (setq org-plantuml-jar-path "/home/terranpro/Downloads/plantuml.jar")
 
 (global-set-key (kbd "C-c a") 'org-agenda)
