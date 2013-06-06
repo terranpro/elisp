@@ -663,7 +663,8 @@ and translates it to a project directory based on PRJDIR. "
 		   default-directory)
 	       ".dir-locals.el"))
 	(local-set-key (kbd "C-c j") 'tizen-jump-to-prj-file)
-	(local-set-key (kbd "C-c J") 'tizen-jump-to-prj-file)))))
+	(local-set-key (kbd "C-c J") 'tizen-jump-to-prj-file))
+      (display-buffer proc-buf-name))))
 
 
 ;(tizen-gbs-build-worker '("--include-all " "" " " "--no-init "))
@@ -820,7 +821,7 @@ Directory:
 	      :command 
 	      '(lambda (files) 
 		 (interactive)
-		 (tizen-sdb-push-files 
+		 (tizen-ssh-push-file 
 		  (remove-if '(lambda (f) (string= " " f))
 			     files)
 		  "/opt/usr"))
