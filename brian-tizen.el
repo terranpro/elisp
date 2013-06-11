@@ -1128,10 +1128,13 @@ Directory:
 
 ;; (tizen-ede-cpp-root-project 
 ;;  "/home/terranpro/eb-git/ebookviewer/CMakeLists.txt")
-(tizen-ede-cpp-root-project 
- "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
-(tizen-ede-cpp-root-project 
- "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
+(when (file-exists-p "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
+  (tizen-ede-cpp-root-project 
+   "/home/terranpro/tizen/git/ebook/CMakeLists.txt"))
+
+(when (file-exists-p "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
+  (tizen-ede-cpp-root-project 
+   "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt"))
 
 (when (file-exists-p "/home/terranpro/tizen/git/pte-standalone/CMakeLists.txt")
  (tizen-ede-cpp-root-project 
