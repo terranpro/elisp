@@ -132,12 +132,13 @@ The one argument passed to the callback is the Option obj. ")
     (let ((keymap (make-sparse-keymap)))
       (mapc #'(lambda (option)
 		(with-slots (key onactivate) option
-		  (when key
-		    (define-key keymap (kbd key) 
-		      `(lambda () 
-			 (interactive)
-			 (Activate ,option)
-			 (options-redisplay))))))
+		  (lexical-let ((option-lex option))
+		    (when key
+		      (define-key keymap (kbd key) 
+			(lambda () 
+			  (interactive)
+			  (Activate option-lex)
+			  (options-redisplay)))))))
 	    elems)
       keymap)))
 
