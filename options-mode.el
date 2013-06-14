@@ -42,7 +42,12 @@
 	 :initform "")
    (face :initarg :face
 	 :initform 'ac-candidate-face)
-   (onactivate :initarg :onactivate)) 
+   (auto :initarg :auto 
+	 :initform t)
+   (onactivate :initarg :onactivate
+	       :initform nil)
+   (userdata :initarg :userdata
+	     :initform nil))
 
   "A basic option!
 HIDDEN will effectively hide the option from being displayed in the window.
@@ -52,27 +57,41 @@ FACE is the default face to use when displaying in the option window (TODO).
 ONACTIVATE is the user callback that is called when the option activated.
 The one argument passed to the callback is the Option obj. ")
 
-(defclass Options ()
-  ((elems :initarg :elems))
+(defvar NewLineOption (Option "newline"
+			      :display-name "\n"
+			      :auto nil))
 
-  "A Group of Options")
+(defvar NullOption (Option "newline"
+			   :display-name ""
+			   :auto nil))
 
 (defmethod Redraw ((obj Option))
   "Redraw an individual Option"
-  (with-slots (hidden) obj 
+  (with-slots (hidden display-name) obj 
     (format "%s" (if hidden
 		     "" 
-		   (object-name-string obj)))))
+		   (or display-name (object-name-string obj))))))
+
+(defclass Options ()
+  ((elems :initarg :elems)
+   (separator :initarg :separator
+	      :initform "\n"))
+
+  "A Group of Options")
 
 (defmethod Redraw ((obj Options))
   "Redraw an Options group"
-  (with-slots (elems) obj
+  (with-slots (elems separator) obj
     (mapc #'(lambda (option) 
 	      (insert (propertize 
-		       (format "%s\n" (Redraw option))
+		       (format "%s%s" (Redraw option) separator)
 		       'option
 		       option)))
 	  elems)))
+
+(defmethod SearchName ((obj Options) name)
+  (with-slots (elems) obj
+   (cdr (assoc name (object-assoc-name elems)))))
 
 (defclass Switch (Option)
   ((active :initform nil
@@ -96,6 +115,10 @@ The one argument passed to the callback is the Option obj. ")
 	      (if (and desc (not (string= "" desc)))
 		  (concat " [ " desc " ] ")
 		"")))))
+
+(defmethod IsActive ((obj Switch))
+  "Returns if a Switch object is active (toggleable status by user)"
+  (oref obj active))
 
 (defclass SwitchArg (Option)
   ((arg :initform ""
@@ -176,7 +199,8 @@ The one argument passed to the callback is the Option obj. ")
 
 (defmethod Activate ((obj Option))
   (with-slots (onactivate) obj
-    (funcall onactivate obj)))
+    (when (functionp onactivate) 
+      (funcall onactivate obj))))
 
 (defmethod Activate ((obj Switch))
   (with-slots (onactivate) obj
@@ -188,17 +212,40 @@ The one argument passed to the callback is the Option obj. ")
     (message (format "Entered SwitchArg Activate! %s" (oref obj arg)))
     (oset obj arg (call-next-method))))
 
+(defmethod BuildOption ((obj Option))
+  ""
+  "")
+
 (defmethod BuildOption ((obj Switch))
-  (format "%s" (if (oref obj active) (object-name-string obj) "")))
+  (format "%s" 
+	  (if (and (oref obj active)
+		   (oref obj auto))
+	      (object-name-string obj)
+	    "")))
 
 (defmethod BuildOption ((obj SwitchArg))
-  (format "%s %s" (object-name-string obj) (oref obj arg)))
+  (if (oref obj auto)
+      (format "%s %s" (object-name-string obj) (oref obj arg))
+    ""))
 
 (defmethod BuildOptions ((obj Options))
   (with-slots (elems) obj
     (mapcar 'BuildOption elems)))
 
 (object-assoc-list 'elems (list (Options "a" :elems "123") (Options "b" :elems "678")))
+
+(defun object-assoc-name (list)
+  "Return an association list with the object name as the key element.
+LIST must be a list of objects with names.
+This is useful when you need to do completing read on an object group."
+  (eieio--check-type listp list)
+  (let ((assoclist nil))
+    (while list
+      (setq assoclist (cons (cons (object-name-string (car list))
+				  (car list))
+			    assoclist))
+      (setq list (cdr list)))
+    (nreverse assoclist)))
 
 (defun options-redisplay ()
   (let ((inhibit-read-only t)
@@ -220,6 +267,7 @@ The one argument passed to the callback is the Option obj. ")
 (defun options-mode-invoke-command ()
   (interactive)
   (funcall options-mode-command-callback
+	   options-mode-options
 	   (BuildOptions options-mode-options))
   ;(kill-buffer (current-buffer))
   )

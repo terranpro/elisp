@@ -67,8 +67,9 @@
   "")
 (defvar tizen-packages-root-directory "/home/terranpro/tizen/gbs-git")
 
-(defvar tizen-lthor-executable (let ((exec-path (append exec-path "/home/terranpro/tizen/")))
-				 (executable-find "lthor"))
+(defvar tizen-lthor-executable
+  (let ((exec-path (append exec-path (list "/home/terranpro/tizen/"))))
+    (executable-find "lthor"))
   "")
 
 (defvar tizen-binaries-directory "/home/terranpro/tizen/binaries"
@@ -608,7 +609,7 @@ and translates it to a project directory based on PRJDIR. "
   (tizen-gbs-build-mode-build-keymap)
   (tizen-gbs-build-mode-cb))
 
-(defun tizen-gbs-build-worker (args)
+(defun tizen-gbs-build-worker (opts args)
   (interactive)
   (let ((cmd (concat "gbs build "
 		     (mapconcat 'identity
@@ -790,12 +791,27 @@ Press ENTER when all files are selected, and they will be uploaded to the device
 Directory:
 ")
 
+(defun tizen-rpm-push-mode-install-after-onactivate (opt)
+  (let* ((userdata (oref opt userdata))
+	 (choices (append (cdr userdata) (list (car userdata))))
+	 (choice (car choices))
+	 (fmt (format "%s%s"
+		      (object-name-string opt) 
+		      (if choice
+			  (concat ": " choice)
+			""))))
+    (oset opt userdata choices)
+    (oset opt active (not (null choice)))
+    (oset opt display-name fmt)))
+
 (defun tizen-rpm-push-mode (&optional dir)
   (interactive)
   (let* ((rpm-dir (directory-file-name 
 		   (cond ((and dir (file-exists-p dir)) dir)
-			 ((file-exists-p tizen-gbs-built-rpm-directory) tizen-gbs-built-rpm-directory)
-			 ((file-exists-p default-directory) default-directory))))
+			 ((file-exists-p tizen-gbs-built-rpm-directory)
+			  tizen-gbs-built-rpm-directory)
+			 ((file-exists-p default-directory)
+			  default-directory))))
 	 (rpm-files (remove-if 
 		     'file-directory-p
 		     (directory-files rpm-dir t)))
@@ -812,6 +828,24 @@ Directory:
 				:onactivate '(lambda (opt)
 					       (message "Toggled!")))))
 
+    (setq options
+	  (append (list 
+		   (Switch "Install After Uploading To Device"
+			   :key "I"
+			   :active t
+			   :auto nil
+			   :userdata '("rpm" "pkgcmd" nil)
+			   :display-name "Install After Uploading To Device: rpm"
+			   :onactivate 
+			   'tizen-rpm-push-mode-install-after-onactivate)
+		   (Switch "Open Remote Install Mode Window After Uploading"
+			   :key "R"
+			   :active nil
+			   :auto nil)
+		   NullOption
+		   NullOption)
+		  options))
+
     (options-mode-new 
      "RPMPush"
      (Command "Tizen RPM Push"
@@ -819,39 +853,142 @@ Directory:
 	      (concat tizen-rpm-push-mode-help-string
 		      rpm-dir)
 	      :command 
-	      '(lambda (files) 
-		 (interactive)
-		 (tizen-ssh-push-file 
-		  (remove-if '(lambda (f) (string= " " f))
-			     files)
-		  "/opt/usr"))
+	      'tizen-rpm-push-mode-worker
 	      :options
 	      (Options "options"
 		       :elems 
 		       options)))))
 
+(defun tizen-rpm-push-mode-worker (Opts files)
+  (interactive)
+  (with-slots ((opts elems)) Opts
+    (let ((remote-dir "/opt/usr")
+	  (filt-files (remove-if '(lambda (f) (string= " " f))
+				 files))
+	  (remote (IsActive
+		   (SearchName 
+		    Opts
+		    "Open Remote Install Mode Window After Uploading")))
+	  (install (IsActive
+		    (cdr (assoc "Install After Uploading To Device"
+				(object-assoc-name opts))))))
+      (tizen-sdb-root)
+      (tizen-push-files filt-files remote-dir)
+      (cond (remote 
+	     (tizen-remote-install-mode remote-dir))
+	    (install 
+	     (message "Will Now Install"))
+	    (t
+	     (message "Enjoy!"))))))
+
+(defun tizen-sdb-is-active ()
+  (zerop (shell-command "sdb shell echo")))
+
+(defun tizen-sdb-root (&optional off)
+  (interactive)
+  (shell-command (concat "sdb root " (if off 
+					 "off"
+				       "on"))))
+
 ;; (tizen-rpm-push-mode
 ;;  "/home/terranpro/tizen/HQ/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/")
 
-(defun tizen-sdb-push-files (files &optional dstdir)
-  "FILES is a list of absolute paths of RPM files to be pushed to the device for installation in DSTDIR or /tmp"
-  (pp files)
-  (loop for file in files 
-	do 
-	(progn 
-	  (tizen-sdb-push-file file dstdir))))
+(defun tizen-remote-install-mode (&optional remotedir)
+  (interactive)
+  (let* ((options)
+	 (remote-files
+	  (shell-command-to-string (concat "sdb shell "
+					   "'find "
+					   "/opt/usr" ;remotedir
+					   " -name \"*.rpm\" 2>/dev/null '"
+					   "| awk '{ print $NF; }'")))
+	 (remote-rpms (split-string remote-files)))
+
+    (setq options 
+	  (loop for file in remote-rpms
+		for count from 1 to (length remote-rpms)
+		collect (Switch file 
+				:display-name (file-name-nondirectory file)
+				:key (tizen-key-from-count count)
+				:active nil
+				:onactivate '(lambda (opt)
+					       (message "Toggled!")))))
+    (options-mode-new "Remote PKG Install"
+		      (Command "Tizen Remote PKG Install"
+			       :help-string ""
+			       :command 
+			       'tizen-remote-install-mode-worker
+			       :options 
+			       (Options "options"
+					:elems
+					(append
+					 options
+					 (list
+					  (SwitchArg "InstallMethod"
+						     :key "M"
+						     :desc "Blergh"
+						     :arg "pkgcmd"
+						     :auto nil
+						     :onactivate
+						     '(lambda (opt)
+							(ido-completing-read
+							 "Method: "
+							 (list "pkgcmd" "rpm")
+							 "pkgcmd"))))))))))
+
+(defun tizen-remote-install-mode-worker (Opts builtopts)
+  (with-slots ((opts elems)) Opts
+   (let* ((method
+	   (oref
+	    (cdr (assoc "InstallMethod" (object-assoc-name opts)))
+	    arg))
+	  (method-table
+	   '(("rpm" . tizen-remote-install-rpm)
+	     ("pkgcmd" . tizen-remote-install-pkgcmd)))
+	  (filt-files (remove-if '(lambda (f) (or (string= " " f)
+						  (string= "" f)))
+				 builtopts)))
+
+     (funcall (cdr (assoc method method-table)) filt-files))))
+
+(defun tizen-remote-install-rpm (files)
+  (let ((cmd (concat "rpm -ivh --force "
+		     (mapconcat 'identity files " "))))
+    (tizen-shell-cmd cmd)))
+
+(defun tizen-remote-install-pkgcmd (files)
+  (loop for file in files
+	with cmd = (concat "pkgcmd -i -t rpm -q -p ")
+	do
+	(tizen-shell-cmd (concat cmd file))))
+
+;(tizen-remote-install-mode "/opt/usr")
+
+(defun tizen-push-files (files &optional dstdir)
+  "Generic push file function to a Tizen device.  Tries to determine the method (SSH vs SDB)."
+  (cond ((tizen-sdb-is-active)
+	 (tizen-sdb-push-file files dstdir))
+	(t 
+	 (tizen-ssh-push-file files dstdir))))
 
 (defun tizen-sdb-push-file (file &optional dstdir)
   ""
-  (let* ((local-file (and (file-exists-p file)
-			  file))
-	 (remote-dir (or dstdir "/tmp/"))
+  (let* ((remote-dir (or dstdir "/tmp/"))
 	 (cmd (concat "sdb push "
-		      local-file
+		      (if (listp files)
+			  (mapconcat 'identity file " ")
+			file)
 		      " "
-		      remote-dir)))
+		      remote-dir
+		      " &")))
     (shell-command cmd
 		   "Tizen SDB Push File")))
+
+(defun tizen-shell-cmd (cmd)
+  (cond ((tizen-sdb-is-active)
+	 (tizen-sdb-shell-cmd cmd))
+	(t
+	 (tizen-ssh-shell-cmd cmd))))
 
 (defun tizen-sdb-shell-cmd (cmd)
   (let* ((sdbcmd (concat "sdb shell "
