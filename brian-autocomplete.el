@@ -95,12 +95,43 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 	    (append ac-clang-cflags brian-clangcomplete-cflags-global)))
   (ac-clang-update-cmdlineargs))
 
+
+;; When we are using clang async, let's not use CEDET
+(remove-hook 'c-mode-common-hook 'my-cedet-hook)
+
 (defun my-ac-config ()
   (add-hook 'c-mode-common-hook 'ac-cc-mode-setup t)
   (add-hook 'auto-complete-mode-hook 'ac-common-setup t)
   (global-auto-complete-mode t))
 
 (my-ac-config)
+
+(defun ac-clang-goto-definition (file line col)
+  "Goto definition using semantic-ia-fast-jump   
+save the pointer marker if tag is found"
+  (interactive "d")
+  (condition-case err
+      (progn
+	(ring-insert semantic-tags-location-ring (point-marker))
+	(let ((newbuf (find-file-noselect file)))
+	  (switch-to-buffer newbuf)
+	  (goto-char (point-min))
+	  (forward-line (1- line))
+	  (forward-char (1- col))))
+    (error
+     ;;if not found remove the tag saved in the ring  
+     (set-marker (ring-remove semantic-tags-location-ring 0) nil nil)
+     (signal (car err) (cdr err)))))
+
+(global-set-key (kbd "M-.") 
+		'(lambda () (interactive)
+		   (if (and auto-complete-mode
+			    ac-clang-completion-process
+			    (or (eq major-mode 'c++-mode)
+				(eq major-mode 'c-mode)))
+		       (ac-clang-send-location-request)
+		     (semantic-goto-definition (point)))))
+
 ;; AC Clang Awesomeness END!
 
 
@@ -109,28 +140,29 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 ;;
 ;; readline-complete
 ;;
-(setq explicit-shell-file-name "bash")
-(setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
-(setq comint-process-echoes t)
-(setq comint-input-ignoredups t)
-(setq comint-scroll-to-bottom-on-output nil)
-(setq comint-scroll-to-bottom-on-input t)
+
+;; (setq explicit-shell-file-name "bash")
+;; (setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
+;; (setq comint-process-echoes t)
+;; (setq comint-input-ignoredups t)
+;; (setq comint-scroll-to-bottom-on-output nil)
+;; (setq comint-scroll-to-bottom-on-input t)
 
 ;; ASIDE: if you call ssh from shell directly, add "-t" to
 ;; explicit-ssh-args to enable terminal.
 
-(add-to-list 'load-path "~/elisp/foreign/readline-complete.el/")
-(require 'readline-complete)
+;; (add-to-list 'load-path "~/elisp/foreign/readline-complete.el/")
+;; (require 'readline-complete)
 
-(add-to-list 'ac-modes 'shell-mode)
-(setq shell-mode-hook nil)
-(add-hook 'shell-mode-hook 
-	  '(lambda ()
-	     (setq comint-preinput-scroll-to-bottom t)
-	     (setq comint-move-point-for-output t)
-	     (setq comint-buffer-maximum-size 5000)
-	     (setq rlc-attempts 30)
-	     (setq rlc-timeout 0.03)
-	     (ac-rlc-setup-sources)))
+;; (add-to-list 'ac-modes 'shell-mode)
+;; (setq shell-mode-hook nil)
+;; (add-hook 'shell-mode-hook 
+;; 	  '(lambda ()
+;; 	     (setq comint-preinput-scroll-to-bottom t)
+;; 	     (setq comint-move-point-for-output t)
+;; 	     (setq comint-buffer-maximum-size 5000)
+;; 	     (setq rlc-attempts 30)
+;; 	     (setq rlc-timeout 0.03)
+;; 	     (ac-rlc-setup-sources)))
 
 (provide 'brian-autocomplete)
