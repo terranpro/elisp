@@ -132,6 +132,15 @@ save the pointer marker if tag is found"
 		       (ac-clang-send-location-request)
 		     (semantic-goto-definition (point)))))
 
+(global-set-key (kbd "M-*") 
+		'(lambda () (interactive)
+		   (if (and auto-complete-mode
+			    ac-clang-completion-process
+			    (or (eq major-mode 'c++-mode)
+				(eq major-mode 'c-mode)))
+		       (ac-clang-goto-last-location)
+		     (semantic-pop-tag-mark))))
+
 ;; AC Clang Awesomeness END!
 
 
