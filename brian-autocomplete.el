@@ -153,9 +153,9 @@ save the pointer marker if tag is found"
 ;; (setq explicit-shell-file-name "bash")
 ;; (setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
 ;; (setq comint-process-echoes t)
-;; (setq comint-input-ignoredups t)
-;; (setq comint-scroll-to-bottom-on-output nil)
-;; (setq comint-scroll-to-bottom-on-input t)
+(setq comint-input-ignoredups t)
+(setq comint-scroll-to-bottom-on-output nil)
+(setq comint-scroll-to-bottom-on-input t)
 
 ;; ASIDE: if you call ssh from shell directly, add "-t" to
 ;; explicit-ssh-args to enable terminal.
