@@ -106,23 +106,6 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 
 (my-ac-config)
 
-(defun ac-clang-goto-definition (file line col)
-  "Goto definition using semantic-ia-fast-jump   
-save the pointer marker if tag is found"
-  (interactive "d")
-  (condition-case err
-      (progn
-	(ring-insert semantic-tags-location-ring (point-marker))
-	(let ((newbuf (find-file-noselect file)))
-	  (switch-to-buffer newbuf)
-	  (goto-char (point-min))
-	  (forward-line (1- line))
-	  (forward-char (1- col))))
-    (error
-     ;;if not found remove the tag saved in the ring  
-     (set-marker (ring-remove semantic-tags-location-ring 0) nil nil)
-     (signal (car err) (cdr err)))))
-
 (global-set-key (kbd "M-.") 
 		'(lambda () (interactive)
 		   (if (and auto-complete-mode
