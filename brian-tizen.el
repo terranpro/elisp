@@ -30,7 +30,7 @@
 
 ;; TODO: very useful function needed for my dir locals
 ;; move it elsewhere later
-;; Modified it to not ignore "." so it retrns passed root directory too
+;; Modified it to not ignore "." so it returns passed root directory too
 (defun folder-dirs (folder)
   (delete-if-not 'file-directory-p
     (mapcar (lambda(arg) (file-name-as-directory (concat (file-name-as-directory folder) arg)))
@@ -47,12 +47,10 @@
     t))
 
 (defun folder-dirs-recursive (folder)
-  (let ((output (list "")))
+  (let ((output))
     (folder-dirs-recursive-impl 
      '(lambda (arg)
-	(add-to-list 'output
-		     arg
-		     t))
+	(setq output (append output (list arg))))
      folder)
     output))
 
@@ -71,6 +69,10 @@
   (let ((exec-path (append exec-path (list "/home/terranpro/tizen/"))))
     (executable-find "lthor"))
   "")
+
+(defvar tizen-sdb-executable
+  (let ((exec-path (append exec-path (list "/home/terranpro/tizen-sdk/tools"))))
+    (executable-find "sdb")))
 
 (defvar tizen-binaries-directory "/home/terranpro/tizen/binaries"
   "")
@@ -859,6 +861,18 @@ Directory:
 		       :elems 
 		       options)))))
 
+(defun tizen-change-booting-mode ()
+  (shell-command (concat tizen-sdb-executable 
+			 " shell "
+			 "change-booting-mode.sh --update")))
+
+(defvar tizen-rpm-push-pre-hook nil)
+(add-hook 'tizen-rpm-push-pre-hook 
+	  #'(lambda ()
+	      (when (tizen-sdb-is-active)
+		(tizen-sdb-root)
+		(tizen-change-booting-mode))))
+
 (defun tizen-rpm-push-mode-worker (Opts files)
   (interactive)
   (with-slots ((opts elems)) Opts
@@ -872,8 +886,10 @@ Directory:
 	  (install (IsActive
 		    (cdr (assoc "Install After Uploading To Device"
 				(object-assoc-name opts))))))
-      (tizen-sdb-root)
-      (tizen-push-files filt-files remote-dir)
+      
+      (run-hooks 'tizen-rpm-push-pre-hook)
+
+      (tizen-push-files filt-files remote-dir t)
       (cond (remote 
 	     (tizen-remote-install-mode remote-dir))
 	    (install 
@@ -882,13 +898,14 @@ Directory:
 	     (message "Enjoy!"))))))
 
 (defun tizen-sdb-is-active ()
-  (zerop (shell-command "sdb shell echo")))
+  (zerop (shell-command (concat tizen-sdb-executable " get-state"))))
 
 (defun tizen-sdb-root (&optional off)
   (interactive)
-  (shell-command (concat "sdb root " (if off 
-					 "off"
-				       "on"))))
+  (shell-command (concat tizen-sdb-executable
+			 " root " (if off 
+				      "off"
+				    "on"))))
 
 ;; (tizen-rpm-push-mode
 ;;  "/home/terranpro/tizen/HQ/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/")
@@ -897,11 +914,11 @@ Directory:
   (interactive)
   (let* ((options)
 	 (remote-files
-	  (shell-command-to-string (concat "sdb shell "
-					   "'find "
-					   "/opt/usr" ;remotedir
-					   " -name \"*.rpm\" 2>/dev/null '"
-					   "| awk '{ print $NF; }'")))
+	  (tizen-shell-cmd-to-string (concat
+				      "'find "
+				      "/opt/usr" ;remotedir
+				      " -name \"*.rpm\" 2>/dev/null '"
+				      "| awk '{ print $NF; }'")))
 	 (remote-rpms (split-string remote-files)))
 
     (setq options 
@@ -951,51 +968,70 @@ Directory:
 
      (funcall (cdr (assoc method method-table)) filt-files))))
 
-(defun tizen-remote-install-rpm (files)
+(defun tizen-remote-install-rpm (files &optional foreground)
   (let ((cmd (concat "rpm -ivh --force "
 		     (mapconcat 'identity files " "))))
-    (tizen-shell-cmd cmd)))
+    (tizen-shell-cmd cmd foreground)))
 
-(defun tizen-remote-install-pkgcmd (files)
+(defun tizen-remote-install-pkgcmd (files &optional foreground)
   (loop for file in files
 	with cmd = (concat "pkgcmd -i -t rpm -q -p ")
 	do
-	(tizen-shell-cmd (concat cmd file))))
+	(tizen-shell-cmd (concat cmd file) foreground)))
 
 ;(tizen-remote-install-mode "/opt/usr")
 
-(defun tizen-push-files (files &optional dstdir)
+(defun tizen-push-files (files &optional dstdir foreground)
   "Generic push file function to a Tizen device.  Tries to determine the method (SSH vs SDB)."
   (cond ((tizen-sdb-is-active)
-	 (tizen-sdb-push-file files dstdir))
+	 (tizen-sdb-push-file files dstdir foreground))
 	(t 
-	 (tizen-ssh-push-file files dstdir))))
+	 (tizen-ssh-push-file files dstdir foreground))))
 
-(defun tizen-sdb-push-file (file &optional dstdir)
+(defun tizen-sdb-push-file (file &optional dstdir foreground)
   ""
   (let* ((remote-dir (or dstdir "/tmp/"))
-	 (cmd (concat "sdb push "
+	 (cmd (concat " push "
 		      (if (listp files)
 			  (mapconcat 'identity file " ")
 			file)
 		      " "
 		      remote-dir
-		      " &")))
-    (shell-command cmd
-		   "Tizen SDB Push File")))
+		      (if foreground "" 
+			" &"))))
+    (tizen-sdb-cmd cmd)))
 
-(defun tizen-shell-cmd (cmd)
+(defun tizen-shell-cmd-to-string (cmd &optional foreground)
+  (tizen-shell-cmd-internal cmd foreground t))
+
+(defun tizen-shell-cmd (cmd &optional foreground)
+  (tizen-shell-cmd-internal cmd foreground nil))
+
+(defun tizen-shell-cmd-internal (cmd &optional foreground tostring)
   (cond ((tizen-sdb-is-active)
-	 (tizen-sdb-shell-cmd cmd))
+	 (tizen-sdb-shell-cmd cmd foreground tostring))
 	(t
-	 (tizen-ssh-shell-cmd cmd))))
+	 (tizen-ssh-shell-cmd cmd foreground tostring))))
 
-(defun tizen-sdb-shell-cmd (cmd)
-  (let* ((sdbcmd (concat "sdb shell "
-			 cmd
-			 " &")))
-    (shell-command sdbcmd
-		   "Tizen SDB Shell")))
+(defun tizen-sdb-shell-cmd (cmd &optional foreground tostring)
+  (let* ((sdbcmd (concat 
+		  tizen-sdb-executable
+		  " shell "
+		  cmd
+		  (if foreground "" " &"))))
+    
+    (if tostring 
+	(shell-command-to-string sdbcmd)
+      (shell-command sdbcmd (generate-new-buffer-name "Tizen SDB Shell")))))
+
+(defun tizen-sdb-cmd (cmd)
+  (let* ((sdbcmd (concat tizen-sdb-executable 
+			 " "
+			 cmd)))
+    (message sdbcmd)
+    (shell-command sdbcmd)))
+
+;(tizen-sdb-shell-cmd "ls -l /opt/usr" t t)
 
 (defun tizen-sdb-install-image-i  ()
   (interactive)
@@ -1022,7 +1058,7 @@ Directory:
 		     "root@192.168.129.3:"
 		     targetdir 
 		     " &")))
-    (shell-command cmd "Tizen SCP File")))
+    (shell-command cmd (generate-new-buffer-name "Tizen SCP File"))))
 
 ;; (tizen-ssh-push-file "/home/terranpro/tizen/SURC/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/com.samsung.ebookviewer-0.1.8-7.armv7l.rpm"
 ;; 		     "/tmp/")
@@ -1243,6 +1279,167 @@ Directory:
      :local-variables
      '((compile-command . "gbs build -A armv7el --include-all")))))
 
+;; NEW CODE BEGIN
+
+(defun tizen-gbs-conf-new-profile (gbsfile user passx obs repos buildroot)
+  (save-excursion
+    (switch-to-buffer (find-file-existing gbsfile) t)
+    (save-excursion 
+      (goto-char (point-min))
+      (let ((regex (rx bol "[profile." 
+		       (minimal-match 
+			(one-or-more (zero-or-more not-newline) eol))
+		       bol (zero-or-more (any blank)) eol)))
+	(when (search-forward-regexp regex (point-max) t)
+	  (message (match-string 0))))))
+)
+
+(defun tizen-gbs-get-key (id)
+ (let* ((id-regex  (rx bol (eval id) 
+		       (zero-or-more (any blank))
+		       "="
+		       (zero-or-more (any blank))
+		       (group word-start (one-or-more any) word-end))))
+   (when (search-forward-regexp id-regex (point-max) t)
+     (message (match-string 1)))))
+
+(defun tizen-gbs-insert-new-profile (gbsfile newprofile)
+ (save-window-excursion 
+   (let ((regex (rx
+		 bol "[profile." )))
+     (find-file-existing gbsfile)
+     (goto-char (point-min))
+     (when (search-forward-regexp regex (point-max) t)
+       (beginning-of-line)
+       (insert (format "%s\n" newprofile))))))
+
+(defun tizen-gbs-format-new-profile (name user passwdx repos buildroot)
+  (format (concat "[profile.%s]\n" 
+		  "user = %s\n"
+		  "passwdx = %s\nobs = %s\nrepos = %s\nbuildroot = %s\n")
+	  name
+	  user
+	  passwdx
+	  "obs.slp"  ;; TODO: hardcoded OBS for now
+	  repos
+	  buildroot))
+
+(defun tizen-gbs-insert-new-repo (gbsfile newrepo)
+ (save-window-excursion 
+   (let ((regex (rx
+		 bol "[repo." )))
+     (find-file-existing gbsfile)
+     (goto-char (point-min))
+     (when (search-forward-regexp regex (point-max) t)
+       (beginning-of-line)
+       (insert (format "%s\n" newrepo))))))
+
+(defun tizen-gbs-format-new-repo (name url)
+  (format (concat "[repo.%s]\nurl = %s\n") name url))
+
+(defun tizen-gbs-conf-repo-url-list (gbsfile)
+  (save-window-excursion
+    (let ((repo-regex (rx bol
+			  "url"
+			  (zero-or-more (any blank))
+			  "="
+			  (zero-or-more (any blank))
+			  (group word-start (one-or-more any) word-end))))
+      (switch-to-buffer (find-file-existing gbsfile))
+      (goto-char (point-min))
+      (loop while (search-forward-regexp repo-regex (point-max) t)
+	    collect (match-string 1)))))
+
+(tizen-gbs-conf-repo-url-list tizen-gbs-conf)
+
+(defvar tizen-gbs-profiles-dir (file-name-directory 
+				(expand-file-name "~/tizen/gbs/profiles")))
+
+
+(defun tizen-gbs-build-new-profile (prjdir &optional user passwdx)
+  (let* ((gbsfile tizen-gbs-conf)
+	 (repos (ido-completing-read "Repo/Snapshot URL: "
+					 (tizen-gbs-conf-repo-url-list 
+					  gbsfile)))
+	     (profilename (file-name-nondirectory prjdir))
+	     (reponame (concat "repo." profilename))
+	     (profiledir (file-name-as-directory 
+			  (concat 
+			   (file-name-as-directory tizen-gbs-profiles-dir)
+			   profilename)))
+	     (br profiledir))
+
+    (save-window-excursion
+      (find-file-existing tizen-gbs-conf)
+      (goto-char (point-min))
+      (let ((u (or user (tizen-gbs-get-key "user")))
+	  (p (or passwdx (tizen-gbs-get-key "passwdx"))))
+	
+
+	(when (file-exists-p profiledir)
+	  (error (format "Profile directory %s already exists!" profiledir)))
+
+	(mkdir profiledir t)
+
+	(tizen-gbs-insert-new-repo 
+	 gbsfile
+	 (tizen-gbs-format-new-repo profilename repos))
+
+	(tizen-gbs-insert-new-profile 
+	 gbsfile
+	 (tizen-gbs-format-new-profile profilename u p reponame br))))))
+
+;(tizen-gbs-build-new-profile "~/tizen/git/clownviewer")
+
+
+
+(defun tizen-project-create-dir-locals-cflags (prjdir brdir)
+  (setq ac-clang-cflags 
+	(mapcar 
+	 '(lambda (arg) (concat "-I" arg))
+	 (append 
+	  (mapcar '(lambda (suffix) 
+		     (concat (file-name-as-directory brdir) suffix))
+		  (split-string
+		   "/local/scratch.armv7l.0/usr/include/c++/4.5.3
+ /local/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi
+ /local/scratch.armv7l.0/usr/include/c++/4.5.3/backward
+ /local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include
+ /local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed
+ /local/scratch.armv7l.0/usr/include"))
+	  (split-string
+	   (tizen-system-include-paths
+	    (concat (file-name-as-directory prjdir)
+		    "CMakeLists.txt")))
+	  (folder-dirs-recursive (concat 
+				  (file-name-as-directory prjdir)
+				  "/include/")))))
+
+
+
+)
+
+(defun tizen-project-create-dir-locals (prjdir)
+  
+)
+
+
+
+(defun tizen-project-new (prjdir &optional enable-clang enable-ede)
+  (interactive)
+  (let ((prjname (file-name-nondirectory prjdir)))
+    (tizen-gbs-build-new-profile prjdir)
+
+   (when enable-clang 
+     )
+
+   (when enable-ede
+     ))
+  
+)
+
+;; NEW CODE END
+
 (require 'easymenu)
 (easy-menu-define tizen-mode-menu tizen-mode-map
   "Tizen"
@@ -1281,6 +1478,5 @@ Directory:
 ;;  "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
 
 ;(tizen-system-include-paths "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
-(tizen-system-include-paths
- "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
+
 ;;; brian-tizen.el ends here

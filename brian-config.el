@@ -77,6 +77,8 @@
 
 ;; smoother scrolling - no jumpiness
 (setq scroll-conservatively 1000)
+(setq next-screen-context-lines 1)
+(setq scroll-preserve-screen-position t)
 
 ;; ace jump
 (add-to-list 'load-path "~/elisp/foreign/ace-jump-mode")
