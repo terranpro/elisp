@@ -969,7 +969,7 @@ Directory:
      (funcall (cdr (assoc method method-table)) filt-files))))
 
 (defun tizen-remote-install-rpm (files &optional foreground)
-  (let ((cmd (concat "rpm -ivh --force "
+  (let ((cmd (concat "rpm -ivh --force --nodeps "
 		     (mapconcat 'identity files " "))))
     (tizen-shell-cmd cmd foreground)))
 
