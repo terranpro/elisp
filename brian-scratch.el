@@ -103,3 +103,31 @@ To continue searching for next match, use command \\[tags-loop-continue]."
             (setq answer (+ (expt 10 field-width) answer)))
           (replace-match (format (concat "%0" (int-to-string field-width) "d")
                                  answer)))))))
+
+
+;; ace-jump within N lines!
+(defun brian-ace-jump-to-char-within-N-lines (&optional n)
+  (interactive "p")
+  (let* ((N (or n 1))
+	 (query-char (read-char "Query Char:"))
+	 (start (save-excursion
+		  (if (= N 1)
+		      (point-at-bol)
+		    (forward-line (- N))
+		    (point))))
+	 (stop (save-excursion 
+		 (if (= N 1)
+		     (point-at-eol)
+		   (forward-line (1+ N))
+		   (point)))))
+    (unwind-protect
+	(condition-case err 
+	    (progn
+	      (narrow-to-region start stop)
+	      (ace-jump-char-mode query-char))
+	  (error 
+	   (message (error-message-string err))))
+      (widen))))
+
+
+
