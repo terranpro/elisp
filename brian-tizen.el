@@ -1187,8 +1187,8 @@ Directory:
   ""
   (interactive)
   (let ((incs "/usr/include"))
-    (save-window-excursion
-      (find-file file)
+    (with-temp-buffer 
+      (insert-file-contents-literally file)
       (goto-char (point-min))
       (while (progn
 	       (search-forward-regexp 
@@ -1206,15 +1206,13 @@ Directory:
 		       ")")))
 		(point-max)
 		t))
-
-	
 	
 	(let ((libs (split-string (match-string 1) nil t))
 	      (pkgconfigpath 
 	       (concat "PKG_CONFIG_PATH="
 		       tizen-gbs-chroot
 		       "/usr/lib/pkgconfig")))
-	  ;(message (format "libs: %s" libs))
+					;(message (format "libs: %s" libs))
 	  (setq incs 
 		(concat
 		 incs 
@@ -1234,9 +1232,9 @@ Directory:
      " ")))
 
 (defun tizen-project-cmakelist-parse-include-directories (file)
-  (save-window-excursion
+  (with-temp-buffer
     (let ((incs ""))
-      (find-file file)
+      (insert-file-contents-literally file)
       (goto-char (point-min))
       (while (search-forward-regexp 
 	      "include_directories[ \n]+?(\\([ \n]*\\(.*?[ \n]*\\)+?\\))"
