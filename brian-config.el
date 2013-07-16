@@ -70,6 +70,14 @@
 
 (setq windmove-wrap-around t)
 
+;; buffer-move to 'assist' windmove
+(require 'buffer-move)
+(global-set-key (kbd "s-A")   'buf-move-left)
+(global-set-key (kbd "s-D")  'buf-move-right)
+(global-set-key (kbd "s-W")     'buf-move-up)
+(global-set-key (kbd "s-S")   'buf-move-down)
+
+;; pesky backup files
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
