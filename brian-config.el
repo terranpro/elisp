@@ -343,8 +343,27 @@ opening bracket position, OB-POS."
 				 brace-elseif-brace
 				 brace-catch-brace
 				 empty-defun-braces
+				 defun-close-semi
+				 space-after-funcall
+				 one-liner-defun
+				 compact-empty-funcall
+				 list-close-comma
 				 ;space-before-funcall
 				 ))
+ 	      (c-hanging-braces-alist
+	       . ((brace-list-open)
+		  (brace-list-close after)
+		  (brace-list-intro before)
+		  (brace-entry-open)
+		  (statement-cont)
+		  (substatement-open after)
+		  (block-close . c-snug-do-while)
+		  (extern-lang-open after)
+		  (namespace-open after)
+		  (module-open after)
+		  (composition-open after)
+		  (inexpr-class-open after)
+		  (inexpr-class-close before)))
 	      (c-offsets-alist
 	       (comment-intro . brian-comment-offset)
 	       (defun-open . 0)
@@ -360,6 +379,24 @@ opening bracket position, OB-POS."
 	       (inline-open . 0)
 	       (inline-close . 0)
 	       (innamespace . 0))))
+
+
+;; c electric paren blink matching open paren 
+;; delay need this if i use the space-after-funcall mod since the
+;; blink severely slowed down response
+(setq blink-matching-delay 0.1)
+
+(defun brian-c-mode-common-hook ()
+  (setq c-hungry-delete-key t)
+  (c-toggle-auto-newline 1)
+  (modify-syntax-entry ?_ "w")
+  (set (make-local-variable 'time-stamp-format) 
+       "%3a %3b %2d %02H:%02M:%02S %Z %:y")
+  (set (make-local-variable 'time-stamp-pattern) 
+       "50/Last modified: %%$")
+  (add-hook 'write-file-hooks 'time-stamp))
+
+(add-hook 'c-mode-common-hook 'brian-c-mode-common-hook)
 
 (add-hook 'c++-mode-hook (lambda () 
 			   (c-set-style "briancpp")
