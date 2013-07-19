@@ -2,21 +2,15 @@ set mode "c++-mode"
 set priority "80"
 
 set comment_start "/*"
-set comment_end    " */"
+set comment_end " */"
 set comment_prefix " *"
-;; Used for Doxygen, should be the same as last char
-;; of comment_start
 set comment_extra "//"
-
-prompt PROJECTNAME "Project: " 
 
 set HEADEREXT ".hpp"
 
 context file
 
-prompt PROJECTNAME "Enter Project Name: "
-set COPYRIGHT "This file is part of {{PROJECTNAME}}
-
+set COPYRIGHT "
 {{PROJECTNAME}} is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
@@ -62,9 +56,9 @@ template header_guard :file :blank
 ----
 
 template empty :time :user :file :cpp
-"Optional docstring."
+sectiondictionary "A"
 ----
-{{<A:filecomment}}{{?DESCRIPTION}}{{/A}}
+{{<A:filecomment}}{{/A}}
 {{#NOTHEADER}}
 {{^}}
 {{/NOTHEADER}}
@@ -75,19 +69,20 @@ template empty :time :user :file :cpp
 
 template filecomment :file :user :time
 sectiondictionary "A"
-set PROJECTNAMEHACK macro "?PROJECTNAME" "-hack"
+set TIMESTRING "%3a %3b %02H:%02M:%02S %Z %:y"
 ----
-{{comment_start}}{{comment_extra}} 
-{{comment_prefix}} {{FILENAME}} - {{^}}
-{{comment_prefix}} {{?PROJECTNAME:brian-srecode-string-killer}}
-{{comment_prefix}} Author: {{AUTHOR}} <{{EMAIL}}>
-{{comment_prefix}} {{MONTHNAME}} {{YEAR}}, {{TIME}}{{#RCS}}
-{{comment_prefix}} X-RCS: {{DOLLAR}}Id{{DOLLAR}}{{/RCS}}
+{{comment_start}}
+{{comment_prefix}} This file is part of {{?PROJECTNAME}}
+{{COPYRIGHT:brian-srecode-projname-replace-and-comment}}
+{{comment_end}}
+
+{{comment_start}}
+{{comment_prefix}} {{FILENAME}}
 {{comment_prefix}} 
-{{#A}}{{COPYRIGHT:brian-srecode-projname-replace-and-comment}}{{/A}}
-{{comment_prefix}}
-{{comment_prefix}} Copyright (C) {{YEAR}} {{?AUTHOR}}
-{{comment_end}}{{comment_extra}}
+{{comment_prefix}} Author: {{AUTHOR}}
+{{comment_prefix}} Created: {{#A}}{{TIMESTRING:format-time-string}}{{/A}}
+{{comment_prefix}} Last modified: {{#A}}{{TIMESTRING:format-time-string}}{{/A}}
+{{comment_end}}
 ----
 
 context declaration

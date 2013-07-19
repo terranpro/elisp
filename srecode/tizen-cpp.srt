@@ -5,10 +5,9 @@ set priority 120
 set comment_start "/*"
 set comment_end " */"
 set comment_prefix " *"
-
 set comment_extra "//"
 
-set AUTHOR "Brian Fransioli <br.fransioli@samsung.com>"
+set SAMSUNGAUTHOR "Brian Fransioli <br.fransioli@samsung.com>"
 
 set SAMSUNGCOPYRIGHT "
 Copyright (c) 2012 Samsung Electronics Co., Ltd All Rights Reserved
@@ -91,7 +90,7 @@ sectiondictionary "A"
 {{comment_start}}
 {{comment_prefix}} {{FILENAME}}
 {{comment_prefix}} 
-{{comment_prefix}} Author: {{AUTHOR}}
+{{comment_prefix}} Author: {{SAMSUNGAUTHOR}}
 {{comment_end}}
 ----
 
