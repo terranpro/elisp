@@ -621,3 +621,36 @@ settings of `c-cleanup-list' are done."
 		    (string= curfile file))
 	       (progn (magit-section-expand-all section)
 		      (goto-char (magit-section-beginning section)))))))))
+
+;; Hacking on compilation stuff!
+;; Now compilation buffer isn't shown at all unless it's invoked 
+;; by grep, find, or gcc errors!
+(setq compilation-finish-functions 'brian-compile-finish)
+(defun brian-compile-finish (buffer outstr)
+  (unless (string-match "finished" outstr)
+    (switch-to-buffer-other-window buffer))
+  t)
+
+(defadvice compilation-start
+  (around inhidbit-display
+	  (command &optional mode name-function highlight-regexp)) 
+  (if (not (string-match "^\\(find\\|grep\\)" command))
+      (flet ((display-buffer)
+	     (set-window-point)
+	     (goto-char)) 
+	(fset 'display-buffer 'ignore)
+	(fset 'goto-char 'ignore)
+	(fset 'set-window-point 'ignore)
+	(save-window-excursion 
+	  ad-do-it))
+    ad-do-it))
+
+(ad-activate 'compilation-start)
+
+(ad-deactivate 'compilation-start)
+
+(flet ((point-min)
+       (goto-char))
+  (fset 'point-min 'ignore)
+  (fset 'goto-char 'ignore)
+  (goto-char (point-min)))
