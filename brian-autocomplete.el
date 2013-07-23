@@ -45,13 +45,53 @@
   cflags to the `ac-clang-cflags' variable for use in code
   completion.")
 
-(defvar brian-clangcomplete-cflags-global
+(defun brian-clangcomplete-cflags-make (&optional compiler)
+  (interactive)
+  (unless compiler 
+    (setq compiler "gcc"))
   (append 
-   (list "-std=c++11")
+   (list "-std=c++11" "-Wall" "-Wextra" "-pedantic")
    (mapcar '(lambda (inc) (concat "-I" inc))
 	   (split-string 
 	    (let*
-		((out (shell-command-to-string "gcc -x c++ -v /dev/null"))
+		((out (shell-command-to-string (concat
+						compiler
+						" -x c++ -v /dev/null")))
+		 (st (string-match "> search starts here" out))
+		 (se (match-end 0))
+		 (eb (string-match "End of" out)))
+	      (with-temp-buffer
+		(insert out)
+		(goto-char se)
+		(end-of-line)
+		(forward-char 1)
+		(let
+		    ((buf (buffer-substring-no-properties (point) eb)))
+		  buf)))))))
+
+(defun brian-ac-clang-compile ()
+  (interactive)
+  (let ((compile-command (concat "CXXFLAGS=\""
+				 (mapconcat 
+				  'identity 
+				  (brian-clangcomplete-cflags-make "gcc")
+				  " ")
+				 "\""
+				 " make -k "
+				 (file-name-nondirectory 
+				  (file-name-sans-extension
+				   (buffer-file-name))))))
+    (call-interactively (function compile))))
+
+(defvar brian-clangcomplete-cflags-global
+  (append 
+   (list "-std=c++11" "-Wall" "-Wextra" "-pedantic")
+   (mapcar '(lambda (inc) (concat "-I" inc))
+	   (split-string 
+	    (let*
+		((out (shell-command-to-string "clang -x c++ -v /dev/null"
+					       ;"gcc -x c++ -v /dev/null"
+					       ))
 		 (st (string-match "> search starts here" out))
 		 (se (match-end 0))
 		 (eb (string-match "End of" out)))
@@ -73,16 +113,43 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 (add-to-list 'load-path brian-clangcomplete-async-dir)
 (require 'auto-complete-clang-async)
 
+(when (featurep 'flymake)
+  (defun flymake-display-err-popup-for-current-line ()
+    "Display a menu with errors/warnings for current line if it has errors and/or warnings using popup from popup.el."
+    (interactive)
+    (let* ((line-no             (flymake-current-line-no))
+	   (line-err-info-list  (nth 0 (flymake-find-err-info flymake-err-info line-no)))
+	   (menu-data           (flymake-make-err-menu-data line-no line-err-info-list)))
+      (if menu-data
+	  (progn
+	    (popup-tip (concat (car menu-data) "\n\n"
+			       (mapconcat 'car (car (cdr menu-data)) "\n"))))
+	(flymake-log 1 "no errors for line %d" line-no)))))
+
 (defun ac-cc-mode-setup ()
   (let ((exec-path (add-to-list 'exec-path brian-clangcomplete-async-dir)))
-   (setq ac-clang-complete-executable (executable-find "clang-complete")))
+    (setq ac-clang-complete-executable (executable-find "clang-complete")))
 
   (setq ac-sources '(ac-source-clang-async
-		     ;ac-source-semantic
-		     ;ac-source-semantic-raw
+					;ac-source-semantic
+					;ac-source-semantic-raw
 		     ))
 
   (define-key ac-completing-map "\t" 'ac-complete)
+
+  (local-set-key (kbd "<f5>") 'brian-ac-clang-compile)
+  (local-set-key (kbd "<f6>") 'ac-clang-syntax-check)
+  (local-set-key (kbd "S-<f6>") #'(lambda ()
+				    (interactive)
+				    (flymake-delete-own-overlays)))
+  (local-set-key (kbd "<f7>")
+		 #'(lambda () (interactive)
+		     (flymake-goto-prev-error)
+		     (flymake-display-err-popup-for-current-line)))
+  (local-set-key (kbd "<f8>")
+		 #'(lambda () (interactive)
+		     (flymake-goto-next-error)
+		     (flymake-display-err-popup-for-current-line)))
 
   (let ((process-environment 
 	 (add-to-list 'process-environment
@@ -97,6 +164,7 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 
 
 ;; When we are using clang async, let's not use CEDET
+
 (remove-hook 'c-mode-common-hook 'my-cedet-hook)
 
 (defun my-ac-config ()
