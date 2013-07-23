@@ -141,6 +141,11 @@
 ;(setq ido-everywhere t)
 (ido-everywhere t)
 
+;; TODO: want faster buffer switching than C-x b
+;; but i'm only testing this key combo
+(global-set-key (kbd "C-`") 'ido-switch-buffer)
+(global-set-key (kbd "s-`") 'ido-switch-buffer)
+
 ;; ido with imenu for fast symbol jumping
 (require 'idomenu)
 (global-set-key (kbd "C-c m") 'idomenu)

@@ -129,7 +129,25 @@ To continue searching for next match, use command \\[tags-loop-continue]."
 	   (message (error-message-string err))))
       (widen))))
 
-
+;; improved version by OP author's comment feedback
+(defun brian-ace-jump-to-char-within-N-lines (&optional n)
+  (interactive "p")
+  (let* ((N (or n 0))
+     (query-char (read-char "Query Char:"))
+     (start (save-excursion
+	      (forward-line (- N))
+	      (point)))
+     (stop (save-excursion 
+	     (forward-line (1+ N))
+	     (point))))
+    (unwind-protect
+    (condition-case err 
+        (progn
+          (narrow-to-region start stop)
+          (ace-jump-char-mode query-char))
+      (error 
+       (message (error-message-string err))))
+      (widen))))
 
 ;; Stolen from http://www.emacswiki.org/emacs/MoveRegion
 ;; Easily move region/lines
@@ -426,7 +444,7 @@ settings of `c-cleanup-list' are done."
 
 	      ;; `}': clean up empty defun braces
 	      (when (c-save-buffer-state ()
-		      (pp syntax)
+		      ;(pp syntax)
 		      (and (memq 'empty-defun-braces c-cleanup-list)
 			   (eq last-command-event ?\})
 			   (c-intersect-lists '(defun-close class-close inline-close)
@@ -512,3 +530,94 @@ settings of `c-cleanup-list' are done."
 	   (c-save-buffer-state nil
 	     (c-backward-syntactic-ws safepos))
 	   (funcall old-blink-paren)))))
+
+
+;; Flymake + popup.el!
+(defun flymake-display-err-popup-for-current-line ()
+  "Display a menu with errors/warnings for current line if it has errors and/or warnings using popup from popup.el."
+  (interactive)
+  (let* ((line-no             (flymake-current-line-no))
+	 (line-err-info-list  (nth 0 (flymake-find-err-info flymake-err-info line-no)))
+	 (menu-data           (flymake-make-err-menu-data line-no line-err-info-list))
+	 (popup-string))
+    (if menu-data
+	(progn
+	  (popup-tip (concat (car menu-data) "\n\n"
+			     (mapconcat 'car (car (cdr menu-data)) "\n"))))
+      (flymake-log 1 "no errors for line %d" line-no))))
+
+;; Compile Command that Pwns
+;; (let ((compile-command (concat "CXXFLAGS=\""
+;; 			       (mapconcat 
+;; 				'identity 
+;; 				(brian-clangcomplete-cflags-make "gcc")
+;; 				" ")
+;; 			       "\""
+;; 			       " make -k "
+;; 			       (file-name-nondirectory 
+;; 				(file-name-sans-extension
+;; 				 (buffer-file-name))))))
+;;   (call-interactively (function compile)))
+
+
+;; Stackoverflow helping cutdown on long, repetitive calls to defface
+;; Making this macro was not fscking easy.
+(defmacro brian-def-char-face (letter backgrnd foregrnd)
+  `(defface ,(intern (concat "brian-char-face-"
+			     letter))
+     '((((type tty) (class color)) 
+       	(:background 
+	 ,backgrnd
+	 :foreground
+	 ,foregrnd))
+       (((type tty) (class color)) (:inverse-video t))
+       (((class color) (background dark))
+	(:foreground
+	 ,foregrnd
+	 :background
+	 ,backgrnd))
+       (((class color) (background light))
+	(:foreground
+	 ,foregrnd
+	 :background
+	 ,backgrnd))
+       (t (:background "gray")))
+     ,(concat "Face for marking up " (upcase letter) "'s")))
+
+(let ((letcol-alist '((s . (white black))
+		      (t . (black yellow))
+		      (u . (green pink)))))
+  (assoc 'u letcol-alist)
+
+  ;; (loop for elem in letcol-alist
+  ;; 	for l = (format "%s" (car elem))
+  ;; 	for back = (format "%s" (cadr elem))
+  ;; 	for fore = (format "%s" (caddr elem))
+  ;; 	do 
+  ;; 	(eval (macroexpand `(brian-def-char-face ,l ,back ,fore))))
+
+)
+;; Stackoverflow answer to a question that I never posted because some
+;; other guy replied fast with an existing solution :-(
+(defun brian-magit-diff-file-at-point (&optional file)
+  (interactive)
+  (unless file
+    (setq file (condition-case err 
+		   (magit-diffstat-item-file (magit-current-section))
+		 (error
+		  (message "No file at point!")
+		  nil))))
+  (when file
+    (magit-for-all-sections 
+     #'(lambda (s)
+	 (unless (eq magit-top-section s)
+	   (magit-section-set-hidden s t))))
+    (magit-for-all-sections
+     #'(lambda (section)
+	 (let ((type (magit-section-type section))
+	       (curfile))
+	   (if (and (eq type 'diff)
+		    (setq curfile (magit-diffstat-item-file section))
+		    (string= curfile file))
+	       (progn (magit-section-expand-all section)
+		      (goto-char (magit-section-beginning section)))))))))
