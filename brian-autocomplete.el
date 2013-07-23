@@ -26,9 +26,9 @@
 (define-key ac-mode-map  [(control tab)] 'auto-complete)
 (define-key ac-mode-map [(control return)] 'ac-fuzzy-complete)
 (define-key ac-mode-map (kbd "C-c h") 'ac-last-quick-help)
-(define-key ac-mode-map (kbd "C-c H") '(lambda ()
-					 (interactive)
-					 (ac-last-help t)))
+(define-key ac-mode-map (kbd "C-c H") #'(lambda ()
+					  (interactive)
+					  (ac-last-help t)))
 
 (define-key ac-complete-mode-map (kbd "M-n") 'ac-next)
 (define-key ac-complete-mode-map (kbd "M-p") 'ac-previous)
@@ -51,7 +51,7 @@
     (setq compiler "gcc"))
   (append 
    (list "-std=c++11" "-Wall" "-Wextra" "-pedantic")
-   (mapcar '(lambda (inc) (concat "-I" inc))
+   (mapcar #'(lambda (inc) (concat "-I" inc))
 	   (split-string 
 	    (let*
 		((out (shell-command-to-string (concat
@@ -86,11 +86,11 @@
 (defvar brian-clangcomplete-cflags-global
   (append 
    (list "-std=c++11" "-Wall" "-Wextra" "-pedantic")
-   (mapcar '(lambda (inc) (concat "-I" inc))
+   (mapcar #'(lambda (inc) (concat "-I" inc))
 	   (split-string 
 	    (let*
 		((out (shell-command-to-string "clang -x c++ -v /dev/null"
-					       ;"gcc -x c++ -v /dev/null"
+					;"gcc -x c++ -v /dev/null"
 					       ))
 		 (st (string-match "> search starts here" out))
 		 (se (match-end 0))
@@ -175,13 +175,13 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 (my-ac-config)
 
 (global-set-key (kbd "M-.") 
-		'(lambda () (interactive)
-		   (if (and auto-complete-mode
-			    ac-clang-completion-process
-			    (or (eq major-mode 'c++-mode)
-				(eq major-mode 'c-mode)))
-		       (ac-clang-send-location-request)
-		     (semantic-goto-definition (point)))))
+		#'(lambda () (interactive)
+		    (if (and auto-complete-mode
+			     ac-clang-completion-process
+			     (or (eq major-mode 'c++-mode)
+				 (eq major-mode 'c-mode)))
+			(ac-clang-send-location-request)
+		      (semantic-goto-definition (point)))))
 
 (global-set-key (kbd "M-*") 
 		'(lambda () (interactive)
@@ -217,12 +217,12 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 ;; (add-to-list 'ac-modes 'shell-mode)
 ;; (setq shell-mode-hook nil)
 ;; (add-hook 'shell-mode-hook 
-;; 	  '(lambda ()
-;; 	     (setq comint-preinput-scroll-to-bottom t)
-;; 	     (setq comint-move-point-for-output t)
-;; 	     (setq comint-buffer-maximum-size 5000)
-;; 	     (setq rlc-attempts 30)
-;; 	     (setq rlc-timeout 0.03)
-;; 	     (ac-rlc-setup-sources)))
+;; 	  #'(lambda ()
+;; 	      (setq comint-preinput-scroll-to-bottom t)
+;; 	      (setq comint-move-point-for-output t)
+;; 	      (setq comint-buffer-maximum-size 5000)
+;; 	      (setq rlc-attempts 30)
+;; 	      (setq rlc-timeout 0.03)
+;; 	      (ac-rlc-setup-sources)))
 
 (provide 'brian-autocomplete)
