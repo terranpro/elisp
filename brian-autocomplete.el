@@ -50,7 +50,7 @@
   (unless compiler 
     (setq compiler "gcc"))
   (append 
-   (list "-std=c++11" "-Wall" "-Wextra" "-pedantic")
+   (list "-std=c++11" "-g" "-lpthread" "-Wall" "-Wextra" "-pedantic")
    (mapcar #'(lambda (inc) (concat "-I" inc))
 	   (split-string 
 	    (let*
@@ -153,7 +153,7 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 
   (let ((process-environment 
 	 (add-to-list 'process-environment
-		      (concat "LD_LIBRARY_PATH=/usr/local/lib:"
+		      (concat "LD_LIBRARY_PATH=~/build/lib:/usr/local/lib:"
 			      (getenv "LD_LIBRARY_PATH")))))
     (ac-clang-launch-completion-process))
 
