@@ -88,6 +88,11 @@
   "Toplevel directory for a single Tizen package.
 Example:  /home/terranpro/tizen/git/ebookviewer/")
 
+(defvar-local tizen-gbs-current-profile "latest"
+  "Default GBS profile to be used for builds and buildroot
+  determination (e.g. for parsing system headers
+  w/clang-async).")
+
 (defvar tizen-mode-map 
   (let ((map (make-keymap)))
     (define-key map (kbd "F") 'tizen-flash-binary)
@@ -499,8 +504,13 @@ and translates it to a project directory based on PRJDIR. "
 		 :sibling-args (list img-dir)
 		 "Download")
   (use-local-map widget-keymap)
-  (widget-setup)
-)
+  (local-set-key (kbd "SPC") 'widget-button-press)
+  (local-set-key (kbd "n") 'widget-forward)
+  (local-set-key (kbd "C-c C-n") 'widget-forward)
+  (local-set-key (kbd "p") 'widget-backward)
+  (local-set-key (kbd "C-c C-p") 'widget-backward)
+
+  (widget-setup))
 
 (defun tizen-create-subdir-checkboxes (dir files)
   (widget-insert (concat dir "\n"))
@@ -628,7 +638,7 @@ and translates it to a project directory based on PRJDIR. "
 		  (cons "https_proxy=" 
 			process-environment)))
 	   (proc-buf-name (generate-new-buffer-name 
-			    "Tizen GBS Build"))
+			   "Tizen GBS Build"))
 	   (proc (apply 'start-process
 			"gbs-build" 
 			proc-buf-name
@@ -638,26 +648,35 @@ and translates it to a project directory based on PRJDIR. "
       (message cmd)
 
       ;;(set-process-filter proc 'ansi-color-for-comint-mode-on)      
+      (set-process-filter proc
+			  #'(lambda (proc output)
+			      (with-selected-window (get-buffer-window 
+						     (process-buffer proc))
+				(let ((lastpt (point)))
+				  (goto-char (point-max))
+				  (insert output)
+				  (ansi-color-apply-on-region
+				   lastpt (point-max))))))
 
       (set-process-sentinel proc 
-			    '(lambda (proc event)
-			       (let ((status (process-status proc)))
-				 (if (eq 'exit status)
-				     (progn
-				       (message "Colorizing!")
-				       (with-current-buffer (process-buffer proc)
-					 
-					 (ansi-color-apply-on-region 
-					  (point-min)
-					  (point-max))
-					 (setq tizen-gbs-built-rpm-directory 
-					       (let ((regexp (rx "generated RPM packages can be found from local repo:"
-		  (zero-or-more (or whitespace ?\n))
-		  (group (zero-or-more not-newline))))
-						     (string (buffer-substring-no-properties (point-min) (point-max))))
-						 (if (string-match regexp string)
-      (match-string 1 string))))))))))
-      ;(shell-command cmd "Tizen GBS Build")
+			    #'(lambda (proc event)
+				(let ((status (process-status proc)))
+				  (if (eq 'exit status)
+				      (progn
+					(message "Colorizing!")
+					(with-current-buffer (process-buffer proc)
+					  
+					  (ansi-color-apply-on-region 
+					   (point-min)
+					   (point-max))
+					  (setq tizen-gbs-built-rpm-directory 
+						(let ((regexp (rx "generated RPM packages can be found from local repo:"
+								  (zero-or-more (or whitespace ?\n))
+								  (group (zero-or-more not-newline))))
+						      (string (buffer-substring-no-properties (point-min) (point-max))))
+						  (if (string-match regexp string)
+						      (match-string 1 string))))))))))
+					;(shell-command cmd "Tizen GBS Build")
       (save-window-excursion 
 	(switch-to-buffer proc-buf-name)
 	(setq tizen-project-directory
@@ -732,8 +751,8 @@ When all options are selected, press ENTER to launch gbs build.")
 			      :onactivate '(lambda (opt)
 					     (ido-completing-read 
 					      "Profile: "
-					      (list "slp" "surc" "latest")
-					      "surc")))
+					      (tizen-gbs-conf-get-profiles)
+					      "latest")))
 		   
 		   (SwitchArg "--arch"
 			      :key "A"
@@ -747,6 +766,32 @@ When all options are selected, press ENTER to launch gbs build.")
 
 
 ;;(tizen-gbs-build)
+(defun tizen-gbs-conf-get-profiles (&optional gbsconf)
+  (split-string
+   (shell-command-to-string 
+    (concat
+     "awk '/^\\[profile/ { print $0; }' "
+     (or gbsconf tizen-gbs-conf)
+     " | sed -e 's/\\[//' -e 's/\\]//' -e 's/profile.//'"))))
+
+(defun tizen-gbs-get-buildroot-for-profile (profile &optional gbsconf)
+  "Grabs the buildroot line for a specific profile in a gbs conf
+file; if multiple are found, just return the first in the list or
+the default chroot if none are found."
+  (expand-file-name
+   (or 
+    (car 
+     (split-string
+      (shell-command-to-string
+       (concat
+	"awk '/^\\[profile\." 
+	profile
+	"/ { notdone = 1; while( notdone ) { getline; "
+	"if ( $1 == \"buildroot\") { notdone = 0; print $NF; } } }' "
+	(or gbsconf tizen-gbs-conf)))))
+    tizen-gbs-chroot)))
+;(tizen-gbs-get-buildroot-for-profile "svoice")
+
 (defun tizen-build-package-gbs (&optional profile)
   ""
   (interactive)
@@ -755,12 +800,7 @@ When all options are selected, press ENTER to launch gbs build.")
     (setq profile
 	  (ido-completing-read 
 	   "Profile: "
-	   (split-string
-	    (shell-command-to-string 
-	     (concat
-	      "awk '/^\\[profile/ { print $0; }' "
-	      tizen-gbs-conf
-	      " | sed -e 's/\\[//' -e 's/\\]//' -e 's/profile.//'"))))))
+	   (tizen-gbs-conf-get-profiles))))
   
   (tizen-gbs-build-options-window)
   (let* ((process-environment
@@ -1160,9 +1200,9 @@ Directory:
      ""
      cflags-str))))
 
-(defun tizen-prefix-pkgconfig-includes (dir)
+(defun tizen-prefix-pkgconfig-includes (prefix dir)
   (concat
-   tizen-gbs-chroot
+   prefix
    dir))
 
 (defun tizen-system-include-check-pkgconfig (pkgname pkgconfigpath)
@@ -1183,7 +1223,7 @@ Directory:
 	 (concat "pkg-config --cflags-only-I " pkgname))
       " ")))
 
-(defun tizen-system-include-paths (file)
+(defun tizen-system-include-paths (file brdir)
   ""
   (interactive)
   (let ((incs "/usr/include"))
@@ -1227,7 +1267,8 @@ Directory:
 		   " ")))))))
 
     (mapconcat 
-     'tizen-prefix-pkgconfig-includes
+     #'(lambda (inc)
+	 (tizen-prefix-pkgconfig-includes brdir inc))
      (split-string incs)
      " ")))
 
@@ -1254,7 +1295,7 @@ Directory:
 	       " ")))
       incs)))
 
-(defun tizen-ede-cpp-root-project (&optional file)
+(defun tizen-ede-cpp-root-project (&optional profile file)
   ""
   (interactive)
   (let ((prj-root-dir (file-name-directory file)))
@@ -1270,7 +1311,9 @@ Directory:
 		    t)
      :system-include-path
      (split-string 
-      (tizen-system-include-paths file)
+      (tizen-system-include-paths 
+       file
+       (tizen-gbs-get-buildroot-for-profile profile))
       nil
       t)
      :spp-table '( ("CONST" . "const"))
@@ -1460,17 +1503,17 @@ Directory:
 
 ;; (tizen-ede-cpp-root-project 
 ;;  "/home/terranpro/eb-git/ebookviewer/CMakeLists.txt")
-(when (file-exists-p "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
-  (tizen-ede-cpp-root-project 
-   "/home/terranpro/tizen/git/ebook/CMakeLists.txt"))
 
-(when (file-exists-p "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
-  (tizen-ede-cpp-root-project 
-   "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt"))
-
-(when (file-exists-p "/home/terranpro/tizen/git/pte-standalone/CMakeLists.txt")
- (tizen-ede-cpp-root-project 
-  "/home/terranpro/tizen/git/pte-standalone/CMakeLists.txt"))
+(let ((tizen-projects 
+       '(
+	 ("slp" "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
+	 ("surc" "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
+	 ("slp" "/home/terranpro/tizen/git/pte-standalone/CMakeLists.txt")
+	 ("svoice" "/home/terranpro/tizen/git/voice-talk2/CMakeLists.txt"))))
+  (mapc '(lambda (prj)
+	   (when (file-exists-p cmakelist)
+	     (tizen-ede-cpp-root-project (car cmakelist) (cdr cmakelist))))
+	tizen-project-cmakelists))
 
 ;; (tizen-ede-cpp-root-project 
 ;;  "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")
