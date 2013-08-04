@@ -654,3 +654,12 @@ settings of `c-cleanup-list' are done."
   (fset 'point-min 'ignore)
   (fset 'goto-char 'ignore)
   (goto-char (point-min)))
+
+;; json example for compile_commands from cmake
+(require 'json)
+(let ((ccs (json-read-file "~/code/clang-faces/build/compile_commands.json")))
+  (loop for n from 0 to (1- (length ccs))
+	for entry = (aref ccs n)
+	for file = (cdr (assoc 'file entry))
+	for cmd = (cdr (assoc 'command entry))
+	collect (list file (cdr (split-string cmd)))))
