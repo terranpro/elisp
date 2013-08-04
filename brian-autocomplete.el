@@ -200,6 +200,7 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 ;;
 ;; readline-complete
 ;;
+(require 'shell)
 
 ;; (setq explicit-shell-file-name "bash")
 ;; (setq explicit-bash-args '("-c" "export EMACS=; stty echo; bash"))
@@ -207,6 +208,7 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 (setq comint-input-ignoredups t)
 (setq comint-scroll-to-bottom-on-output nil)
 (setq comint-scroll-to-bottom-on-input t)
+(add-to-list 'explicit-bash-args "--login")
 
 ;; ASIDE: if you call ssh from shell directly, add "-t" to
 ;; explicit-ssh-args to enable terminal.
