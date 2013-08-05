@@ -663,3 +663,14 @@ settings of `c-cleanup-list' are done."
 	for file = (cdr (assoc 'file entry))
 	for cmd = (cdr (assoc 'command entry))
 	collect (list file (cdr (split-string cmd)))))
+
+;; unload symbols with prefix:
+(mapc
+ #'(lambda (f) (and (featurep f) (unload-feature f t)))
+ (loop for file-syms in load-history
+       for prov = (assoc 'provide file-syms)
+       with features
+       if (and prov (string-match "^clang-faces" (symbol-name (cdr prov)))) 
+       collect (cdr prov) into features
+       finally return features))
+
