@@ -61,7 +61,7 @@ The one argument passed to the callback is the Option obj. ")
 			      :display-name "\n"
 			      :auto nil))
 
-(defvar NullOption (Option "newline"
+(defvar NullOption (Option "null"
 			   :display-name ""
 			   :auto nil))
 
@@ -175,6 +175,10 @@ The one argument passed to the callback is the Option obj. ")
 	     (options-redisplay))))
       (define-key keymap (kbd "RET") 
 	(symbol-function cmd-invoker))
+      (define-key keymap (kbd "M-n") 'options-forward)
+      (define-key keymap (kbd "M-p") 'options-backward)
+      (define-key keymap (kbd "n") 'options-forward)
+      (define-key keymap (kbd "p") 'options-backward)
       (define-key keymap (kbd "q")
 	'(lambda () (interactive)
 	   (switch-to-prev-buffer)))
@@ -256,6 +260,35 @@ This is useful when you need to do completing read on an object group."
     (Redraw options-mode-command)
     (goto-char (point-min))
     (forward-line (1- old-line))))
+
+(defun options-get-option-pos (optn)
+  (let ((opt-table (get-text-property (point-min) 'options-table)))
+    (aref optn opt-table)))
+
+(defun options-build-table ()
+)
+
+(defun options-goto-prev-option ()
+  (let ((p (previous-single-property-change (point) 'option)))
+    (if p (goto-char p))))
+
+(defun options-skip-p (option)
+  (or (eq option NewLineOption)
+      (eq option NullOption)))
+
+(defun options-goto-next-option ()
+  (let ((p (next-single-property-change (point) 'option)))
+    (if p (goto-char p))))
+
+(defun options-forward ()
+  (interactive)
+  (while (and (options-goto-next-option)
+	      (options-skip-p (get-text-property (point) 'option)))))
+
+(defun options-backward ()
+  (interactive)
+  (while (and (options-goto-prev-option)
+	      (options-skip-p (get-text-property (point) 'option)))))
 
 (define-derived-mode options-mode special-mode "Options" 
   "")

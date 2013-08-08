@@ -873,7 +873,7 @@ Directory:
     (setq options
 	  (append (list 
 		   (Switch "Install After Uploading To Device"
-			   :key "I"
+			   :key "i"
 			   :active t
 			   :auto nil
 			   :userdata '("rpm" "pkgcmd" nil)
@@ -881,7 +881,7 @@ Directory:
 			   :onactivate 
 			   'tizen-rpm-push-mode-install-after-onactivate)
 		   (Switch "Open Remote Install Mode Window After Uploading"
-			   :key "R"
+			   :key "r"
 			   :active nil
 			   :auto nil)
 		   NullOption
@@ -982,7 +982,7 @@ Directory:
 					 options
 					 (list
 					  (SwitchArg "InstallMethod"
-						     :key "M"
+						     :key "m"
 						     :desc "Blergh"
 						     :arg "pkgcmd"
 						     :auto nil
@@ -1162,6 +1162,9 @@ Directory:
 	(let* ((tmp-name "tizen:spec")
 	       (tmp-tbl (srecode-template-get-table
 			 (srecode-get-mode-table 'sh-mode) tmp-name))
+	       ;; TODO: srecode mode table isn't always populated!
+	       ;; seems like we have to prime it first with a `srecode-insert'
+	       ;; inside of each major mode before it populates it
 	       (dict (srecode-create-dictionary)))
 	  (srecode-dictionary-set-value dict "NAME" prj-name)
 	  (srecode-dictionary-set-value dict "DESCRIPTION"
