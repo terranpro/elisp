@@ -8,6 +8,7 @@
 
 ;(require 'org-install)
 (require 'org)
+(require 'ox-md)  ;; Markdown export backend
 (require 'org-latex)
 (require 'org-habit)
 (require 'ob)
