@@ -194,6 +194,14 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 
 ;; AC Clang Awesomeness END!
 
+;; Clang Faces Begin!
+(add-to-list 'load-path "~/code/clang-faces")
+(require 'clang-faces)
+
+(defun brian-clang-faces-init ()
+  (clang-faces-mode t))
+(add-hook 'c-mode-common-hook 'brian-clang-faces-init)
+;; Clang Faces END!
 
 ;;(require 'brian-clang-async)
 
