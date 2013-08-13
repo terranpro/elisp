@@ -307,17 +307,18 @@ This is useful when you need to do completing read on an object group."
 
 (defun options-mode-new (name cmd)
   (with-slots (command options) cmd
-   (Options-p options)
-   (switch-to-buffer-other-window (concat "Options: " name))
-   (erase-buffer)
-   (options-mode)
-   (setq options-mode-map (CreateKeymap cmd 'options-mode-invoke-command))
-   (setq options-mode-command cmd)
-   (setq options-mode-command-callback command)
-   (setq options-mode-options options)
-   (use-local-map (CreateKeymap cmd 'options-mode-invoke-command))
-   (options-redisplay)
-   t))
+    (when (Options-p options)
+      (switch-to-buffer-other-window 
+       (generate-new-buffer-name (concat "Options: " name)))
+      (erase-buffer)
+      (options-mode)
+      (setq options-mode-map (CreateKeymap cmd 'options-mode-invoke-command))
+      (setq options-mode-command cmd)
+      (setq options-mode-command-callback command)
+      (setq options-mode-options options)
+      (use-local-map (CreateKeymap cmd 'options-mode-invoke-command))
+      (options-redisplay))
+    t))
 
 ;; (options-mode-new 
 ;;  "gbs-build"
