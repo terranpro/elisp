@@ -25,8 +25,14 @@
 
 ;;; Code:
 
+(require 'srecode)
+(require 'srecode/map)
+
 (setq srecode-map-save-file "~/elisp/srecode/srecode-map")
-(add-to-list 'srecode-map-load-path "~/elisp/srecode/")
+(if (boundp 'srecode-map-load-path)
+    (add-to-list 'srecode-map-load-path "~/elisp/srecode/")
+  (setq srecode-map-load-path "~/elisp/srecode/"))
+
 (global-srecode-minor-mode 1)
 
 (defun brian-srecode-projname-replace-and-comment (str)

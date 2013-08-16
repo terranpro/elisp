@@ -29,6 +29,8 @@
 
 ;;; Code:
 
+(require 'eieio)
+
 (defun options-mode-build-window ())
 
 (defclass Option () 
