@@ -413,7 +413,7 @@ and translates it to a project directory based on PRJDIR. "
 	 (projs (shell-command-to-string cmd))
 	 )
     projs))
-;(with-output-to-temp-buffer "Tizen" (insert (tizen-gerrit-ls-projects)))
+;(with-output-to-temp-buffer "Tizen" (princ (tizen-gerrit-ls-projects)))
 
 (defun tizen-download-binary-catch-tarballs (path)
   (let ((cmd (concat "curl "
@@ -747,7 +747,7 @@ When all options are selected, press ENTER to launch gbs build.")
 		   (SwitchArg "--profile"
 			      :key "P"
 			      :desc "Specify the GBS profile to be used"
-			      :arg "surc"
+			      :arg "latest"
 			      :onactivate '(lambda (opt)
 					     (ido-completing-read 
 					      "Profile: "
@@ -874,7 +874,7 @@ Directory:
 	  (append (list 
 		   (Switch "Install After Uploading To Device"
 			   :key "i"
-			   :active t
+			   :active nil
 			   :auto nil
 			   :userdata '("rpm" "pkgcmd" nil)
 			   :display-name "Install After Uploading To Device: rpm"
@@ -882,7 +882,7 @@ Directory:
 			   'tizen-rpm-push-mode-install-after-onactivate)
 		   (Switch "Open Remote Install Mode Window After Uploading"
 			   :key "r"
-			   :active nil
+			   :active t
 			   :auto nil)
 		   NullOption
 		   NullOption)
@@ -991,7 +991,7 @@ Directory:
 							(ido-completing-read
 							 "Method: "
 							 (list "pkgcmd" "rpm")
-							 "pkgcmd"))))))))))
+							 "rpm"))))))))))
 
 (defun tizen-remote-install-mode-worker (Opts builtopts)
   (with-slots ((opts elems)) Opts
@@ -1467,7 +1467,108 @@ Directory:
   
 )
 
+(require 'json)
 
+(defun brian-cflags-hack-out-arm (args)
+  (let ((oldrx (regexp-opt '("-mthumb"
+			     "-mfpu"
+			     "-mlittle-endian"
+			     "-mfpu"
+			     "-mfloat-abi"
+			     "-D__SOFTFP__"
+			     "-it=thumb"
+			     "-march="
+			     "-mtune="))))
+    (loop for arg in args
+	 if (string-match oldrx arg)
+	 do (setq arg "")
+	 collect arg)))
+
+(defun brian-include-directives-substitute (args oldpath newpath)
+  (let ((oldrx (rx "-I" (group (eval oldpath)))))
+    (loop for arg in args
+	 if (string-match oldrx arg)
+	 do (setq arg (replace-regexp-in-string oldrx newpath arg))
+	 collect arg)))
+
+(defun tizen-project-read-compile-commands (ccfile)
+  "Read a compile_commands.json file, CCFILE, and return a list
+  with format
+
+filename (arg1 arg2 ... argN) 
+
+where the final argument (the filename) has been cut from the arg
+list."
+  (let ((ccs (json-read-file ccfile)))
+    (loop for n from 0 to (1- (length ccs))
+	  for entry = (aref ccs n)
+	  for file = (cdr (assoc 'file entry))
+	  for cmd = (cdr (assoc 'command entry))
+	  for cmdlist = (subseq (split-string cmd) 0 -2)
+	  ;for modcmdlist = 
+	  collect (list file (cdr cmdlist)))))
+
+(pp(brian-cflags-hack-out-arm
+  (tizen-project-ac-clang-cflags-from-ccmds 
+   "~/tizen/git/libwakeup/compile_commands.json"
+   "wu_independent_verify.c")))
+
+(brian-include-directives-substitute
+ (tizen-project-ac-clang-cflags-from-ccmds 
+   "~/tizen/git/libwakeup/compile_commands.json"
+   "wu_independent_verify.c")
+  "/home/abuild/rpmbuild/BUILD/libwakeup-0.0.9"
+  "/home/terranpro/tizen/git/libwakeup")
+
+(brian-include-directives-substitute
+ (tizen-project-ac-clang-cflags-from-ccmds 
+  "~/tizen/git/libwakeup/compile_commands.json"
+  "wu_independent_verify.c")
+ "/usr/"
+ "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0/usr/")
+
+(defun tizen-project-ac-clang-cflags-from-ccmds (ccfile srcfile)
+  "Given a compile_commands.json file, returns the relevant
+cflags for it in a format ready for `ac-clang-cflags'."
+  (car-safe 
+   (cdr-safe (assoc-if 
+	      #'(lambda (file) (string-match srcfile file))
+	      (tizen-project-read-compile-commands ccfile)))))
+
+
+(tizen-project-ac-clang-cflags-from-ccmds 
+ "~/tizen/git/voice-talk2/compile_commands.json"
+ "auto_test.cpp")
+
+(defun tizen-project-ac-clang-cflags-generic (srcfile)
+  (append
+   (list "-std=c++0x")
+   (mapcar 
+    #'(lambda (arg) (concat "-I" arg))
+    (mapcar
+     'expand-file-name
+     (append
+      (mapcar
+       #'(lambda (dir)
+	   (concat tizen-gbs-current-profile-br dir))
+       
+       '("/local/scratch.armv7l.0/usr/include/c++/4.5.3"
+	 "/local/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi"
+	 "/local/scratch.armv7l.0/usr/include/c++/4.5.3/backward"
+	 "/local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include" 
+	 "/local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed" 
+	 "/local/scratch.armv7l.0/usr/include"))
+      (split-string
+       (tizen-system-include-paths
+	(concat ac-clang-project-directory
+		"/CMakeLists.txt")
+	
+	tizen-gbs-current-profile-br))
+      (mapcar
+       'expand-file-name
+       (folder-dirs-recursive
+	(concat ac-clang-project-directory
+		"/include/"))))))))
 
 (defun tizen-project-new (prjdir &optional enable-clang enable-ede)
   (interactive)
@@ -1481,7 +1582,54 @@ Directory:
      ))
   
 )
+(defun tizen-project-dir-locals-set-class-variables (prjdir profile)
+  (dir-locals-set-class-variables
+   'tizen
+   `((nil . ((ac-clang-project-directory . ,prjdir)
+	     (tizen-project-directory . ,prjdir)))
+     (c++-mode . ((c-basic-offset . 2)
+		  (eval . (setq 
+			   tizen-gbs-current-profile ,profile
+			   tizen-gbs-current-profile-br 
+			   (tizen-gbs-get-buildroot-for-profile ,profile)
+			   ac-clang-cflags
+			   (append
+			    (list "-std=c++0x")
+			    (mapcar 
+			     '(lambda (arg) (concat "-I" arg))
+			     (mapcar
+			      'expand-file-name
+			      (append
+			       (mapcar
+				#'(lambda (dir)
+				    (concat tizen-gbs-current-profile-br dir))
+				
+				'("/local/scratch.armv7l.0/usr/include/c++/4.5.3"
+				  "/local/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi"
+				  "/local/scratch.armv7l.0/usr/include/c++/4.5.3/backward"
+				  "/local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include" 
+				  "/local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed" 
+				  "/local/scratch.armv7l.0/usr/include"))
+			       (split-string
+				(tizen-system-include-paths
+				 (concat ac-clang-project-directory
+					 "/CMakeLists.txt")
+				 
+				 tizen-gbs-current-profile-br))
+			       (mapcar
+				'expand-file-name
+				(folder-dirs-recursive
+				 (concat ac-clang-project-directory
+					 "/include/")))))))
+			   )))))))
+(tizen-project-dir-locals-set-class-variables 
+ "/home/terranpro/tizen/git/voice-talk2"
+ "latest")
 
+(defun tizen-project-dir-locals-set-directory-class (prjdir class)
+  (dir-locals-set-directory-class prjdir class))
+
+(tizen-project-dir-locals-set-directory-class "/home/terranpro/tizen/git/voice-talk2" 'tizen)
 ;; NEW CODE END
 
 (require 'easymenu)
@@ -1507,16 +1655,16 @@ Directory:
 ;; (tizen-ede-cpp-root-project 
 ;;  "/home/terranpro/eb-git/ebookviewer/CMakeLists.txt")
 
-(let ((tizen-projects 
-       '(
-	 ("slp" "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
-	 ("surc" "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
-	 ("slp" "/home/terranpro/tizen/git/pte-standalone/CMakeLists.txt")
-	 ("svoice" "/home/terranpro/tizen/git/voice-talk2/CMakeLists.txt"))))
-  (mapc '(lambda (prj)
-	   (when (file-exists-p cmakelist)
-	     (tizen-ede-cpp-root-project (car cmakelist) (cdr cmakelist))))
-	tizen-project-cmakelists))
+;; (let ((tizen-projects 
+;;        '(
+;; 	 ("slp" "/home/terranpro/tizen/git/ebook/CMakeLists.txt")
+;; 	 ("surc" "/home/terranpro/tizen/git/ebookviewer/CMakeLists.txt")
+;; 	 ("slp" "/home/terranpro/tizen/git/pte-standalone/CMakeLists.txt")
+;; 	 ("svoice" "/home/terranpro/tizen/git/voice-talk2/CMakeLists.txt"))))
+;;   (mapc '(lambda (prj)
+;; 	   (when (file-exists-p (cadr prj))
+;; 	     (tizen-ede-cpp-root-project (car prj) (cadr prj))))
+;; 	tizen-projects))
 
 ;; (tizen-ede-cpp-root-project 
 ;;  "/home/terranpro/tizen/git/tizen15/CMakeLists.txt")

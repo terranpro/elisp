@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 'eieio)
+(require 'eieio-base)
 
 (defun options-mode-build-window ())
 
