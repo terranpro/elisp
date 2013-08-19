@@ -1508,6 +1508,14 @@ list."
 	  ;for modcmdlist = 
 	  collect (list file (cdr cmdlist)))))
 
+(defun tizen-project-ac-clang-cflags-from-ccmds (ccfile srcfile)
+  "Given a compile_commands.json file, returns the relevant
+cflags for it in a format ready for `ac-clang-cflags'."
+  (car-safe 
+   (cdr-safe (assoc-if 
+	      #'(lambda (file) (string-match srcfile file))
+	      (tizen-project-read-compile-commands ccfile)))))
+
 (pp(brian-cflags-hack-out-arm
   (tizen-project-ac-clang-cflags-from-ccmds 
    "~/tizen/git/libwakeup/compile_commands.json"
@@ -1526,15 +1534,6 @@ list."
   "wu_independent_verify.c")
  "/usr/"
  "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0/usr/")
-
-(defun tizen-project-ac-clang-cflags-from-ccmds (ccfile srcfile)
-  "Given a compile_commands.json file, returns the relevant
-cflags for it in a format ready for `ac-clang-cflags'."
-  (car-safe 
-   (cdr-safe (assoc-if 
-	      #'(lambda (file) (string-match srcfile file))
-	      (tizen-project-read-compile-commands ccfile)))))
-
 
 (tizen-project-ac-clang-cflags-from-ccmds 
  "~/tizen/git/voice-talk2/compile_commands.json"
