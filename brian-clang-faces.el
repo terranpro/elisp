@@ -27,6 +27,7 @@
 (require 'clang-faces)
 
 (defun brian-clang-faces-init ()
+  (hack-local-variables)
   (clang-faces-mode t))
 
 ;; TODO: clang-faces depends on `ac-clang-cflags' to be set
