@@ -82,6 +82,20 @@
 (setq comint-scroll-to-bottom-on-input t)
 (add-to-list 'explicit-bash-args "--login")
 
+;; Awesome fix for shell COLUMNS being too large
+;; from: SO
+(defun comint-fix-window-size ()
+  "Change process window size."
+  (when (and (derived-mode-p 'comint-mode)
+	     (processp (get-buffer-process (current-buffer))))
+    (set-process-window-size (get-buffer-process (current-buffer))
+                         (window-height)
+                         (window-width))))
+(defun my-shell-mode-hook ()
+  ;; add this hook as buffer local, so it runs once per window.
+  (add-hook 'window-configuration-change-hook 'comint-fix-window-size nil t))
+(add-hook 'shell-mode-hook 'my-shell-mode-hook)
+
 ;; ASIDE: if you call ssh from shell directly, add "-t" to
 ;; explicit-ssh-args to enable terminal.
 
