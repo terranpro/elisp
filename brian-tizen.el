@@ -24,7 +24,8 @@
 ;;; Code:
 (require 'ido)
 
-(add-to-list 'load-path "/home/terranpro/elisp/foreign/auto-complete/lib/popup")
+(add-to-list 'load-path
+	     "/home/terranpro/elisp/foreign/auto-complete/lib/popup")
 (require 'popup)
 (require 'options-mode)
 
@@ -984,7 +985,7 @@ Directory:
 					  (SwitchArg "InstallMethod"
 						     :key "m"
 						     :desc "Blergh"
-						     :arg "pkgcmd"
+						     :arg "rpm"
 						     :auto nil
 						     :onactivate
 						     '(lambda (opt)
