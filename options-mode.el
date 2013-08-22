@@ -29,6 +29,9 @@
 
 ;;; Code:
 
+;; TODO temp hack
+(add-to-list 'load-path
+	     "/home/terranpro/code/cedet-bzr/lisp/eieio")
 (require 'eieio)
 (require 'eieio-base)
 
@@ -285,13 +288,28 @@ This is useful when you need to do completing read on an object group."
 
 (defun options-forward ()
   (interactive)
-  (while (and (options-goto-next-option)
-	      (options-skip-p (get-text-property (point) 'option)))))
+  (let ((pt (point)))
+   (while (and (options-goto-next-option)
+	       (options-skip-p (get-text-property (point) 'option))))
+   (/= (point) pt)))
 
 (defun options-backward ()
   (interactive)
-  (while (and (options-goto-prev-option)
-	      (options-skip-p (get-text-property (point) 'option)))))
+  (let ((pt (point)))
+   (while (and (options-goto-prev-option)
+	      (options-skip-p (get-text-property (point) 'option))))
+   (/= (point) pt)))
+
+(defun options-mark-unmark-options (pred)
+  (save-excursion
+    (goto-char (point-min))
+    (while (options-forward)
+      (let ((opt (get-text-property (point) 'option)))
+	(when (and (not (options-skip-p opt))
+		   pred 
+		   (funcall pred opt))
+	  (Activate opt)))))
+  (options-redisplay))
 
 (define-derived-mode options-mode special-mode "Options" 
   "")

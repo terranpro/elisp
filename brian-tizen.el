@@ -917,26 +917,45 @@ Directory:
 (defun tizen-rpm-push-mode-worker (Opts files)
   (interactive)
   (with-slots ((opts elems)) Opts
-    (let ((remote-dir "/opt/usr")
-	  (filt-files (remove-if '(lambda (f) (string= " " f))
-				 files))
-	  (remote (IsActive
-		   (SearchName 
-		    Opts
-		    "Open Remote Install Mode Window After Uploading")))
-	  (install (IsActive
-		    (cdr (assoc "Install After Uploading To Device"
-				(object-assoc-name opts))))))
+    (let* ((remote-dir "/opt/usr")
+	   (method-table
+	    '(("rpm" . tizen-remote-install-rpm)
+	      ("pkgcmd" . tizen-remote-install-pkgcmd)))
+	   (filt-files (remove-if '(lambda (f) (or (string= " " f)
+						   (string= "" f)))
+				  files))
+	   (remote (IsActive
+		    (SearchName 
+		     Opts
+		     "Open Remote Install Mode Window After Uploading")))
+	   (install-opt (cdr (assoc "Install After Uploading To Device"
+				    (object-assoc-name opts))))
+	   (install (IsActive install-opt)))
       
       (run-hooks 'tizen-rpm-push-pre-hook)
 
       (tizen-push-files filt-files remote-dir t)
       (cond (remote 
 	     (tizen-remote-install-mode remote-dir))
-	    (install 
-	     (message "Will Now Install"))
+	    (install
+	     (message "Will Now Install")
+	     (funcall
+	      (cdr (assoc (car (oref install-opt userdata)) method-table))
+	      (mapcar #'(lambda (file)
+			  (expand-file-name (concat remote-dir "/" file)))
+		      (mapcar #'file-name-nondirectory filt-files)) 
+	      t))
 	    (t
 	     (message "Enjoy!"))))))
+
+(defun tizen-rpm-push-mode-mark-regexp-pred (opt)
+  (with-slots (display-name) opt
+    (string-match (or mark-rx "") (or display-name ""))))
+
+(defun tizen-rpm-push-mode-mark-regexp (&optional regx)
+  (interactive "MRegexp: ")
+  (let ((mark-rx regx))
+   (options-mark-unmark-options #'tizen-rpm-push-mode-mark-regexp-pred)))
 
 (defun tizen-sdb-is-active ()
   (zerop (shell-command (concat tizen-sdb-executable " get-state"))))
@@ -1536,9 +1555,9 @@ cflags for it in a format ready for `ac-clang-cflags'."
  "/usr/"
  "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0/usr/")
 
-(tizen-project-ac-clang-cflags-from-ccmds 
- "~/tizen/git/voice-talk2/compile_commands.json"
- "auto_test.cpp")
+;; (tizen-project-ac-clang-cflags-from-ccmds 
+;;  "~/tizen/git/voice-talk2/compile_commands.json"
+;;  "auto_test.cpp")
 
 (defun tizen-project-ac-clang-cflags-generic (srcfile)
   (append
