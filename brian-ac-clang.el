@@ -127,22 +127,33 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
   (local-set-key (kbd "<f6>") 'ac-clang-syntax-check)
   
   (when (featurep 'flymake)
-   (local-set-key (kbd "S-<f6>") #'(lambda ()
-				     (interactive)
-				     (flymake-delete-own-overlays)))
-   (local-set-key (kbd "<f7>")
-		  #'(lambda () (interactive)
-		      (flymake-goto-prev-error)
-		      (flymake-display-err-popup-for-current-line)))
-   (local-set-key (kbd "<f8>")
-		  #'(lambda () (interactive)
-		      (flymake-goto-next-error)
-		      (flymake-display-err-popup-for-current-line))))
+    (local-set-key (kbd "S-<f6>") #'(lambda ()
+				      (interactive)
+				      (flymake-delete-own-overlays)))
+    (local-set-key (kbd "<f7>")
+		   #'(lambda () (interactive)
+		       (flymake-goto-prev-error)
+		       (flymake-display-err-popup-for-current-line)))
+    (local-set-key (kbd "<f8>")
+		   #'(lambda () (interactive)
+		       (flymake-goto-next-error)
+		       (flymake-display-err-popup-for-current-line))))
 
-  (let ((process-environment 
-	 (add-to-list 'process-environment
-		      (concat "LD_LIBRARY_PATH=~/build/lib:/usr/local/lib:"
-			      (getenv "LD_LIBRARY_PATH")))))
+  (let* ((process-environment 
+	  (append (list 
+		   (concat "LD_LIBRARY_PATH="
+			   (mapconcat
+			    'identity 
+			    (delete-dups 
+			     (append
+			      (list "~/build/lib" 
+				    "/usr/local/lib")
+			      (split-string
+			       (or (getenv "LD_LIBRARY_PATH") "") ":" t)))
+			    ":")))
+		  (remove-if #'(lambda (item)
+				 (string-match "^LD_LIBRARY_PATH=" item))
+			     process-environment))))
     (ac-clang-launch-completion-process))
 
   (if brian-clang-cflags-use-global
