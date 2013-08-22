@@ -96,6 +96,16 @@
   (add-hook 'window-configuration-change-hook 'comint-fix-window-size nil t))
 (add-hook 'shell-mode-hook 'my-shell-mode-hook)
 
+;; Launch a shell w/http_proxy/https_proxy unset
+(defun shell-no-proxy (&optional p)
+  (interactive "P")
+  (let ((process-environment
+	 (remove-if #'(lambda (item)
+			(string-match "^http[s]?_proxy=" item))
+		    process-environment)))
+    (let ((prefix-arg p))
+      (call-interactively 'shell))))
+
 ;; ASIDE: if you call ssh from shell directly, add "-t" to
 ;; explicit-ssh-args to enable terminal.
 
