@@ -652,7 +652,8 @@ and translates it to a project directory based on PRJDIR. "
       (set-process-filter proc
 			  #'(lambda (proc output)
 			      (with-selected-window (get-buffer-window 
-						     (process-buffer proc))
+						     (process-buffer proc)
+						     t)
 				(let ((lastpt (point)))
 				  (goto-char (point-max))
 				  (insert output)
