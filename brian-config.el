@@ -141,6 +141,9 @@
 ;(setq ido-everywhere t)
 (ido-everywhere t)
 
+;; easily change my mind about open in new frame/window/split
+(require 'ido-invoke)
+
 ;; Display ido results vertically, rather than horizontally
 (setq ido-decorations
       (quote ("\n-> " "" "\n   " "\n   ..." "[" "]"
@@ -152,6 +155,12 @@
    (make-local-variable 'truncate-lines) nil))
 (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
 (defun ido-define-keys () ;; C-n/p is more intuitive in vertical layout
+  (define-key ido-completion-map (kbd "C-o") 'ido-invoke-in-other-window)
+  (define-key ido-completion-map (kbd "C-2") 'ido-invoke-in-vertical-split)
+  (define-key ido-completion-map (kbd "C-3") 'ido-invoke-in-horizontal-split)
+  (define-key ido-completion-map (kbd "C-4") 'ido-invoke-in-other-window)
+  (define-key ido-completion-map (kbd "C-5") 'ido-invoke-in-new-frame)
+
   (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
   (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))
 (add-hook 'ido-setup-hook 'ido-define-keys)

@@ -34,6 +34,8 @@
 	     "/home/terranpro/code/cedet-bzr/lisp/eieio")
 (require 'eieio)
 (require 'eieio-base)
+(load-library "eieio")
+(load-library "eieio-base")
 
 (defun options-mode-build-window ())
 

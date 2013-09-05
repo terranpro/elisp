@@ -876,7 +876,7 @@ Directory:
 	  (append (list 
 		   (Switch "Install After Uploading To Device"
 			   :key "i"
-			   :active nil
+			   :active t
 			   :auto nil
 			   :userdata '("rpm" "pkgcmd" nil)
 			   :display-name "Install After Uploading To Device: rpm"
@@ -884,7 +884,7 @@ Directory:
 			   'tizen-rpm-push-mode-install-after-onactivate)
 		   (Switch "Open Remote Install Mode Window After Uploading"
 			   :key "r"
-			   :active t
+			   :active nil
 			   :auto nil)
 		   NullOption
 		   NullOption)
@@ -1642,14 +1642,16 @@ cflags for it in a format ready for `ac-clang-cflags'."
 				 (concat ac-clang-project-directory
 					 "/include/")))))))
 			   )))))))
-(tizen-project-dir-locals-set-class-variables 
- "/home/terranpro/tizen/git/voice-talk2"
- "latest")
+;; (tizen-project-dir-locals-set-class-variables 
+;;  "/home/terranpro/tizen/git/voice-talk2"
+;;  "latest")
 
 (defun tizen-project-dir-locals-set-directory-class (prjdir class)
   (dir-locals-set-directory-class prjdir class))
 
-(tizen-project-dir-locals-set-directory-class "/home/terranpro/tizen/git/voice-talk2" 'tizen)
+;; TODO: FUCKY BUGGY
+;; (tizen-project-dir-locals-set-directory-class "/home/terranpro/tizen/git/voice-talk2" 'tizen)
+
 ;; NEW CODE END
 
 (require 'easymenu)

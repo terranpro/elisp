@@ -54,7 +54,7 @@
      ((equal ido-exit-minibuffer-target-window 'vertical)
       (split-window-vertically-and-switch))
      ((equal ido-exit-minibuffer-target-window 'frame)
-      (make-frame)))
+      (select-frame (make-frame))))
     (switch-to-buffer this-buffer) ;; why? Some ido commands, such as textmate.el's textmate-goto-symbol don't switch the current buffer
     result))
  
@@ -64,8 +64,11 @@
             (define-key map (kbd "C-2") 'ido-invoke-in-vertical-split)
             (define-key map (kbd "C-3") 'ido-invoke-in-horizontal-split)
             (define-key map (kbd "C-4") 'ido-invoke-in-other-window)
-            (define-key map (kbd "C-5") 'ido-invoke-in-new-frame))
+            (define-key map (kbd "C-5") 'ido-invoke-in-new-frame)
+)
           (list ido-buffer-completion-map
                 ido-common-completion-map
                 ido-file-completion-map
                 ido-file-dir-completion-map)))
+
+(provide 'ido-invoke)

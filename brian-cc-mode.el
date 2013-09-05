@@ -140,10 +140,17 @@ opening bracket position, OB-POS."
 ;; blink severely slowed down response
 (setq blink-matching-delay 0.1)
 
+;; just open .h files in c++ mode since all these retard coders who
+;; don't know wtf they are doing name them garbage.h - TILT
+(setq auto-mode-alist
+      (append '(("\\.h\\'" . c++-mode))
+	      auto-mode-alist))
+
 (defun brian-c-mode-common-hook ()
   (setq c-hungry-delete-key t)
   (c-toggle-hungry-state 1)
   (c-toggle-auto-newline 1)
+  (c-set-style "briancpp")
   (subword-mode 1)
   ;(modify-syntax-entry ?_ "w")
   (set (make-local-variable 'time-stamp-format) 
@@ -155,7 +162,6 @@ opening bracket position, OB-POS."
 (add-hook 'c-mode-common-hook 'brian-c-mode-common-hook)
 
 (add-hook 'c++-mode-hook (lambda () 
-			   (c-set-style "briancpp")
 			   (define-key 
 			     c++-mode-map 
 			     (kbd "RET") 
