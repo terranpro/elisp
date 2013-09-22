@@ -57,7 +57,9 @@
   (unless compiler 
     (setq compiler "gcc"))
   (append 
-   (list "-std=c++11" "-g" "-lpthread" "-Wall" "-Wextra" "-pedantic")
+   (or 
+    ac-clang-cflags
+    (list "-std=c++11" "-g" "-lpthread" "-Wall" "-Wextra" "-pedantic"))
    (mapcar #'(lambda (inc) (concat "-I" inc))
 	   (split-string 
 	    (let*
@@ -76,12 +78,34 @@
 		    ((buf (buffer-substring-no-properties (point) eb)))
 		  buf)))))))
 
+(defvar-local brian-ac-clang-ldflags
+  nil
+  "")
+
+(defvar-local brian-ac-clang-ldlibs
+  nil
+  "")
+
 (defun brian-ac-clang-compile ()
   (interactive)
-  (let ((compile-command (concat "CXXFLAGS=\""
+  (let ((compile-command (concat "CFLAGS=\""
 				 (mapconcat 
 				  'identity 
 				  (brian-clangcomplete-cflags-make "gcc")
+				  " ")
+				 "\""
+
+				 " LDFLAGS=\""
+				 (mapconcat 
+				  'identity
+				  brian-ac-clang-ldflags
+				  " ")
+				 "\""
+
+				 " LDLIBS=\""
+				 (mapconcat 
+				  'identity
+				  brian-ac-clang-ldlibs
 				  " ")
 				 "\""
 				 " make -k "
@@ -92,13 +116,13 @@
 
 (defvar brian-clangcomplete-cflags-global
   (append 
-   (list "-std=c++11" "-Wall" "-Wextra" "-pedantic")
+   (list "-Wall" "-Wextra" "-pedantic")
    (mapcar #'(lambda (inc) (concat "-I" inc))
 	   (split-string 
 	    (let*
 		((out (shell-command-to-string ;"clang -x c++ -v /dev/null"
-					       "gcc -x c++ -v /dev/null"
-					       ))
+		       "gcc -x c++ -v /dev/null"
+		       ))
 		 (st (string-match "> search starts here" out))
 		 (se (match-end 0))
 		 (eb (string-match "End of" out)))

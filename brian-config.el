@@ -16,7 +16,7 @@
 ; Emacs24 default font on one of my debian sids was 
 ; fucking stupid huge; so put this so the default font is 
 ; size 10pt.
-(set-face-attribute 'default nil :font "Ubuntu Mono 10") 
+;(set-face-attribute 'default nil :font "Ubuntu Mono 10") 
 ;(set-face-attribute 'default nil :font "")
 
 ;TODO: (temp) some default tweaking for window sizing

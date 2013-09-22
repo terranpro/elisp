@@ -1,4 +1,18 @@
 (add-to-list 'load-path "~/elisp/foreign/yasnippet")
+
+;; used for gobj header and source snippets
+(defun brian-un-camelcase-string (s &optional sep start)
+  "Convert CamelCase string S to lower case with word separator SEP.
+    Default for SEP is an underscore \"_\".
+    If third argument START is non-nil, convert words after that
+    index in STRING."
+  (with-temp-buffer
+    (insert s)
+    (goto-char (point-min))
+    (while (< (progn (subword-downcase 1) (point)) (point-max))
+      (insert (or sep ?_)))
+    (upcase (buffer-substring-no-properties (point-min) (point-max)))))
+
 (require 'yasnippet) ;; not yasnippet-bundle
 
 (setq yas-snippet-dirs (list "~/elisp/brian-snippets" 

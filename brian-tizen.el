@@ -1415,7 +1415,7 @@ Directory:
       (loop while (search-forward-regexp repo-regex (point-max) t)
 	    collect (match-string 1)))))
 
-(tizen-gbs-conf-repo-url-list tizen-gbs-conf)
+;(tizen-gbs-conf-repo-url-list tizen-gbs-conf)
 
 (defvar tizen-gbs-profiles-dir (file-name-directory 
 				(expand-file-name "~/tizen/gbs/profiles")))
@@ -1537,24 +1537,20 @@ cflags for it in a format ready for `ac-clang-cflags'."
 	      #'(lambda (file) (string-match srcfile file))
 	      (tizen-project-read-compile-commands ccfile)))))
 
-(pp(brian-cflags-hack-out-arm
-  (tizen-project-ac-clang-cflags-from-ccmds 
-   "~/tizen/git/libwakeup/compile_commands.json"
-   "wu_independent_verify.c")))
+(when (file-exists-p tizen-gbs-conf)
+  (brian-include-directives-substitute
+   (tizen-project-ac-clang-cflags-from-ccmds 
+    "~/tizen/git/libwakeup/compile_commands.json"
+    "wu_independent_verify.c")
+   "/home/abuild/rpmbuild/BUILD/libwakeup-0.0.9"
+   "/home/terranpro/tizen/git/libwakeup")
 
-(brian-include-directives-substitute
- (tizen-project-ac-clang-cflags-from-ccmds 
-   "~/tizen/git/libwakeup/compile_commands.json"
-   "wu_independent_verify.c")
-  "/home/abuild/rpmbuild/BUILD/libwakeup-0.0.9"
-  "/home/terranpro/tizen/git/libwakeup")
-
-(brian-include-directives-substitute
- (tizen-project-ac-clang-cflags-from-ccmds 
-  "~/tizen/git/libwakeup/compile_commands.json"
-  "wu_independent_verify.c")
- "/usr/"
- "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0/usr/")
+  (brian-include-directives-substitute
+   (tizen-project-ac-clang-cflags-from-ccmds 
+    "~/tizen/git/libwakeup/compile_commands.json"
+    "wu_independent_verify.c")
+   "/usr/"
+   "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0/usr/"))
 
 ;; (tizen-project-ac-clang-cflags-from-ccmds 
 ;;  "~/tizen/git/voice-talk2/compile_commands.json"
