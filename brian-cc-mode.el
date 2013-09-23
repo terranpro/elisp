@@ -123,6 +123,7 @@ opening bracket position, OB-POS."
 	       (comment-intro . brian-comment-offset)
 	       (defun-open . 0)
 	       (defun-close . 0)
+	       (inextern-lang . 0)
 	       (arglist-close . c-lineup-arglist-close-under-paren)
 	       (arglist-cont-nonempty . c-lineup-arglist)
 	       (template-args-cont . brian-c-lineup-template-args)
