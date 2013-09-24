@@ -1534,7 +1534,8 @@ list."
 cflags for it in a format ready for `ac-clang-cflags'."
   (car-safe 
    (cdr-safe (assoc-if 
-	      #'(lambda (file) (string-match srcfile file))
+	      #'(lambda (file) (string-match (file-name-sans-extension srcfile)
+					     (file-name-sans-extension file)))
 	      (tizen-project-read-compile-commands ccfile)))))
 
 (when (file-exists-p tizen-gbs-conf)
