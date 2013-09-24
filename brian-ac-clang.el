@@ -88,7 +88,9 @@
 
 (defun brian-ac-clang-compile ()
   (interactive)
-  (let ((compile-command (concat "CFLAGS=\""
+  (let ((compile-command (concat (if (eq major-mode 'c-mode) 
+				     "CFLAGS=\""
+				   "CXXFLAGS=\"")
 				 (mapconcat 
 				  'identity 
 				  (brian-clangcomplete-cflags-make "gcc")
