@@ -2,9 +2,12 @@
 (setq ring-bell-function 'ignore)
 (setq enable-local-eval t)
 
+;; TODO: investigate
+;; Had to add an extra two for one ubuntu linux machine that had three
+;; split sizes of 80 : 79 : 79
 (add-to-list
  'default-frame-alist
- `(width  . ,(+ 240
+ `(width  . ,(+ 240 2
 		(/ (frame-parameter nil 'left-fringe) (frame-char-width))
 		(/ (frame-parameter nil 'right-fringe) (frame-char-width)))))
 
@@ -18,7 +21,7 @@
 ; size 10pt.
 ;(set-face-attribute 'default nil :font "Ubuntu Mono 10") 
 ;(set-face-attribute 'default nil :font "")
-
+(set-face-attribute 'default nil :height 105)
 ;TODO: (temp) some default tweaking for window sizing
 ;;(add-to-list 'default-frame-alist '(height . 65))
 ;;(add-to-list 'default-frame-alist '(width  . 80))
