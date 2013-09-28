@@ -70,6 +70,9 @@
     (setq str (replace-match "_" nil nil str)))
   str)
 
+(defun brian-srecode-filename-symbol (str)
+  (upcase (brian-srecode-dash-2-underscore str)))
+
 (provide 'brian-srecode)
 
 ;;; brian-srecode.el ends here

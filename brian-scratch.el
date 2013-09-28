@@ -773,3 +773,45 @@ BEG and END default to the buffer boundaries."
 		  (overlay-put ov 'modification-hooks
 			       (list 'org-display-inline-remove-overlay))
 		  (push ov org-inline-image-overlays))))))))))
+
+;; current template for .dir-locals.el to use json files with
+;; ac-clang-complete + rtags!
+(list ' ((prog-mode .
+	    ((brian-clangcomplete-cflags-use-global . nil)
+	     (c-basic-offset . 4)
+	     (eval . (set (make-local-variable 'ac-clang-project-directory)
+			  (locate-dominating-file
+			   (or buffer-file-name
+			       default-directory)
+			   ".dir-locals.el")))
+	     (eval 
+	      . (setq ac-clang-cflags
+		      (append
+		       (tizen-project-ac-clang-cflags-from-ccmds 
+			(concat ac-clang-project-directory 
+				"/build/compile_commands.json")
+			(file-name-nondirectory (buffer-file-name))))))
+
+	     (eval 
+	      . (progn 
+		  (setq ac-clang-project-srcs 
+			(mapcar 'car 
+				(tizen-project-read-compile-commands
+				 "~/code/brian-rtags/build/compile_commands.json")))))
+	     (eval 
+	      . (if (string-match "\.cpp$" (buffer-file-name))
+		    (ac-clang-project-find-id)))
+
+	     (eval
+	      . (ac-clang-update-cmdlineargs))))
+ (nil .
+      ((c-basic-offset . 4)
+       (eval 
+	. (message "Loading Dir Locals!"))
+       (eval . (set (make-local-variable 'ac-clang-project-directory)
+		    (locate-dominating-file
+		     (or buffer-file-name
+			 default-directory)
+		     ".dir-locals.el")))
+       
+       ))))
