@@ -1,18 +1,9 @@
 # -*- mode: snippet -*-
 #name: gobjc
 #key: gobjc
+#expand-env: ((yas/indent-line 'auto) (yas/after-exit-snippet-hook 'brian-yasnippet-indent-buffer)
 # --
-/*
- * Copyright information
- */
-
 #include "${1:$(downcase yas/text)}-${2:$(downcase (brian-un-camelcase-string yas/text ?-))}.h"
-
-/* If you use Pimpls, include the private structure 
- * definition here. Some people create a maman-bar-private.h header
- * which is included by the maman-bar.c file and which contains the
- * definition for this private structure.
- */
 
 #define ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_PRIVATE(obj) (G_TYPE_INSTANCE_GET_PRIVATE ((obj), ${1:$(upcase yas/text)}_TYPE_${2:$(upcase (brian-un-camelcase-string yas/text))}, $1$2Private))
 
@@ -21,16 +12,7 @@ struct ${1:Prefix}${2:Name}Private_
 {
   GObject *an_object;
 
-  gchar *a_string;
-  gint number[4];
 };
-
-/*
- * Cheap/Fast way to generate boiler-plate code.
- */
- /*
-G_DEFINE_TYPE ($1$2, ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}, G_TYPE_OBJECT);
- */
 
 /*
  * Signals and Props
@@ -60,31 +42,52 @@ static void ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string 
 					  GValue *value,
 					  GParamSpec *spec);
 static void ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_init($1$2 *obj);
+static void ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_dispose(GObject *obj);
+static void ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_finalize(GObject *obj);
 
+/*
+ * Generate boiler-plate code.
+ */
 
-GType
-${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_get_type (void)
+${3:$$(yas/choose-value '(
+"G_DEFINE_TYPE( "
+"G_DEFINE_TYPE_WITH_CODE( "
+))} $1$2, 
+${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string
+yas/text))},
+G_TYPE_OBJECT $0);
+
+static void
+${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_class_init ($1$2Class *klass)
 {
-    static GType type = 0;
+  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
+  GParamSpec *pspec;
 
-    if (!type) {
-	static const GTypeInfo type_info = {
-	    sizeof($1$2Class),
-	    NULL,
-	    NULL,
-	    (GClassInitFunc)${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_class_init,
-	    NULL,
-	    NULL,
-	    sizeof($1$2),
-	    0,
-	    (GInstanceInitFunc)${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_init
-	};
+  gobject_class->dispose = ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_dispose;
+  gobject_class->finalize = ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_finalize;
 
-	type = g_type_register_static(G_TYPE_OBJECT, "$1$2",
-				      &type_info, 0);
-    }
+  g_type_class_add_private (klass, sizeof ($1$2Private));
 
-    return(type);
+  gobject_class->set_property = ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_set_property;
+  gobject_class->get_property = ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_get_property;
+
+  pspec = g_param_spec_string ("${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}",
+                                          "$1$2 construct prop",
+                                          "Set name",
+                                          "no-name-set" /* default value */,
+                                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
+
+  g_object_class_install_property (gobject_class,
+                                   PROP_NUM1,
+                                   pspec);
+}
+
+static void
+${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_init ($1$2 *self)
+{
+  $1$2Private *priv = ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_PRIVATE (self);
+
+  priv->an_object = g_object_new (G_TYPE_OBJECT, NULL);
 }
 
 static void
@@ -121,8 +124,6 @@ ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_
   $1$2 *self = ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))} (gobject);
   $1$2Private *priv = ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_PRIVATE (self);
 
-  g_free (priv->a_string);
-
   /* Chain up to the parent class */
   $1$2Class *klass = ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_CLASS( self );
   GObjectClass *parent = g_type_class_peek_parent( klass );
@@ -130,59 +131,12 @@ ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_
 }
 
 static void
-${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_class_init ($1$2Class *klass)
-{
-  GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
-  GParamSpec *pspec;
-
-  gobject_class->dispose = ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_dispose;
-  gobject_class->finalize = ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_finalize;
-
-  g_type_class_add_private (klass, sizeof ($1$2Private));
-
-  gobject_class->set_property = ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_set_property;
-  gobject_class->get_property = ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_get_property;
-
-  pspec = g_param_spec_string ("${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}",
-                                          "$1$2 construct prop",
-                                          "Set name",
-                                          "no-name-set" /* default value */,
-                                          G_PARAM_CONSTRUCT_ONLY | G_PARAM_READWRITE);
-
-  g_object_class_install_property (gobject_class,
-                                   PROP_NUM1,
-                                   pspec);
-}
-
-static void
-${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_init ($1$2 *self)
-{
-  $1$2Private *priv = ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_PRIVATE (self);
-
-  priv->an_object = g_object_new (G_TYPE_OBJECT, NULL);
-  priv->a_string = g_strdup ("$1$2");
-}
-
-static void
 ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_set_property (GObject *object, guint prop_id, 
 			       const GValue *value, GParamSpec *spec)
 {
     $1$2 *obj = ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}(object);
-    gint numbers[3] = { 0, 0, 0};
 
     switch(prop_id) {
-
-    case PROP_NUM1:
-	numbers[0] = g_value_get_int(value);
-	break;
-
-    case PROP_NUM2:
-	numbers[1] = g_value_get_int(value);
-	break;
-
-    case PROP_NUM3:
-	numbers[2] = g_value_get_int(value);
-	break;
 
     default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, spec);
@@ -202,18 +156,6 @@ ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_
 
     switch(prop_id) {
 
-    case PROP_NUM1:
-	g_value_set_int(value, priv->number[0]);
-	break;
-
-    case PROP_NUM2:
-	g_value_set_int(value, priv->number[1]);
-	break;
-
-    case PROP_NUM3:
-	g_value_set_int(value, priv->number[2]);
-	break;
-
     default:
 	G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, spec);
 	break;
@@ -224,8 +166,21 @@ ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_
 $1$2 *
 ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_new ()
 {
-  return g_object_new (${1:$(upcase yas/text)}_TYPE_${2:$(upcase (brian-un-camelcase-string yas/text))},
-  	 NULL);
+  return g_object_new( ${1:$(upcase yas/text)}_TYPE_${2:$(upcase (brian-un-camelcase-string yas/text))},
+  	 NULL );
 }
 
-$0
+$1$2 *
+${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string
+yas/text))}_ref ( $1$2 *obj )
+{
+  g_object_ref( obj );
+}
+
+void
+${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string
+yas/text))}_unref ( $1$2 *obj )
+{
+  g_object_unref( obj );
+}
+

@@ -1,0 +1,30 @@
+# -*- mode: snippet -*-
+#name: ginth
+#key: ginth
+# --
+#ifndef ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_H__
+#define ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_H__
+
+#include <glib-object.h>
+
+#define ${1:$(upcase yas/text)}_TYPE_${2:$(upcase (brian-un-camelcase-string yas/text))}                 (${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_get_type ())
+#define ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}(obj)                 (G_TYPE_CHECK_INSTANCE_CAST ((obj), ${1:$(upcase yas/text)}_TYPE_${2:$(upcase (brian-un-camelcase-string yas/text))}, $1$2))
+#define ${1:$(upcase yas/text)}_IS_${2:$(upcase (brian-un-camelcase-string yas/text))}(obj)              (G_TYPE_CHECK_INSTANCE_TYPE ((obj), ${1:$(upcase yas/text)}_TYPE_${2:$(upcase (brian-un-camelcase-string yas/text))}))
+#define ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_INTERFACE(inst)  (G_TYPE_INSTANCE_GET_INTERFACE ((inst), ${1:$(upcase yas/text)}_TYPE_${2:$(upcase (brian-un-camelcase-string yas/text))}, $1$2Interface))
+
+
+typedef struct ${1:Prefix}${2:Name}_               $1$2; /* dummy object */
+typedef struct $1$2Interface_      $1$2Interface;
+
+struct $1$2Interface_
+{
+  GTypeInterface parent_iface;
+
+  void (*do_action) ($1$2 *self);
+};
+
+GType ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_get_type (void);
+
+void ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_do_action    ($1$2 *self);
+
+#endif /* ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_H__ */

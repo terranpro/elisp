@@ -2,17 +2,10 @@
 #name: gobjh
 #key: gobjh
 # --
-/*
- * Copyright/Licensing information.
- */
-
 #ifndef __${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_H__
 #define __${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_H__
 
 #include <glib-object.h>
-/*
- * Potentially, include other headers on which this header depends.
- */
 
 G_BEGIN_DECLS
 
@@ -52,7 +45,9 @@ GType ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/te
  */
 $1$2 *${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_new(void);
 
-void ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_free($1$2 *obj);
+$1$2 * ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_ref($1$2 *obj);
+
+void ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_unref($1$2 *obj);
 
 G_END_DECLS
 

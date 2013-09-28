@@ -1,0 +1,21 @@
+# -*- mode: snippet -*-
+#name: gintc
+#key: gintc
+# --
+#include "${1:$(downcase yas/text)}-${2:$(downcase (brian-un-camelcase-string yas/text ?-))}.h"
+
+G_DEFINE_INTERFACE (${1:Prefix}${2:Name}, ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}, 0);
+
+static void
+${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_default_init ($1$2 *klass)
+{
+    /* add properties and signals to the interface here */
+}
+
+void
+${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_do_action ($1$2 *self)
+{
+  g_return_if_fail (${1:$(upcase yas/text)}_IS_${2:$(upcase (brian-un-camelcase-string yas/text))} (self));
+
+  ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_INTERFACE (self)->do_action (self);
+}

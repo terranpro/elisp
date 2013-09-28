@@ -1,5 +1,9 @@
 (add-to-list 'load-path "~/elisp/foreign/yasnippet")
 
+(defun brian-yasnippet-indent-buffer ()
+  (when (derived-mode-p 'prog-mode)
+    (indent-region (point-min) (point-max))))
+
 ;; used for gobj header and source snippets
 (defun brian-un-camelcase-string (s &optional sep start)
   "Convert CamelCase string S to lower case with word separator SEP.
@@ -32,5 +36,8 @@
 	    (add-to-list 'org-tab-first-hook 'yas-org-very-safe-expand)
 	    (define-key yas-keymap [tab] 'yas-next-field)))
 
+;;;; TODO: this was bad; it broke shit when expanding snippets in code
+;;;; where i used C-g
+;; (add-hook 'yas-after-exit-snippet-hook 'brian-yasnippet-indent-buffer)
 
 (provide 'brian-yasnippet)
