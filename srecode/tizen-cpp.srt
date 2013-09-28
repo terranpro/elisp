@@ -33,12 +33,12 @@ context tizen
 
 template header_guard :file :blank
 ----
-#ifndef {{FILENAME_SYMBOL:upcase}}
-#define {{FILENAME_SYMBOL:upcase}}
+#ifndef {{FILENAME_SYMBOL:brian-srecode-filename-symbol}}
+#define {{FILENAME_SYMBOL:brian-srecode-filename-symbol}}
 
 {{^}}
 
-#endif // {{FILENAME_SYMBOL:upcase}}
+#endif // {{FILENAME_SYMBOL:brian-srecode-filename-symbol}}
 ----
 
 template empty :time :file :cpp
@@ -49,7 +49,7 @@ template empty :time :file :cpp
 {{^}}
 {{/NOTHEADER}}
 {{#HEADER}}
-{{>:file:header_guard}}
+{{>:tizen:header_guard}}
 {{/HEADER}}
 ----
 bind "e"
