@@ -113,9 +113,7 @@ ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_
       }
     */
   /* Chain up to the parent class */
-  $1$2Class *klass = ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_CLASS( self );
-  GObjectClass *parent = g_type_class_peek_parent( klass );
-  G_OBJECT_CLASS (parent)->dispose (gobject);
+  G_OBJECT_CLASS (${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_parent_class)->dispose (gobject);
 }
 
 static void
@@ -127,7 +125,7 @@ ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_
   /* Chain up to the parent class */
   $1$2Class *klass = ${1:$(upcase yas/text)}_${2:$(upcase (brian-un-camelcase-string yas/text))}_GET_CLASS( self );
   GObjectClass *parent = g_type_class_peek_parent( klass );
-  G_OBJECT_CLASS (parent)->finalize (gobject);
+    G_OBJECT_CLASS (${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string yas/text))}_parent_class)->finalize (gobject);
 }
 
 static void
@@ -174,7 +172,7 @@ $1$2 *
 ${1:$(downcase yas/text)}_${2:$(downcase (brian-un-camelcase-string
 yas/text))}_ref ( $1$2 *obj )
 {
-  g_object_ref( obj );
+  return g_object_ref( obj );
 }
 
 void
