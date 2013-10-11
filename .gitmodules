@@ -50,3 +50,6 @@
 [submodule "foreign/powerline"]
 	path = foreign/powerline
 	url = https://github.com/milkypostman/powerline.git
+[submodule "foreign/dtrt-indent"]
+	path = foreign/dtrt-indent
+	url = https://github.com/jscheid/dtrt-indent.git

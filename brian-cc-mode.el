@@ -10,6 +10,10 @@
 	   nil))))
 
 
+;; Use dtrt-indent to guess indentation!
+(add-to-list 'load-path "~/elisp/foreign/dtrt-indent")
+(require 'dtrt-indent)
+(dtrt-indent-mode 1)
 
 ;; Check if the line with the < contains any other
 ;; definitions/types, if so, base lineup of subsequent lines
@@ -152,6 +156,7 @@ opening bracket position, OB-POS."
   (c-toggle-hungry-state 1)
   (c-toggle-auto-newline 1)
   (c-set-style "briancpp")
+  (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
   (subword-mode 1)
   ;(modify-syntax-entry ?_ "w")
   (set (make-local-variable 'time-stamp-format) 
@@ -161,7 +166,6 @@ opening bracket position, OB-POS."
   (add-hook 'write-file-hooks 'time-stamp))
 
 (add-hook 'c-mode-common-hook 'brian-c-mode-common-hook)
-
 (add-hook 'c++-mode-hook (lambda () 
 			   (define-key 
 			     c++-mode-map 

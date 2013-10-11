@@ -23,6 +23,7 @@
 (require 'brian-cmake)
 ;;(require 'brian-ideone)
 ;;(require 'brian-themes)
+(require 'brian-wgrep)
 
 ;;; tramp 
 (setq tramp-default-method "scpc")
