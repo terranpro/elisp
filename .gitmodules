@@ -53,3 +53,6 @@
 [submodule "foreign/dtrt-indent"]
 	path = foreign/dtrt-indent
 	url = https://github.com/jscheid/dtrt-indent.git
+[submodule "foreign/smart-tabs"]
+	path = foreign/smart-tabs
+	url = https://github.com/jcsalomon/smarttabs.git
