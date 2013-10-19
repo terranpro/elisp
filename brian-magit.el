@@ -1,3 +1,4 @@
+(add-to-list 'load-path "~/elisp/foreign/git-modes/")
 (add-to-list 'load-path "~/elisp/foreign/magit/")
 (require 'magit)
 (require 'magit-svn)

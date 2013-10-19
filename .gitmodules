@@ -56,3 +56,9 @@
 [submodule "foreign/smart-tabs"]
 	path = foreign/smart-tabs
 	url = https://github.com/jcsalomon/smarttabs.git
+[submodule "foreign/git-modes"]
+	path = foreign/git-modes
+	url = https://github.com/magit/git-modes
+[submodule "foreign/doxymacs"]
+	path = foreign/doxymacs
+	url = https://github.com/emacsattic/doxymacs.git

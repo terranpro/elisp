@@ -14,7 +14,7 @@
 (add-to-list 'load-path "~/elisp/foreign/dtrt-indent")
 (require 'dtrt-indent)
 (dtrt-indent-mode 1)
-
+(dtrt-indent-find-file-hook)
 ;; use smart tabs!
 (add-to-list 'load-path "~/elisp/foreign/smart-tabs")
 (autoload 'smart-tabs-mode "smart-tabs-mode"
@@ -22,6 +22,16 @@
 (autoload 'smart-tabs-mode-enable "smart-tabs-mode")
 (autoload 'smart-tabs-advice "smart-tabs-mode")
 (autoload 'smart-tabs-insinuate "smart-tabs-mode")
+
+;; doxymacs (Doxygen helper)
+(add-to-list 'load-path "~/elisp/foreign/doxymacs/lisp")
+(require 'doxymacs)
+(add-hook 'c-mode-common-hook 'doxymacs-mode)
+(defun my-doxymacs-font-lock-hook ()
+  (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+      (doxymacs-font-lock)))
+(when (featurep 'doxymacs)
+  (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook))
 
 ;;; Enabling smart-tabs-mode within language modes:
 ;; As of version 1.0 of this package, the easiest and preferred way to
@@ -171,8 +181,8 @@ opening bracket position, OB-POS."
   (setq c-hungry-delete-key t)
   (c-toggle-hungry-state 1)
   (c-toggle-auto-newline 1)
-  (c-set-style "briancpp")
   (setq tab-width c-basic-offset)
+  (c-set-style "briancpp")
   (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
   (subword-mode 1)
   ;(modify-syntax-entry ?_ "w")
