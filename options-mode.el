@@ -30,8 +30,8 @@
 ;;; Code:
 
 ;; TODO temp hack
-(add-to-list 'load-path
-	     "/home/terranpro/code/cedet-bzr/lisp/eieio")
+;; (add-to-list 'load-path
+;; 	     "/home/terranpro/code/cedet-bzr/lisp/eieio")
 (require 'eieio)
 (require 'eieio-base)
 (load-library "eieio")
