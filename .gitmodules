@@ -62,3 +62,6 @@
 [submodule "foreign/doxymacs"]
 	path = foreign/doxymacs
 	url = https://github.com/emacsattic/doxymacs.git
+[submodule "foreign/bbdb"]
+	path = foreign/bbdb
+	url = https://github.com/emacsmirror/bbdb.git
