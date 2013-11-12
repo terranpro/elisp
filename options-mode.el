@@ -302,6 +302,18 @@ This is useful when you need to do completing read on an object group."
 	      (options-skip-p (get-text-property (point) 'option))))
    (/= (point) pt)))
 
+(defun options-current-option ()
+  (get-text-property (point) 'option))
+
+(defun options-find-by-name (name-rx)
+  (let ((opts))
+    (save-excursion
+      (goto-char (point-min))
+      (while (options-forward)
+	(when (string-match name-rx (object-name (options-current-option)))
+	  (push (options-current-option) opts)))
+      opts)))
+
 (defun options-mark-unmark-options (pred)
   (save-excursion
     (goto-char (point-min))
@@ -341,7 +353,7 @@ This is useful when you need to do completing read on an object group."
       (setq options-mode-options options)
       (use-local-map (CreateKeymap cmd 'options-mode-invoke-command))
       (options-redisplay))
-    t))
+    (current-buffer)))
 
 ;; (options-mode-new 
 ;;  "gbs-build"

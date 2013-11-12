@@ -55,7 +55,7 @@
      folder)
     output))
 
-;;(folder-dirs-recursive "/home/terranpro/tizen/git/ebook/include/")
+;;(folder-dirs-recursive "/home/terranpro/tizen/git/libwakeup/src")
 
 (defvar tizen-gbs-chroot
  "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0")
@@ -93,6 +93,11 @@ Example:  /home/terranpro/tizen/git/ebookviewer/")
   "Default GBS profile to be used for builds and buildroot
   determination (e.g. for parsing system headers
   w/clang-async).")
+
+(defvar-local tizen-gbs-build-options-parent-buffer nil
+  "TODO: Hack to let a gbs build buffer know the options buffer
+  that created it, so that it can scan some of the options
+  again (like if Auto Push+Install to device is enabled).")
 
 (defvar tizen-mode-map 
   (let ((map (make-keymap)))
@@ -624,7 +629,9 @@ and translates it to a project directory based on PRJDIR. "
 
 (defun tizen-gbs-build-worker (opts args)
   (interactive)
-  (let ((cmd (concat "gbs build "
+  (let ((auto-install (IsActive (SearchName opts "PushDevice+Install")))
+	(parent-buffer (current-buffer))
+	(cmd (concat "gbs build "
 		     (mapconcat 'identity
 				(remove-if 
 				 #'(lambda (str)
@@ -665,32 +672,8 @@ and translates it to a project directory based on PRJDIR. "
 				       (with-selected-window gbswin
 					 (goto-char (point-max)))))))))
 
-      (set-process-sentinel proc 
-			    #'(lambda (proc event)
-				(let ((status (process-status proc)))
-				  (if (eq 'exit status)
-				      (progn
-					(message "Colorizing!")
-					(with-current-buffer (process-buffer proc)
-					  
-					  (ansi-color-apply-on-region 
-					   (point-min)
-					   (point-max))
-					  (let ((case-fold-search nil))
-					    (highlight-regexp
-					     (rx "warning:" (zero-or-more any) eol) 
-					     compilation-warning-face)
-					    (highlight-regexp
-					     (rx "error:" (zero-or-more any) eol) 
-					     compilation-error-face))
-					  (setq tizen-gbs-built-rpm-directory 
-						(let ((regexp (rx "generated RPM packages can be found from local repo:"
-								  (zero-or-more (or whitespace ?\n))
-								  (group (zero-or-more not-newline))))
-						      (string (buffer-substring-no-properties (point-min) (point-max))))
-						  (if (string-match regexp string)
-						      (match-string 1 string))))))))))
-					;(shell-command cmd "Tizen GBS Build")
+      (set-process-sentinel proc (function tizen-gbs-build-proc-sentinel))
+
       (save-window-excursion 
 	(switch-to-buffer proc-buf-name)
 	(setq tizen-project-directory
@@ -698,10 +681,67 @@ and translates it to a project directory based on PRJDIR. "
 	       (or buffer-file-name
 		   default-directory)
 	       ".dir-locals.el"))
+	(setq tizen-gbs-build-options-parent-buffer parent-buffer)
 	(local-set-key (kbd "C-c j") 'tizen-jump-to-prj-file)
 	(local-set-key (kbd "C-c J") 'tizen-jump-to-prj-file))
       (display-buffer proc-buf-name))))
 
+(defun tizen-gbs-build-proc-sentinel (proc event)
+  (let ((status (process-status proc)))
+    (if (eq 'exit status)
+	(progn
+	  (message "Colorizing!")
+	  (with-current-buffer (process-buffer proc)
+	    
+	    (ansi-color-apply-on-region 
+	     (point-min)
+	     (point-max))
+	    (let ((case-fold-search nil))
+	      (highlight-regexp
+	       (rx "warning:" (zero-or-more any) eol) 
+	       compilation-warning-face)
+	      (highlight-regexp
+	       (rx "error:" (zero-or-more any) eol) 
+	       compilation-error-face))
+	    (setq tizen-gbs-built-rpm-directory 
+		  (tizen-gbs-build-get-rpm-directory))
+	    (when (and (= (process-exit-status proc) 0)
+		       (with-current-buffer tizen-gbs-build-options-parent-buffer
+			 (IsActive (first (options-find-by-name "PushDevice")))))
+		(let ((rpm-list (mapcar
+				 #'(lambda (gbsroot-rpm)
+				     (file-name-nondirectory
+				      (expand-file-name
+				       (concat tizen-gbs-built-rpm-directory
+					       gbsroot-rpm))))
+				 (tizen-gbs-build-get-built-rpms)))
+		      (rpmpush-buf (tizen-rpm-push-mode
+				    tizen-gbs-built-rpm-directory)))
+		  (with-current-buffer rpmpush-buf
+		    (loop for file in rpm-list 
+			  do (tizen-rpm-push-mode-mark-regexp file))
+		    ;; it's like manually striking RET in the buffer
+		    (call-interactively (key-binding (kbd "RET")))))))))))
+
+(defun tizen-gbs-build-get-rpm-directory (&optional gbsbuild-buf)
+  (with-current-buffer (or gbsbuild-buf (current-buffer))
+   (let ((dir-rx (rx 
+		  "generated RPM packages can be found from local repo:"
+		  (zero-or-more (or whitespace ?\n))
+		  (group (zero-or-more not-newline))))
+	 (string (buffer-substring-no-properties 
+		  (point-min) 
+		  (point-max))))
+     (if (string-match dir-rx string)
+	 (match-string 1 string)))))
+
+(defun tizen-gbs-build-get-built-rpms ()
+  (save-excursion
+    (goto-char (point-min))
+    (let ((bin-rpm-rx (rx "Wrote: " (group "/home/abuild/rpmbuild/RPMS/"
+					   (one-or-more any) eol))))
+      (loop while (search-forward-regexp bin-rpm-rx (point-max) t)
+	    collect (match-string 1)))))
 
 ;(tizen-gbs-build-worker '("--include-all " "" " " "--no-init "))
 
@@ -776,7 +816,17 @@ When all options are selected, press ENTER to launch gbs build.")
 					      (ido-completing-read 
 					       "Profile: "
 					       (list "armv7l" "i586")
-					       "armv7l"))))))))
+					       "armv7l")))
+
+		   NewLineOption
+
+		   (Switch "PushDevice+Install"
+			   :key "!"
+			   :active t
+			   :auto nil
+			   :desc "Use RPMPushMode to Push+Install to Device"
+			   :onactivate #'(lambda (opt)
+					   (message "Toggled Push+Install"))))))))
 
 
 ;;(tizen-gbs-build)
@@ -928,6 +978,7 @@ Directory:
 		(tizen-change-booting-mode))))
 
 (defun tizen-rpm-push-mode-worker (Opts files)
+  "TODO: this shit needs serious work. searching for opts by name :("
   (interactive)
   (with-slots ((opts elems)) Opts
     (let* ((remote-dir "/opt/usr")
@@ -1717,7 +1768,7 @@ cflags for it in a format ready for `ac-clang-cflags'."
 (defun compile-commands-replace-srcs (srcdir)
   (save-excursion
     (let* ((src-rx (rx "/home/abuild/rpmbuild/BUILD/"
-		       (one-or-more (not (any "/")))))
+		       (one-or-more (not (any "/" "\"")))))
 	   (srcdir-repl (concat (expand-file-name
 				 (directory-file-name srcdir)))))
       (while (search-forward-regexp src-rx (point-max) t)
@@ -1730,7 +1781,7 @@ cflags for it in a format ready for `ac-clang-cflags'."
     (compile-commands-remove-keywords rmkeywords)
     (compile-commands-replace-includes brdir prjdir)
     (compile-commands-replace-srcs prjdir)
-))
+    (current-buffer)))
 
 (defvar compile-commands-nuke-keywords-arm
   '("-march=armv7-a" 
@@ -1745,6 +1796,47 @@ cflags for it in a format ready for `ac-clang-cflags'."
   "List of strings to search for and remove from the
   compile_commands JSON file's compiler flags.")
 
+(defun tizen-gbs-build-update-compile-commands (&optional 
+						buildroot-dir
+						gbsroot-cc-file 
+						gitprj-dir
+						nuke-keywords)
+  (interactive)
+  (unless buildroot-dir
+    (if tizen-gbs-built-rpm-directory
+	(setq buildroot-dir (progn 
+			      (string-match "\\(.*local/\\)" 
+					    tizen-gbs-built-rpm-directory)
+			      (concat (match-string 1 tizen-gbs-built-rpm-directory) 
+				      "scratch.armv7l.0")))
+      (setq buildroot-dir (ido-read-directory-name 
+			   "GBS Root (ex: .../local/armv7l.0/): "
+			   "~/tizen/builds/"))))
+  (unless gbsroot-cc-file
+    (setq gbsroot-cc-file
+	  (ido-read-file-name "Compile Commands JSON File: " 
+			      (expand-file-name 
+			       (concat buildroot-dir
+				       "/home/abuild/rpmbuild/BUILD")))))
+
+  (unless gitprj-dir
+    (if tizen-project-directory
+	(setq gitprj-dir tizen-project-directory)
+      (setq gitprj-dir (ido-read-directory-name "GBS GIT Project Directory: "
+						"~/tizen/git/"))))
+
+  (unless nuke-keywords
+    (setq nuke-keywords compile-commands-nuke-keywords-arm))
+  (pop-to-buffer
+   (compile-commands-deroot gbsroot-cc-file
+			    buildroot-dir
+			    gitprj-dir
+			    nuke-keywords))
+  (write-file (expand-file-name (concat gitprj-dir "/compile_commands.json")) t))
+
+;;(tizen-gbs-build-update-compile-commands)
+
+
 ;; ;; libwakeup
 ;; (compile-commands-deroot "~/tizen/git/libwakeup/compile_commands.json.GBSROOT"
 ;; 			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
@@ -1757,7 +1849,13 @@ cflags for it in a format ready for `ac-clang-cflags'."
 ;; 			 "~/tizen/git/voice-talk2/"
 ;; 			 compile-commands-nuke-keywords-arm)
 
-(expand-file-name (directory-file-name "~/tizen"))
+;; ;; libsttnuance
+(compile-commands-deroot "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0/home/abuild/rpmbuild/BUILD/libsttnuance-0.0.11/compile_commands.json"
+			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
+			 "~/tizen/git/libsttnuance/"
+			 compile-commands-nuke-keywords-arm)
+
+;;(expand-file-name (directory-file-name "~/tizen"))
 
 ;; (require 'brian-tizen)
 
