@@ -42,20 +42,20 @@
   (when (and (not (null folder))
 	     (file-directory-p folder))
     (funcall func folder)
-    (mapcar '(lambda (folder)
-	       (folder-dirs-recursive-impl func folder))
+    (mapcar #'(lambda (folder)
+		(folder-dirs-recursive-impl func folder))
 	    (folder-dirs folder))
     t))
 
 (defun folder-dirs-recursive (folder)
   (let ((output))
     (folder-dirs-recursive-impl 
-     '(lambda (arg)
-	(setq output (append output (list arg))))
+     #'(lambda (arg)
+	 (setq output (append output (list arg))))
      folder)
     output))
 
-;;(folder-dirs-recursive "/home/terranpro/tizen/git/ebook/include/")
+;;(folder-dirs-recursive "/home/terranpro/tizen/git/libwakeup/src")
 
 (defvar tizen-gbs-chroot
  "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0")
@@ -93,6 +93,11 @@ Example:  /home/terranpro/tizen/git/ebookviewer/")
   "Default GBS profile to be used for builds and buildroot
   determination (e.g. for parsing system headers
   w/clang-async).")
+
+(defvar-local tizen-gbs-build-options-parent-buffer nil
+  "TODO: Hack to let a gbs build buffer know the options buffer
+  that created it, so that it can scan some of the options
+  again (like if Auto Push+Install to device is enabled).")
 
 (defvar tizen-mode-map 
   (let ((map (make-keymap)))
@@ -394,7 +399,7 @@ and translates it to a project directory based on PRJDIR. "
 
 (defun tizen-gerrit-parse-ls-projects-popup (projs)
   ""
-  (let ((split-projs (mapcar '(lambda (p) (split-string p "/"))
+  (let ((split-projs (mapcar #'(lambda (p) (split-string p "/"))
 			     projs))
 	(r '(())))
     (while split-projs
@@ -444,10 +449,10 @@ and translates it to a project directory based on PRJDIR. "
       (setq tizen-chosen-binary-files nil)
       (pp subdirs)
       (tizen-create-binary-form-pre)
-      (mapcar '(lambda (subdir) (tizen-create-subdir-checkboxes
-				 subdir 
-				 (tizen-download-binary-catch-tarballs 
-				  (concat img-dir subdir))))
+      (mapcar #'(lambda (subdir) (tizen-create-subdir-checkboxes
+				  subdir 
+				  (tizen-download-binary-catch-tarballs 
+				   (concat img-dir subdir))))
 	      subdirs)
       (tizen-create-binary-form-post img-dir)
       (goto-char (point-min)))
@@ -466,16 +471,16 @@ and translates it to a project directory based on PRJDIR. "
     (make-directory temp-directory)
     (cd temp-directory)
 
-    (mapcar '(lambda (file)
-	       (shell-command (concat
-			       (if tizen-binary-download-use-proxy
-				   ""
-				 "http_proxy=\"\" https_proxy=\"\" ")
-			       "wget "
-				      img-dir
-				      file
-				      " &")
-			      (generate-new-buffer "Tizen: wget")))
+    (mapcar #'(lambda (file)
+		(shell-command (concat
+				(if tizen-binary-download-use-proxy
+				    ""
+				  "http_proxy=\"\" https_proxy=\"\" ")
+				"wget "
+				img-dir
+				file
+				" &")
+			       (generate-new-buffer "Tizen: wget")))
 	    files)
 
     (cd old-directory))
@@ -516,21 +521,21 @@ and translates it to a project directory based on PRJDIR. "
 (defun tizen-create-subdir-checkboxes (dir files)
   (widget-insert (concat dir "\n"))
 
-  (mapcar '(lambda (file)
-	     (widget-create 
-	      'checkbox 
-	      :notify (lambda (widget &rest ignore)
-			(if (widget-value widget)
-			    (setq tizen-chosen-binary-files 
-				  (cons (car (widget-get widget :sibling-args)) 
-					tizen-chosen-binary-files))
-			  (setq tizen-chosen-binary-files
-				(delete (car (widget-get widget :sibling-args)) 
-					tizen-chosen-binary-files)))
-			(pp tizen-chosen-binary-files))
-	      :sibling-args (list (concat dir file))
-	      nil)
-	     (widget-insert (concat "\t" file "\n")))
+  (mapcar #'(lambda (file)
+	      (widget-create 
+	       'checkbox 
+	       :notify (lambda (widget &rest ignore)
+			 (if (widget-value widget)
+			     (setq tizen-chosen-binary-files 
+				   (cons (car (widget-get widget :sibling-args)) 
+					 tizen-chosen-binary-files))
+			   (setq tizen-chosen-binary-files
+				 (delete (car (widget-get widget :sibling-args)) 
+					 tizen-chosen-binary-files)))
+			 (pp tizen-chosen-binary-files))
+	       :sibling-args (list (concat dir file))
+	       nil)
+	      (widget-insert (concat "\t" file "\n")))
 	  files)
   (widget-insert "\n"))
 
@@ -624,12 +629,14 @@ and translates it to a project directory based on PRJDIR. "
 
 (defun tizen-gbs-build-worker (opts args)
   (interactive)
-  (let ((cmd (concat "gbs build "
+  (let ((auto-install (IsActive (SearchName opts "PushDevice+Install")))
+	(parent-buffer (current-buffer))
+	(cmd (concat "gbs build "
 		     (mapconcat 'identity
 				(remove-if 
-				 '(lambda (str)
-				    (or (string= str "")
-					(string= str " ")))
+				 #'(lambda (str)
+				     (or (string= str "")
+					 (string= str " ")))
 				 args)
 				" "))))
     
@@ -650,35 +657,23 @@ and translates it to a project directory based on PRJDIR. "
 
       ;;(set-process-filter proc 'ansi-color-for-comint-mode-on)      
       (set-process-filter proc
-			  #'(lambda (proc output)
-			      (with-selected-window (get-buffer-window 
-						     (process-buffer proc)
-						     t)
-				(let ((lastpt (point)))
-				  (goto-char (point-max))
-				  (insert output)
-				  (ansi-color-apply-on-region
-				   lastpt (point-max))))))
+      			  #'(lambda (proc output)
+			      (with-current-buffer (process-buffer proc)
+				(ignore-errors
+				  (let ((lastpt (point))
+					(gbswin (get-buffer-window 
+						 (process-buffer proc)
+						 t)))
+				     (goto-char (point-max))
+				     (insert output)
+				     (ansi-color-apply-on-region
+				      lastpt (point-max))
+				     (when gbswin
+				       (with-selected-window gbswin
+					 (goto-char (point-max)))))))))
 
-      (set-process-sentinel proc 
-			    #'(lambda (proc event)
-				(let ((status (process-status proc)))
-				  (if (eq 'exit status)
-				      (progn
-					(message "Colorizing!")
-					(with-current-buffer (process-buffer proc)
-					  
-					  (ansi-color-apply-on-region 
-					   (point-min)
-					   (point-max))
-					  (setq tizen-gbs-built-rpm-directory 
-						(let ((regexp (rx "generated RPM packages can be found from local repo:"
-								  (zero-or-more (or whitespace ?\n))
-								  (group (zero-or-more not-newline))))
-						      (string (buffer-substring-no-properties (point-min) (point-max))))
-						  (if (string-match regexp string)
-						      (match-string 1 string))))))))))
-					;(shell-command cmd "Tizen GBS Build")
+      (set-process-sentinel proc (function tizen-gbs-build-proc-sentinel))
+
       (save-window-excursion 
 	(switch-to-buffer proc-buf-name)
 	(setq tizen-project-directory
@@ -686,10 +681,67 @@ and translates it to a project directory based on PRJDIR. "
 	       (or buffer-file-name
 		   default-directory)
 	       ".dir-locals.el"))
+	(setq tizen-gbs-build-options-parent-buffer parent-buffer)
 	(local-set-key (kbd "C-c j") 'tizen-jump-to-prj-file)
 	(local-set-key (kbd "C-c J") 'tizen-jump-to-prj-file))
       (display-buffer proc-buf-name))))
 
+(defun tizen-gbs-build-proc-sentinel (proc event)
+  (let ((status (process-status proc)))
+    (if (eq 'exit status)
+	(progn
+	  (message "Colorizing!")
+	  (with-current-buffer (process-buffer proc)
+	    
+	    (ansi-color-apply-on-region 
+	     (point-min)
+	     (point-max))
+	    (let ((case-fold-search nil))
+	      (highlight-regexp
+	       (rx "warning:" (zero-or-more any) eol) 
+	       compilation-warning-face)
+	      (highlight-regexp
+	       (rx "error:" (zero-or-more any) eol) 
+	       compilation-error-face))
+	    (setq tizen-gbs-built-rpm-directory 
+		  (tizen-gbs-build-get-rpm-directory))
+	    (when (and (= (process-exit-status proc) 0)
+		       (with-current-buffer tizen-gbs-build-options-parent-buffer
+			 (IsActive (first (options-find-by-name "PushDevice")))))
+		(let ((rpm-list (mapcar
+				 #'(lambda (gbsroot-rpm)
+				     (file-name-nondirectory
+				      (expand-file-name
+				       (concat tizen-gbs-built-rpm-directory
+					       gbsroot-rpm))))
+				 (tizen-gbs-build-get-built-rpms)))
+		      (rpmpush-buf (tizen-rpm-push-mode
+				    tizen-gbs-built-rpm-directory)))
+		  (with-current-buffer rpmpush-buf
+		    (loop for file in rpm-list 
+			  do (tizen-rpm-push-mode-mark-regexp file))
+		    ;; it's like manually striking RET in the buffer
+		    (call-interactively (key-binding (kbd "RET")))))))))))
+
+(defun tizen-gbs-build-get-rpm-directory (&optional gbsbuild-buf)
+  (with-current-buffer (or gbsbuild-buf (current-buffer))
+   (let ((dir-rx (rx 
+		  "generated RPM packages can be found from local repo:"
+		  (zero-or-more (or whitespace ?\n))
+		  (group (zero-or-more not-newline))))
+	 (string (buffer-substring-no-properties 
+		  (point-min) 
+		  (point-max))))
+     (if (string-match dir-rx string)
+	 (match-string 1 string)))))
+
+(defun tizen-gbs-build-get-built-rpms ()
+  (save-excursion
+    (goto-char (point-min))
+    (let ((bin-rpm-rx (rx "Wrote: " (group "/home/abuild/rpmbuild/RPMS/"
+					   (one-or-more any) eol))))
+      (loop while (search-forward-regexp bin-rpm-rx (point-max) t)
+	    collect (match-string 1)))))
 
 ;(tizen-gbs-build-worker '("--include-all " "" " " "--no-init "))
 
@@ -717,54 +769,64 @@ When all options are selected, press ENTER to launch gbs build.")
 	     (list (Switch "--clean" 
 			   :key "C"
 			   :desc "Clean the GBS buildroot & cached pkgs"
-			   :onactivate '(lambda (opt)
-					  (pp (oref opt active))))
+			   :onactivate #'(lambda (opt)
+					   (pp (oref opt active))))
 		   (Switch "--noinit"
 			   :key "N"
 			   :active t
 			   :desc "Do not check the state of GBS buildroot; fast"
-			   :onactivate '(lambda (opt)
-					  (message "")))
+			   :onactivate #'(lambda (opt)
+					   (message "")))
 
 		   (Switch "--keep-packs"
 			   :key "K"
 			   :active t
 			   :desc "Keep unused packages in build root"
-			   :onactivate '(lambda (opt)
-					  (message "Toggled Keep Packs")))
+			   :onactivate #'(lambda (opt)
+					   (message "Toggled Keep Packs")))
 
 		   (Switch "--include-all"
 			   :key "I"
 			   :active t
 			   :desc "Include uncommited changes and untracked files"
-			   :onactivate '(lambda (opt)
-					  (message "Toggled Include All")))
+			   :onactivate #'(lambda (opt)
+					   (message "Toggled Include All")))
 		   
 		   (Switch "--incremental"
 			   :key "i"
 			   :desc "Incremental build - continue failed builds"
-			   :onactivate '(lambda (opt)
-					  (message "Toggled Incremental")))
+			   :onactivate #'(lambda (opt)
+					   (message "Toggled Incremental")))
 
 		   (SwitchArg "--profile"
 			      :key "P"
 			      :desc "Specify the GBS profile to be used"
 			      :arg "latest"
-			      :onactivate '(lambda (opt)
-					     (ido-completing-read 
-					      "Profile: "
-					      (tizen-gbs-conf-get-profiles)
-					      "latest")))
+			      :onactivate #'(lambda (opt)
+					      (ido-completing-read 
+					       "Profile: "
+					       (tizen-gbs-conf-get-profiles)
+					       "latest")))
 		   
 		   (SwitchArg "--arch"
 			      :key "A"
 			      :desc "Specify the GBS profile to be used"
 			      :arg "armv7l"
-			      :onactivate '(lambda (opt)
-					     (ido-completing-read 
-					      "Profile: "
-					      (list "armv7l" "i586")
-					      "armv7l"))))))))
+			      :onactivate #'(lambda (opt)
+					      (ido-completing-read 
+					       "Profile: "
+					       (list "armv7l" "i586")
+					       "armv7l")))
+
+		   NewLineOption
+
+		   (Switch "PushDevice+Install"
+			   :key "!"
+			   :active t
+			   :auto nil
+			   :desc "Use RPMPushMode to Push+Install to Device"
+			   :onactivate #'(lambda (opt)
+					   (message "Toggled Push+Install"))))))))
 
 
 ;;(tizen-gbs-build)
@@ -869,8 +931,8 @@ Directory:
 				:display-name (file-name-nondirectory file)
 				:key (tizen-key-from-count count)
 				:active nil
-				:onactivate '(lambda (opt)
-					       (message "Toggled!")))))
+				:onactivate #'(lambda (opt)
+						(message "Toggled!")))))
 
     (setq options
 	  (append (list 
@@ -916,14 +978,15 @@ Directory:
 		(tizen-change-booting-mode))))
 
 (defun tizen-rpm-push-mode-worker (Opts files)
+  "TODO: this shit needs serious work. searching for opts by name :("
   (interactive)
   (with-slots ((opts elems)) Opts
     (let* ((remote-dir "/opt/usr")
 	   (method-table
 	    '(("rpm" . tizen-remote-install-rpm)
 	      ("pkgcmd" . tizen-remote-install-pkgcmd)))
-	   (filt-files (remove-if '(lambda (f) (or (string= " " f)
-						   (string= "" f)))
+	   (filt-files (remove-if #'(lambda (f) (or (string= " " f)
+						    (string= "" f)))
 				  files))
 	   (remote (IsActive
 		    (SearchName 
@@ -989,8 +1052,8 @@ Directory:
 				:display-name (file-name-nondirectory file)
 				:key (tizen-key-from-count count)
 				:active nil
-				:onactivate '(lambda (opt)
-					       (message "Toggled!")))))
+				:onactivate #'(lambda (opt)
+						(message "Toggled!")))))
     (options-mode-new "Remote PKG Install"
 		      (Command "Tizen Remote PKG Install"
 			       :help-string ""
@@ -1008,11 +1071,11 @@ Directory:
 						     :arg "rpm"
 						     :auto nil
 						     :onactivate
-						     '(lambda (opt)
-							(ido-completing-read
-							 "Method: "
-							 (list "pkgcmd" "rpm")
-							 "rpm"))))))))))
+						     #'(lambda (opt)
+							 (ido-completing-read
+							  "Method: "
+							  (list "pkgcmd" "rpm")
+							  "rpm"))))))))))
 
 (defun tizen-remote-install-mode-worker (Opts builtopts)
   (with-slots ((opts elems)) Opts
@@ -1023,8 +1086,8 @@ Directory:
 	  (method-table
 	   '(("rpm" . tizen-remote-install-rpm)
 	     ("pkgcmd" . tizen-remote-install-pkgcmd)))
-	  (filt-files (remove-if '(lambda (f) (or (string= " " f)
-						  (string= "" f)))
+	  (filt-files (remove-if #'(lambda (f) (or (string= " " f)
+						   (string= "" f)))
 				 builtopts)))
 
      (funcall (cdr (assoc method method-table)) filt-files))))
@@ -1283,10 +1346,10 @@ Directory:
 		 " "
 		 (tizen-trim-pkgconfig-includes
 		  (mapconcat
-		   '(lambda (pkg)
-		      (tizen-system-include-check-pkgconfig 
-		       pkg	
-		       pkgconfigpath))
+		   #'(lambda (pkg)
+		       (tizen-system-include-check-pkgconfig 
+			pkg	
+			pkgconfigpath))
 		   libs
 		   " ")))))))
 
@@ -1308,13 +1371,13 @@ Directory:
 	(setq incs (split-string (match-string 1) nil t))
 	(setq incs 
 	      (mapconcat 
-	       '(lambda (dir) 
-		  (if (file-exists-p dir)
-		      (progn
-			(message (format "Directory %s exists" dir))
-			(concat "/"
-				(directory-file-name dir)))
-		    " "))
+	       #'(lambda (dir) 
+		   (if (file-exists-p dir)
+		       (progn
+			 (message (format "Directory %s exists" dir))
+			 (concat "/"
+				 (directory-file-name dir)))
+		     " "))
 	       incs
 	       " ")))
       incs)))
@@ -1360,13 +1423,13 @@ Directory:
 )
 
 (defun tizen-gbs-get-key (id)
- (let* ((id-regex  (rx bol (eval id) 
-		       (zero-or-more (any blank))
-		       "="
-		       (zero-or-more (any blank))
-		       (group word-start (one-or-more any) word-end))))
-   (when (search-forward-regexp id-regex (point-max) t)
-     (message (match-string 1)))))
+  (let* ((id-regex  (eval `(rx bol ,id 
+			       (zero-or-more (any blank))
+			       "="
+			       (zero-or-more (any blank))
+			       (group word-start (one-or-more any) word-end)))))
+    (when (search-forward-regexp id-regex (point-max) t)
+      (message (match-string 1)))))
 
 (defun tizen-gbs-insert-new-profile (gbsfile newprofile)
  (save-window-excursion 
@@ -1461,10 +1524,10 @@ Directory:
 (defun tizen-project-create-dir-locals-cflags (prjdir brdir)
   (setq ac-clang-cflags 
 	(mapcar 
-	 '(lambda (arg) (concat "-I" arg))
+	 #'(lambda (arg) (concat "-I" arg))
 	 (append 
-	  (mapcar '(lambda (suffix) 
-		     (concat (file-name-as-directory brdir) suffix))
+	  (mapcar #'(lambda (suffix) 
+		      (concat (file-name-as-directory brdir) suffix))
 		  (split-string
 		   "/local/scratch.armv7l.0/usr/include/c++/4.5.3
  /local/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi
@@ -1482,7 +1545,7 @@ Directory:
 
 
 
-)
+  )
 
 (defun tizen-project-create-dir-locals (prjdir)
   
@@ -1506,7 +1569,7 @@ Directory:
 	 collect arg)))
 
 (defun brian-include-directives-substitute (args oldpath newpath)
-  (let ((oldrx (rx "-I" (group (eval oldpath)))))
+  (let ((oldrx (eval `(rx "-I" (group ,oldpath)))))
     (loop for arg in args
 	 if (string-match oldrx arg)
 	 do (setq arg (replace-regexp-in-string oldrx newpath arg))
@@ -1613,7 +1676,7 @@ cflags for it in a format ready for `ac-clang-cflags'."
 			   (append
 			    (list "-std=c++0x")
 			    (mapcar 
-			     '(lambda (arg) (concat "-I" arg))
+			     #'(lambda (arg) (concat "-I" arg))
 			     (mapcar
 			      'expand-file-name
 			      (append
@@ -1662,6 +1725,137 @@ cflags for it in a format ready for `ac-clang-cflags'."
 (easy-menu-add 'tizen-mode-menu)
 (provide 'brian-tizen)
 
+
+(defun compile-commands-remove-keywords (rmkeywords)
+  (save-excursion
+    (let ((keyword-rx (regexp-opt rmkeywords)))
+     (while (search-forward-regexp keyword-rx (point-max) t)
+       (replace-match "")))))
+
+(defun compile-commands-replace-includes-local (incdir)
+  (save-excursion
+    (let* ((srcinc-rx (rx "-I/home/abuild/rpmbuild/BUILD/"
+			  (one-or-more (not (any "/")))))
+	   (incdir-repl (concat "-I" 
+				(expand-file-name
+				 (directory-file-name incdir)))))
+      (while (search-forward-regexp srcinc-rx (point-max) t)
+	(replace-match incdir-repl)))))
+
+(defun compile-commands-replace-includes-global (brdir)
+  (save-excursion
+    (let* ((globinc-rx (rx "-I" (group "/usr/" (or "lib" "include"))))
+	   (brinc-dir (expand-file-name 
+		       (directory-file-name (concat brdir))))
+	   (brinc-rpl (concat "-I" brinc-dir "\\1")))
+      (while (search-forward-regexp globinc-rx (point-max) t)
+	(replace-match brinc-rpl)))))
+
+(defun compile-commands-add-include-global (brdir)
+  (save-excursion
+    (let* ((brinc-dir (expand-file-name 
+		       (directory-file-name (concat brdir)))))
+	(while (search-forward-regexp "command\":" (point-max) t)
+	  (if (search-forward-regexp "-I" (point-max) t)
+	      (replace-match (concat "-I" brinc-dir "/usr/include"
+				     " " "-I")))))))
+
+(defun compile-commands-replace-includes (brdir incdir)
+  (compile-commands-replace-includes-global brdir)
+  (compile-commands-add-include-global brdir)
+  (compile-commands-replace-includes-local incdir))
+
+(defun compile-commands-replace-srcs (srcdir)
+  (save-excursion
+    (let* ((src-rx (rx "/home/abuild/rpmbuild/BUILD/"
+		       (one-or-more (not (any "/" "\"")))))
+	   (srcdir-repl (concat (expand-file-name
+				 (directory-file-name srcdir)))))
+      (while (search-forward-regexp src-rx (point-max) t)
+	(replace-match srcdir-repl)))))
+
+(defun compile-commands-deroot (ccfile brdir prjdir rmkeywords)
+  (with-current-buffer (get-buffer-create (generate-new-buffer "deroot"))
+    (insert-file ccfile)
+    (goto-char (point-min))
+    (compile-commands-remove-keywords rmkeywords)
+    (compile-commands-replace-includes brdir prjdir)
+    (compile-commands-replace-srcs prjdir)
+    (current-buffer)))
+
+(defvar compile-commands-nuke-keywords-arm
+  '("-march=armv7-a" 
+    "-fmessage-length=0"
+    "-mtune=cortex-a8"
+    "-mfpu=vfpv3"
+    "-mfloat-abi=softfp"
+    "-D__SOFTFP__"
+    "-mthumb"
+    "-mlittle-endian"
+    "-Wa,-mimplicit-it=thumb")
+  "List of strings to search for and remove from the
+  compile_commands JSON file's compiler flags.")
+
+(defun tizen-gbs-build-update-compile-commands (&optional 
+						buildroot-dir
+						gbsroot-cc-file 
+						gitprj-dir
+						nuke-keywords)
+  (interactive)
+  (unless buildroot-dir
+    (if tizen-gbs-built-rpm-directory
+	(setq buildroot-dir (progn 
+			      (string-match "\\(.*local/\\)" 
+					    tizen-gbs-built-rpm-directory)
+			      (concat (match-string 1 tizen-gbs-built-rpm-directory) 
+				      "scratch.armv7l.0")))
+      (setq buildroot-dir (ido-read-directory-name 
+			   "GBS Root (ex: .../local/armv7l.0/): "
+			   "~/tizen/builds/"))))
+  (unless gbsroot-cc-file
+    (setq gbsroot-cc-file
+	  (ido-read-file-name "Compile Commands JSON File: " 
+			      (expand-file-name 
+			       (concat buildroot-dir
+				       "/home/abuild/rpmbuild/BUILD")))))
+
+  (unless gitprj-dir
+    (if tizen-project-directory
+	(setq gitprj-dir tizen-project-directory)
+      (setq gitprj-dir (ido-read-directory-name "GBS GIT Project Directory: "
+						"~/tizen/git/"))))
+
+  (unless nuke-keywords
+    (setq nuke-keywords compile-commands-nuke-keywords-arm))
+  (pop-to-buffer
+   (compile-commands-deroot gbsroot-cc-file
+			    buildroot-dir
+			    gitprj-dir
+			    nuke-keywords))
+  (write-file (expand-file-name (concat gitprj-dir "/compile_commands.json")) t))
+
+;;(tizen-gbs-build-update-compile-commands)
+
+
+;; ;; libwakeup
+;; (compile-commands-deroot "~/tizen/git/libwakeup/compile_commands.json.GBSROOT"
+;; 			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
+;; 			 "~/tizen/git/libwakeup/"
+;; 			 compile-commands-nuke-keywords-arm)
+
+;; ;; svoice
+;; (compile-commands-deroot "~/tizen/git/voice-talk2/compile_commands.json.GBSROOT"
+;; 			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
+;; 			 "~/tizen/git/voice-talk2/"
+;; 			 compile-commands-nuke-keywords-arm)
+
+;; ;; libsttnuance
+(compile-commands-deroot "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0/home/abuild/rpmbuild/BUILD/libsttnuance-0.0.11/compile_commands.json"
+			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
+			 "~/tizen/git/libsttnuance/"
+			 compile-commands-nuke-keywords-arm)
+
+;;(expand-file-name (directory-file-name "~/tizen"))
 
 ;; (require 'brian-tizen)
 

@@ -32,9 +32,7 @@
 
 ;; TODO: clang-faces depends on `ac-clang-cflags' to be set
 ;; So this hook needs to be appended and not prepended (after ac-clang setup)
-(add-hook 'c-mode-common-hook 'brian-clang-faces-init t)
-;; Clang Faces END!
-
+;; (add-hook 'c-mode-common-hook 'brian-clang-faces-init t)
 
 (provide 'brian-clang-faces)
 

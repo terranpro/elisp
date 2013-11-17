@@ -150,15 +150,15 @@
 ;; (setq mm-w3m-safe-url-regexp nil)
 
 ;; ;; BBDB
-;; (require 'bbdb-loaddefs "~/code/bbdb/lisp/bbdb-loaddefs.el")
+(require 'bbdb-loaddefs "~/elisp/foreign/bbdb/lisp/bbdb-loaddefs.el")
 ;; (if (featurep 'xemacs)
 ;;     (add-to-list 'Info-directory-list "~/bbdb/doc/")
 ;;   (add-to-list 'Info-default-directory-list "~/code/bbdb/doc/"))
 
  	
-;; (require 'bbdb)
-;; (bbdb-initialize)
-;; (add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
+(require 'bbdb)
+(bbdb-initialize)
+(add-hook 'gnus-startup-hook 'bbdb-insinuate-gnus)
 
 
 
