@@ -9,37 +9,62 @@
     (add-to-list 'Info-directory-list "~/code/gnus/texi/")
   (add-to-list 'Info-default-directory-list "~/code/gnus/texi/"))
 
-(setq gnus-select-method '(nntp ""))
+;; (setq gnus-select-method '(nntp "news.tweaknews.eu"
+;; 				(nntp-port-number 563)
+;; 				(nntp-open-connection-function nntp-open-ssl-stream)
+;; 				(nntp-address "news.tweaknews.eu")))
 
-;; (setq gnus-select-method 
-;;       '(nnimap "capp.snu.ac.kr"
-;; 	       (nnimap-address "capp.snu.ac.kr")
-;; 	       (nnimap-stream network)
-;; 	       (nnimap-streaming t))	; no special config
-;; )
+(setq gnus-select-method 
+      '(nnimap "capp.snu.ac.kr"
+	       (nnimap-address "capp.snu.ac.kr")
+	       (nnimap-stream network)
+	       (nnimap-streaming t))	; no special config
+)
 
-(setq mail-sources
+;; (setq mail-sources
 
-      '((pop
-	 :user "br.fransioli"
-	 :server "pop3.samsung.com"
-	 )))
+;;       '((pop
+;; 	 :user "br.fransioli"
+;; 	 :server "pop3.samsung.com"
+;; 	 )))
 
 (setq gnus-secondary-select-methods '((nnml "")))
 
-;; (setq gnus-secondary-select-methods
-;;       '((nnimap "assem-gmail"
-;; 	       (nnimap-address "imap.gmail.com")
-;; 	       (nnimap-server-port 993)
-;; 	       (nnimap-stream ssl))
+(setq gnus-secondary-select-methods
+      '((nntp "news.tweaknews.eu"
+				(nntp-port-number 563)
+				(nntp-open-connection-function nntp-open-ssl-stream)
+				(nntp-address "news.tweaknews.eu"))
+	(nnimap "assem-gmail"
+	       (nnimap-address "imap.gmail.com")
+	       (nnimap-server-port 993)
+	       (nnimap-stream ssl))
 
-;; 	(nnimap "terranpro-gmail"
-;; 	       (nnimap-address "imap.gmail.com")
-;; 	       (nnimap-server-port 993)
-;; 	       (nnimap-stream ssl))
+	(nnimap "terranpro-gmail"
+	       (nnimap-address "imap.gmail.com")
+	       (nnimap-server-port 993)
+	       (nnimap-stream ssl))
 
-;; ;;	(nntp "nntp.aioe.org")
-;; 	))
+;;	(nntp "nntp.aioe.org")
+	))
+
+;; window config
+(gnus-add-configuration
+ '(article
+   (horizontal 1.0
+	       (vertical 0.35
+			 (group 1.0))
+	       (vertical 1.0
+			 (summary 0.45 point)
+			 (article 1.0)))))
+(gnus-add-configuration
+ '(summary
+   (horizontal 1.0
+	       (vertical 0.35
+			 (group 1.0))
+	       (vertical 1.0
+			 (summary 1.0 point)))))
+
 
 (setq gnus-posting-styles
       '(((header "to" "assem@terranpro.org")
@@ -100,9 +125,9 @@
 
 ; more gnus customizations
 (setq gnus-treat-display-smileys t)
-
+(setq gnus-asynchronous t)
 (setq gnus-agent-max-fetch-size 10000000)
-
+(setq gnus-fetch-old-headers nil)
 
 ;; TEMP DISABLE~
 ;; ; w3m-el
