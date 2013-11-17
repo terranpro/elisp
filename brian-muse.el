@@ -47,8 +47,8 @@
 
 (setq muse-project-alist
       '(
-	("TerranproOrg" ("~/remote/muse" :default "index.muse")
-	 (:base "terranpro-xhtml" :path "~/remote/terranpro_org_web/")
+	("TerranproOrg" ("~/www/terranpro.org/muse/" :default "index.muse")
+	 (:base "terranpro-xhtml" :path "~/www/terranpro.org/")
 ;;	 (:base "pdf" :path "~/public_html/pdf")
 	)
        )
