@@ -57,9 +57,11 @@
   (unless compiler 
     (setq compiler "gcc"))
   (append 
-   (or 
-    ac-clang-cflags
-    (list "-std=c++11" "-g" "-lpthread" "-Wall" "-Wextra" "-pedantic"))
+   ac-clang-cflags
+   (list (if (eq major-mode 'c++-mode)
+	     "-std=c++11"
+	   "-std=c99")
+	 "-g" "-lpthread" "-Wall" "-Wextra" "-pedantic")
    (mapcar #'(lambda (inc) (concat "-I" inc))
 	   (split-string 
 	    (let*
@@ -118,7 +120,7 @@
 
 (defvar brian-clangcomplete-cflags-global
   (append 
-   (list "-Wall" "-Wextra" "-pedantic")
+   (list "-std=c++11" "-Wall" "-Wextra" "-pedantic")
    (mapcar #'(lambda (inc) (concat "-I" inc))
 	   (split-string 
 	    (let*

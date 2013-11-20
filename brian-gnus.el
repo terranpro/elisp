@@ -31,18 +31,37 @@
 (setq user-full-name "Brian Fransioli")
 (setq user-mail-address "br.fransioli@samsung.com")
 
+(defun pw-from-authinfo (popserver)
+  (require 'nntp)
+  (let* ((x (netrc-parse nntp-authinfo-file))
+         (item (netrc-machine x popserver))
+         (pw (netrc-get item "password")))
+    pw)) 
+
 ;; (setq gnus-secondary-select-methods '((nnml "")))
 (setq gnus-secondary-select-methods nil)
 (setq gnus-select-method '(nnml ""))
 (setq gnus-verbose 10)
 (setq mail-sources
-      '((pop
+      `((pop
 	 :user "br.fransioli"
+	 :password ,(pw-from-authinfo "pop3.samsung.com")
 	 :server "pop3.samsung.com"
 	 :port 995
 	 :stream ssl
 	 :leave t
 	 )))
+;; (setq gnus-select-method '(nntp "news.tweaknews.eu"
+;; 				(nntp-port-number 563)
+;; 				(nntp-open-connection-function nntp-open-ssl-stream)
+;; 				(nntp-address "news.tweaknews.eu")))
+
+;; (setq mail-sources
+
+;;       '((pop
+;; 	 :user "br.fransioli"
+;; 	 :server "pop3.samsung.com"
+;; 	 )))
 
 (setq gnus-agent-max-fetch-size 10000000)
 
@@ -126,7 +145,11 @@
 (setq starttls-extra-arguments '("-p" "995" "--x509certfile" "~/samsung.pem"))
 
 ;; (setq gnus-secondary-select-methods
-;;       '((nnimap "assem-gmail"
+;;       '((nntp "news.tweaknews.eu"
+;; 				(nntp-port-number 563)
+;; 				(nntp-open-connection-function nntp-open-ssl-stream)
+;; 				(nntp-address "news.tweaknews.eu"))
+;; 	(nnimap "assem-gmail"
 ;; 	       (nnimap-address "imap.gmail.com")
 ;; 	       (nnimap-server-port 993)
 ;; 	       (nnimap-stream ssl))
@@ -138,6 +161,24 @@
 
 ;; ;;	(nntp "nntp.aioe.org")
 ;; 	))
+
+;; window config
+(gnus-add-configuration
+ '(article
+   (horizontal 1.0
+	       (vertical 0.35
+			 (group 1.0))
+	       (vertical 1.0
+			 (summary 0.45 point)
+			 (article 1.0)))))
+(gnus-add-configuration
+ '(summary
+   (horizontal 1.0
+	       (vertical 0.35
+			 (group 1.0))
+	       (vertical 1.0
+			 (summary 1.0 point)))))
+
 
 (setq gnus-posting-styles
       '(((header "to" "assem@terranpro.org")
@@ -213,6 +254,9 @@
 ; more gnus customizations
 (setq gnus-treat-display-smileys t)
 
+(setq gnus-asynchronous t)
+(setq gnus-agent-max-fetch-size 10000000)
+(setq gnus-fetch-old-headers nil)
 
 ;; TEMP DISABLE~
 ;; ; w3m-el
