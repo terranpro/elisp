@@ -33,6 +33,14 @@
 (when (featurep 'doxymacs)
   (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook))
 
+;; prevent align-regexp from using tabs
+;; Align with spaces only
+(defadvice align-regexp (around align-regexp-with-spaces)
+  "Never use tabs for alignment."
+  (let ((indent-tabs-mode nil))
+    ad-do-it))
+(ad-activate 'align-regexp)
+
 ;;; Enabling smart-tabs-mode within language modes:
 ;; As of version 1.0 of this package, the easiest and preferred way to
 ;; enable smart-tabs-mode is with the smart-tabs-insinuate function;

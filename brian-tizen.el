@@ -1735,7 +1735,7 @@ cflags for it in a format ready for `ac-clang-cflags'."
 (defun compile-commands-replace-includes-local (incdir)
   (save-excursion
     (let* ((srcinc-rx (rx "-I/home/abuild/rpmbuild/BUILD/"
-			  (one-or-more (not (any "/")))))
+			  (one-or-more (not (any "/" " ")))))
 	   (incdir-repl (concat "-I" 
 				(expand-file-name
 				 (directory-file-name incdir)))))
@@ -1850,10 +1850,10 @@ cflags for it in a format ready for `ac-clang-cflags'."
 ;; 			 compile-commands-nuke-keywords-arm)
 
 ;; ;; libsttnuance
-(compile-commands-deroot "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0/home/abuild/rpmbuild/BUILD/libsttnuance-0.0.11/compile_commands.json"
-			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
-			 "~/tizen/git/libsttnuance/"
-			 compile-commands-nuke-keywords-arm)
+;; (compile-commands-deroot "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0/home/abuild/rpmbuild/BUILD/libsttnuance-0.0.11/compile_commands.json"
+;; 			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
+;; 			 "~/tizen/git/libsttnuance/"
+;; 			 compile-commands-nuke-keywords-arm)
 
 ;;(expand-file-name (directory-file-name "~/tizen"))
 

@@ -21,7 +21,7 @@
 ; size 10pt.
 ;(set-face-attribute 'default nil :font "Ubuntu Mono 10") 
 ;(set-face-attribute 'default nil :font "")
-(set-face-attribute 'default nil :height 105)
+(set-face-attribute 'default nil :height 115)
 ;TODO: (temp) some default tweaking for window sizing
 ;;(add-to-list 'default-frame-alist '(height . 65))
 ;;(add-to-list 'default-frame-alist '(width  . 80))
