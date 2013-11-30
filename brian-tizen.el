@@ -970,12 +970,18 @@ Directory:
 			 " shell "
 			 "change-booting-mode.sh --update")))
 
+(defun tizen-fix-broken-strings ()
+  (tizen-shell-cmd
+   "\"find /usr/share/locale -exec chsmack -a '_' {} \\; \"" nil))
+
 (defvar tizen-rpm-push-pre-hook nil)
 (add-hook 'tizen-rpm-push-pre-hook 
 	  #'(lambda ()
 	      (when (tizen-sdb-is-active)
 		(tizen-sdb-root)
 		(tizen-change-booting-mode))))
+
+(defvar tizen-rpm-push-post-hook nil)
 
 (defun tizen-rpm-push-mode-worker (Opts files)
   "TODO: this shit needs serious work. searching for opts by name :("
@@ -1077,6 +1083,13 @@ Directory:
 							  (list "pkgcmd" "rpm")
 							  "rpm"))))))))))
 
+(defvar tizen-remote-install-post-hook nil)
+(add-hook 'tizen-remote-install-post-hook
+	  #'(lambda ()
+	      (when (tizen-sdb-is-active)
+		(tizen-sdb-root))
+	      (tizen-fix-broken-strings)))
+
 (defun tizen-remote-install-mode-worker (Opts builtopts)
   (with-slots ((opts elems)) Opts
    (let* ((method
@@ -1090,7 +1103,8 @@ Directory:
 						   (string= "" f)))
 				 builtopts)))
 
-     (funcall (cdr (assoc method method-table)) filt-files))))
+     (funcall (cdr (assoc method method-table)) filt-files)
+     (run-hooks 'tizen-remote-install-post-hook))))
 
 (defun tizen-remote-install-rpm (files &optional foreground)
   (let ((cmd (concat "rpm -ivh --force --nodeps "
