@@ -138,7 +138,7 @@ opening bracket position, OB-POS."
 				 empty-defun-braces
 				 defun-close-semi
 				 space-after-funcall
-				 one-liner-defun
+				 ;one-liner-defun
 				 compact-empty-funcall
 				 list-close-comma
 				 ;space-before-funcall

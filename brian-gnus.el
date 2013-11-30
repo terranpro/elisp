@@ -33,6 +33,7 @@
 
 (defun pw-from-authinfo (popserver)
   (require 'nntp)
+  (require 'netrc)
   (let* ((x (netrc-parse nntp-authinfo-file))
          (item (netrc-machine x popserver))
          (pw (netrc-get item "password")))
