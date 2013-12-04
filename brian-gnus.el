@@ -346,6 +346,7 @@
 (add-to-list 'default-frame-alist 
 	     '(height . 60))
 	      
+(set-face-attribute 'default nil :height 140)
 
 ;; (set-face-font 'default "BatangChe")
 ;; (set-fontset-font "fontset-default" '(#x1100 . #xffdc)
