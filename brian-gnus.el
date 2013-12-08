@@ -29,7 +29,9 @@
 ;; )
 
 (setq user-full-name "Brian Fransioli")
-(setq user-mail-address "br.fransioli@samsung.com")
+(setq user-mail-address "assem@terranpro.org")
+
+;; (setq user-mail-address "br.fransioli@samsung.com")
 
 (defun pw-from-authinfo (popserver)
   (require 'nntp)
@@ -43,15 +45,17 @@
 (setq gnus-secondary-select-methods nil)
 (setq gnus-select-method '(nnml ""))
 (setq gnus-verbose 10)
-(setq mail-sources
-      `((pop
-	 :user "br.fransioli"
-	 :password ,(pw-from-authinfo "pop3.samsung.com")
-	 :server "pop3.samsung.com"
-	 :port 995
-	 :stream ssl
-	 :leave t
-	 )))
+
+;; (setq mail-sources
+;;       `((pop
+;; 	 :user "br.fransioli"
+;; 	 :password ,(pw-from-authinfo "pop3.samsung.com")
+;; 	 :server "pop3.samsung.com"
+;; 	 :port 995
+;; 	 :stream ssl
+;; 	 :leave t
+;; 	 )))
+
 ;; (setq gnus-select-method '(nntp "news.tweaknews.eu"
 ;; 				(nntp-port-number 563)
 ;; 				(nntp-open-connection-function nntp-open-ssl-stream)
@@ -145,7 +149,7 @@
 
 (setq starttls-use-gnutls t)
 (setq starttls-gnutls-program "gnutls-cli")
-(setq starttls-extra-arguments '("-p" "995" "--x509certfile" "~/samsung.pem"))
+;(setq starttls-extra-arguments '("-p" "995" "--x509certfile" "~/samsung.pem"))
 
 ;; (setq gnus-secondary-select-methods
 ;;       '((nntp "news.tweaknews.eu"
@@ -156,6 +160,19 @@
 ;; 	       (nnimap-address "imap.gmail.com")
 ;; 	       (nnimap-server-port 993)
 ;; 	       (nnimap-stream ssl))
+
+(setq gnus-secondary-select-methods
+      '((nntp "news"
+				(nntp-port-number 563)
+				(nntp-open-connection-function nntp-open-ssl-stream)
+				;(nntp-address "news.tweaknews.eu")
+				(nntp-address "secure.usenetserver.com")
+				)
+	(nnimap "assem-gmail"
+	       (nnimap-address "imap.gmail.com")
+	       (nnimap-server-port 993)
+	       (nnimap-stream ssl))))
+
 
 ;; 	(nnimap "terranpro-gmail"
 ;; 	       (nnimap-address "imap.gmail.com")
@@ -257,9 +274,12 @@
 ; more gnus customizations
 (setq gnus-treat-display-smileys t)
 
-(setq gnus-asynchronous t)
+(setq gnus-asynchronous nil)
+
 (setq gnus-agent-max-fetch-size 10000000)
 (setq gnus-fetch-old-headers nil)
+(setq gnus-cacheable-groups "^nntp")
+(setq gnus-use-cache t)
 
 ;; TEMP DISABLE~
 ;; ; w3m-el
