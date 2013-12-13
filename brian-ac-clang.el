@@ -158,14 +158,29 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 			       (mapconcat 'car (car (cdr menu-data)) "\n"))))
 	(flymake-log 1 "no errors for line %d" line-no)))))
 
+(defun brian-ac-clang-cflags-initialize ()
+  (let* ((srcfile (or (buffer-file-name)
+		      (buffer-name)))
+	 (ccdir (locate-dominating-file
+		  (or buffer-file-name
+		      default-directory)
+		  "compile_commands.json"))
+	 (ccfile (concat ccdir "compile_commands.json"))
+	 (ccmds-cflags (tizen-project-ac-clang-cflags-from-ccmds
+		       ccfile srcfile))
+	 (cflags-def brian-clangcomplete-cflags-global))
+    (if ccmds-cflags
+	(progn
+	  (message "Initializing cflags from compile_commands.json")
+	  (setq ac-clang-cflags ccmds-cflags))
+      (setq ac-clang-cflags cflags-def)))
+  (ac-clang-update-cmdlineargs))
+
 (defun ac-cc-mode-setup ()
   (let ((exec-path (add-to-list 'exec-path brian-clangcomplete-async-dir)))
     (setq ac-clang-complete-executable (executable-find "clang-complete")))
 
-  (setq ac-sources '(ac-source-clang-async
-					;ac-source-semantic
-					;ac-source-semantic-raw
-		     ))
+  (setq ac-sources '(ac-source-clang-async))
 
   (define-key ac-completing-map "\t" 'ac-complete)
 
@@ -201,11 +216,7 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 				 (string-match "^LD_LIBRARY_PATH=" item))
 			     process-environment))))
     (ac-clang-launch-completion-process))
-
-  (if brian-clang-cflags-use-global
-      (setq ac-clang-cflags 
-	    (append ac-clang-cflags brian-clangcomplete-cflags-global)))
-  (ac-clang-update-cmdlineargs))
+  (brian-ac-clang-cflags-initialize))
 
 (defun my-ac-clang-config ()
   (add-hook 'c-mode-common-hook 'ac-clang-cc-mode-setup t))

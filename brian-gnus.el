@@ -98,9 +98,11 @@
 			 "samsung.slp.build.release"))
 		     "samsung.slp.build.misc"))
 
+	    ("from" "download@nuance.com" "nuance.files")
 	    ("from" "welstorymall.com" "samsung.ads.welstory")
 	    ("from" "mailmaster@mail.sec.co.kr"
 	     (| ("subject" "패밀리넷" "samsung.ads.familynet")))
+	    ("from" "패밀리넷" "samsung.ads.familynet")
 
 	    ("subject" "결재.*통보" "samsung.approval")
 
