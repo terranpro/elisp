@@ -166,14 +166,14 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
 		      default-directory)
 		  "compile_commands.json"))
 	 (ccfile (concat ccdir "compile_commands.json"))
-	 (ccmds-cflags (tizen-project-ac-clang-cflags-from-ccmds
-		       ccfile srcfile))
-	 (cflags-def brian-clangcomplete-cflags-global))
-    (if ccmds-cflags
-	(progn
-	  (message "Initializing cflags from compile_commands.json")
-	  (setq ac-clang-cflags ccmds-cflags))
-      (setq ac-clang-cflags cflags-def)))
+	 (cflags-def brian-clangcomplete-cflags-global)
+	 (ccmds-cflags (or 
+			(when (file-exists-p ccfile)
+			  (tizen-project-ac-clang-cflags-from-ccmds
+			   ccfile srcfile))
+			cflags-def)))
+
+    (setq ac-clang-cflags ccmds-cflags))
   (ac-clang-update-cmdlineargs))
 
 (defun ac-cc-mode-setup ()

@@ -1616,8 +1616,8 @@ cflags for it in a format ready for `ac-clang-cflags'."
 				(file-name-sans-extension file)))
 	      (tizen-project-read-compile-commands ccfile)))))
 
-(assoc-if #'(lambda (file) (message file))
-	  (tizen-project-read-compile-commands "~/tizen/git/libwakeup/compile_commands.json"))
+;; (assoc-if #'(lambda (file) (message file))
+;; 	  (tizen-project-read-compile-commands "~/tizen/git/libwakeup/compile_commands.json"))
 
 (when (file-exists-p tizen-gbs-conf)
   (brian-include-directives-substitute
