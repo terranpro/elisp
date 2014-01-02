@@ -69,7 +69,7 @@ sectiondictionary "A"
 
 template filecomment :file :user :time
 sectiondictionary "A"
-set TIMESTRING "%3a %3b %02H:%02M:%02S %Z %Y"
+set TIMESTRING "%3a %3b %02d %02H:%02M:%02S %Z %Y"
 ----
 {{comment_start}}
 {{comment_prefix}} This file is part of {{?PROJECTNAME}}

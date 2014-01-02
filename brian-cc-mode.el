@@ -195,7 +195,7 @@ opening bracket position, OB-POS."
   (subword-mode 1)
   ;(modify-syntax-entry ?_ "w")
   (set (make-local-variable 'time-stamp-format) 
-       "%3a %3b %2d %02H:%02M:%02S %Z %:y")
+       "%3a %3b %02d %02H:%02M:%02S %Z %Y")
   (set (make-local-variable 'time-stamp-pattern) 
        "50/Last modified: %%$")
   (add-hook 'write-file-hooks 'time-stamp))
