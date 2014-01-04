@@ -1028,7 +1028,7 @@ Directory:
    (options-mark-unmark-options #'tizen-rpm-push-mode-mark-regexp-pred)))
 
 (defun tizen-sdb-is-active ()
-  (zerop (shell-command (concat tizen-sdb-executable " get-state"))))
+  (> (string-to-number (shell-command-to-string (concat tizen-sdb-executable " devices" " | wc -l"))) 1))
 
 (defun tizen-sdb-root (&optional off)
   (interactive)
@@ -1187,7 +1187,7 @@ Directory:
 			  "/tmp/"
 			  (file-name-nondirectory image)))))
 
-(defun tizen-ssh-push-file (files &optional targetdir)
+(defun tizen-ssh-push-file (files &optional targetdir foreground)
   (let ((cmd (concat "scp "
 		     (if (listp files)
 			 (mapconcat 'identity files " ")
@@ -1195,7 +1195,7 @@ Directory:
 		     " "
 		     "root@192.168.129.3:"
 		     targetdir 
-		     " &")))
+		     (if foreground "" " &"))))
     (shell-command cmd (generate-new-buffer-name "Tizen SCP File"))))
 
 ;; (tizen-ssh-push-file "/home/terranpro/tizen/SURC/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/com.samsung.ebookviewer-0.1.8-7.armv7l.rpm"
@@ -1206,14 +1206,18 @@ Directory:
 ;; 	"/home/terranpro/tizen/SURC/build/local/repos/RelRedwoodCISOPEN/armv7l/RPMS/com.samsung.ebookviewer-debuginfo-0.1.8-7.armv7l.rpm")
 ;; 		     "/tmp/")
 
-(defun tizen-ssh-shell-cmd (cmd) 
+(defun tizen-ssh-shell-cmd (cmd &optional foreground tostring) 
   (let ((sshcmd (concat "ssh " 
 			"root@192.168.129.3"
 			" "
-			" << 'EOF' \n"
+			" << 'EOF' "
+			(if foreground "" " &")
+			"\n"
 			cmd
 			"\nEOF")))
-    (shell-command sshcmd)))
+    (if tostring
+	(shell-command-to-string sshcmd)
+      (shell-command sshcmd (generate-new-buffer-name "Tizen SSH Cmd")))))
 
 ;; (tizen-ssh-shell-cmd
 ;;  "ls -lrtha /tmp | awk ' {print $NF; }' | sort && echo $HOME")
