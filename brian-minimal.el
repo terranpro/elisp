@@ -11,7 +11,7 @@
 
 (require 'brian-config)
 (require 'brian-paredit)
-(require 'brian-themes)
+;(require 'brian-themes)
 
 ;; done
 (provide 'brian-minimal)
