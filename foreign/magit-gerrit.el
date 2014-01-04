@@ -212,21 +212,8 @@
 	  )
 	(message (format "Generating Gerrit Patchset for refs %s dir %s"
 			 ref dir))
-	
 
 	(magit-diff "FETCH_HEAD..FETCH_HEAD~1")
-
-
-	;; (display-buffer buf)
-	;; (with-current-buffer buf
-	  
-	;;   (let ((default-directory dir))
-	    
-	;;     ;; (magit-mode-init default-directory
-        ;;     ;;            'magit-diff-mode
-        ;;     ;;            #'magit-refresh-diff-buffer
-        ;;     ;;            "FETCH_HEAD..FETCH_HEAD~1" nil)
-	;;     ))
 
 	(magit-refresh-all)
 	))))
@@ -338,6 +325,9 @@
     (gerrit-review-abandon prj rev)
     (magit-refresh)))
 
+
+(defun magit-gerrit-create-branch (branch parent))
+
 (progn
   (magit-key-mode-add-group 'gerrit)
   (magit-key-mode-insert-action 'gerrit "P" "Push Commit For Review"
@@ -401,6 +391,13 @@
     ))
   (when (called-interactively-p 'any)
     (magit-refresh)))
+
+(defun magit-gerrit-check-enable ()
+  (when (string-match magit-gerrit-ssh-creds
+		      (magit-get "remote" "origin" "url"))
+    (magit-gerrit-mode t)))
+
+(add-hook 'magit-status-mode-hook #'magit-gerrit-check-enable t)
 
 (provide 'magit-gerrit)
 
