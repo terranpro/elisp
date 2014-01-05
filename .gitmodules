@@ -65,3 +65,6 @@
 [submodule "foreign/bbdb"]
 	path = foreign/bbdb
 	url = https://github.com/emacsmirror/bbdb.git
+[submodule "foreign/magit-gerrit"]
+	path = foreign/magit-gerrit
+	url = https://github.com/terranpro/magit-gerrit.git
