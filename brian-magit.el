@@ -9,4 +9,9 @@
 (add-to-list 'load-path "~/elisp/external/mo-git-blame/")
 (require 'mo-git-blame)
 
+;; magit-gerrit plugin - by me!!
+(add-to-list 'load-path "~/elisp/foreign/magit-gerrit/")
+(require 'magit-gerrit)
+(setq magit-gerrit-ssh-creds "br.fransioli@slp-info.sec.samsung.net")
+
 (provide 'brian-magit)
