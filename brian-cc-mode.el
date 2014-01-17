@@ -150,6 +150,8 @@ opening bracket position, OB-POS."
 		  (brace-entry-open)
 		  (arglist-cont-nonempty)
 		  (statement-cont)
+		  (member-init-intro)
+		  (inline-open)
 		  (substatement-open after)
 		  (block-close . c-snug-do-while)
 		  (extern-lang-open after)
