@@ -9,7 +9,7 @@
 ;(require 'org-install)
 (require 'org)
 (require 'ox-md)  ;; Markdown export backend
-(require 'org-latex)
+(require 'ox-latex)
 (require 'org-habit)
 (require 'ob)
 (require 'ob-ditaa)
@@ -59,7 +59,7 @@
 		(executable-find "evince")))
   (aput 'org-file-apps "\\.pdf\\'" "xpdf %s"))
 
-(add-to-list 'org-export-latex-classes
+(add-to-list 'org-latex-classes
 	     '("brianthesis" "\\documentclass[11pt, b5paper, twoside]{article}"
 	       ("\\section{%s}" . "\\section*{%s}")
 	       ("\\subsection{%s}" . "\\subsection*{%s}")
@@ -67,7 +67,7 @@
 	       ("\\paragraph{%s}" . "\\paragraph*{%s}")
 	       ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 
-(add-to-list 'org-export-latex-classes
+(add-to-list 'org-latex-classes
 	     '("brianletter" "\\documentclass[11pt, b5paper]{letter}"
 	       ("\\begin{letter}{%s}" . "\\begin{letter}{%s}") 
 	       ("\\opening{%s}" . "\\opening{%s}")
@@ -80,7 +80,7 @@
 
 ;; TODO: Temporarily dont include minted until i fix install on
 ;; ubuntu12.04
-(setq org-export-latex-packages-alist nil)
+(setq org-latex-packages-alist nil)
 (setq org-src-fontify-natively t)
 
 ;; Org mode timestampage!
