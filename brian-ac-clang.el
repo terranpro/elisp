@@ -88,8 +88,28 @@
   nil
   "")
 
-(defun brian-ac-clang-compile ()
+(defun brian-ac-clang-compile-cmake ()
   (interactive)
+  (let ((prjdir (locate-dominating-file default-directory
+					"CMakeLists.txt")))
+    (while (locate-dominating-file 
+	    (file-name-directory (directory-file-name prjdir))
+	    "CMakeLists.txt")
+      
+      (setq prjdir 
+	    (locate-dominating-file
+	     (file-name-directory (directory-file-name prjdir))
+	     "CMakeLists.txt")))
+
+    (unless (file-exists-p (concat prjdir "/build"))
+      (make-directory prjdir (concat prjdir "/build") t))
+
+    (let ((compile-command
+	   (concat "make -C " prjdir "build/ "
+		   " -j 4")))
+      (call-interactively (function compile)))))
+
+(defun brian-ac-clang-compile-default ()
   (let ((compile-command (concat (if (eq major-mode 'c-mode) 
 				     "CFLAGS=\""
 				   "CXXFLAGS=\"")
@@ -117,6 +137,14 @@
 				  (file-name-sans-extension
 				   (buffer-file-name))))))
     (call-interactively (function compile))))
+
+(defun brian-ac-clang-compile ()
+  (interactive)
+  (cond 
+   ((locate-dominating-file default-directory "CMakeLists.txt")
+    (brian-ac-clang-compile-cmake))
+   (t 
+    (brian-ac-clang-compile-default))))
 
 (defvar brian-clangcomplete-cflags-global
   (append 
