@@ -162,7 +162,7 @@ and translates it to a project directory based on PRJDIR. "
   (let* ((file-info  (tizen-translate-file-to-prjpath 
 		      file
 		      (or tizen-project-directory
-			  default-directory)))
+			  (tizen-gbs-find-prj-dir default-directory))))
 	 (file (first file-info))
 	 (line-str  (second file-info))
 	 (line (unless (null line-str)
@@ -750,6 +750,9 @@ and translates it to a project directory based on PRJDIR. "
 
 When all options are selected, press ENTER to launch gbs build.")
 
+(defun tizen-gbs-find-prj-dir (curdir)
+  (locate-dominating-file curdir ".git"))
+
 (defun tizen-gbs-build ()
   (interactive)
 
@@ -761,7 +764,8 @@ When all options are selected, press ENTER to launch gbs build.")
 	    :help-string
 	    (concat tizen-gbs-build-help-string
 		    "\n\nDetected Project Directory:\n"
-		    (or tizen-project-directory default-directory))
+		    (or tizen-project-directory 
+			(tizen-gbs-find-prj-dir default-directory)))
 	    :options 
 	    (Options 
 	     "options"
