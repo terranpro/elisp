@@ -24,19 +24,45 @@
 ;;; Code:
 
 (defvar dlog-line-format)
+;; "format: threadtime"
 (setq dlog-line-format 
-  (vector '("time" 12 dlog-sort-by-time :right-align t)
-	  '("date" 12 nil)
+  (vector '("date" 7 nil)
+	  '("time" 16 dlog-sort-by-time :right-align t)
+	  '("pid" 5 nil :right-align t)
+	  '("gid" 5 nil :right-align t)
+	  '("type" 5 nil)
 	  '("tag" 16 nil)
+	  '("file" 24 nil :right-align t)
 	  '("msg" 0 nil)))
 
-(defvar-mode-local dlog-mode dlog-hidden-tags '())
+(defvar dlog-line-format-alist nil)
+(setq dlog-line-format-alist
+      '((date 0 ("date" 12 nil))
+	(time 1 ("time" 14 dlog-sort-by-time :right-align t))
+	(pid  2 ("pid" 6 nil :right-align t))
+	(gid  3 ("gid" 6 nil :right-align t))
+	(type 4 ("type" 3 nil))
+	(tag  5 ("tag" 12 nil))
+	(file 6 ("file" 28 nil :right-align t))
+	(msg  7 ("msg" 0 nil))))
 
-(defvar-mode-local dlog-mode dlog-highlighted-tags '())
+(assoc 'date  dlog-line-format-alist)
+(loop for elem in dlog-line-format-alist
+      for sym = (car elem)
+      for fmt = (caddr elem)
+      collect (vector fmt))
+
+(last (caddr (nth (second (assoc 'date  dlog-line-format-alist))
+		  dlog-line-format-alist)))
+
+(defvar-local dlog-hidden-tags nil)
+
+(defvar-local dlog-highlighted-tags nil)
+
 (defvar dlog-tag-faces '(hi-blue hi-green hi-pink hi-yellow))
-(defvar-mode-local dlog-mode dlog-tag-face-idx 0)
+(defvar-local dlog-tag-face-idx 0)
 
-(defvar-mode-local dlog-mode dlog-time-filter nil)
+(defvar-local dlog-filter-time nil)
 
 (defun dlog-sort-by-time (entry1 entry2)
   (let* ((id1 (first entry1))
@@ -71,12 +97,26 @@
 	    lines)))
 
 (defun dlog-create-tabulated-list-entry (id txt)
-  (let* ((tokens (split-string txt " " t))
-	 (time (dlog-list-entry-get-time tokens))
-	 (date (dlog-list-entry-get-date tokens))
-	 (tag (dlog-list-entry-get-tag tokens))
-	 (msg (dlog-list-entry-get-msg tokens)))
-    (list id (vector time date tag msg))))
+  (let* ((tokens (dlog-tokenize-line txt)))
+    (list id tokens)))
+
+(defun dlog-tokenize-line (txt)
+  (let* ((tokens (split-string txt (rx (any " ")) t "[:]"))
+	 (msgidx (second (assoc 'msg dlog-line-format-alist)))
+	 (msg (or (mapconcat 'identity (nthcdr msgidx tokens) " ")
+		  "")))
+    (concatenate 'vector 
+		 (loop for i from 0 to (1- msgidx)
+		       collect (or (nth i tokens)
+				   ""))
+		 (list msg))))
+
+(dlog-tokenize-line "12-05 09:21:32.509   870   870 D RESOURCED: proc-noti.c: safe_write_int(178) > [safe_write_int,178] Response is not needed")
+
+(dlog-tokenize-line "12-05 09:21:32.739 18109 18109 E NOTIFICATION: ")
+
+(dlog-create-tabulated-list-entry 1 "12-05 09:21:32.509   870   870 D RESOURCED: proc-noti.c: safe_write_int(178) > [safe_write_int,178] Response is not needed")
+(boundp 'dlog-hidden-tags)
 
 (defun dlog-tabulated-list-print-entry (id entry)
   (let* ((time (dlog-list-entry-get-time entry))
@@ -94,16 +134,20 @@
 	  (string< end time)))))
 
 (defun dlog-list-entry-get-time (entry)
-  (dlog-list-entry-get-n entry 0))
+  (dlog-list-entry-get-sym entry 'time))
 
 (defun dlog-list-entry-get-date (entry)
-  (dlog-list-entry-get-n entry 1))
+  (dlog-list-entry-get-sym entry 'date))
 
 (defun dlog-list-entry-get-tag (entry)
-  (dlog-list-entry-get-n entry 2))
+  (dlog-list-entry-get-sym entry 'tag))
 
 (defun dlog-list-entry-get-msg (entry)
   (mapconcat 'identity (cdr (cdr (cdr entry))) " "))
+
+(defun dlog-list-entry-get-sym (entry sym)
+  (let ((n (second (assoc sym dlog-line-format-alist))))
+    (dlog-list-entry-get-n entry n)))
 
 (defun dlog-list-entry-get-n (entry n)
   (cond ((vectorp entry)
@@ -135,13 +179,16 @@
   (setq dlog-hidden-tags (remove tag dlog-hidden-tags))
   (dlog-refresh))
 
+(defalias 'dlog-show-tag 'dlog-unhide-tag)
+
 (defun dlog-get-all-tags ()
-  (delete-dups 
-   (mapcar
-    #'(lambda (entry)
-	(dlog-list-entry-sanitize-tag 
-	 (dlog-list-entry-get-tag (second entry))))
-    tabulated-list-entries)))
+  (remove-if 'null
+   (delete-dups 
+    (mapcar
+     #'(lambda (entry)
+	 (dlog-list-entry-sanitize-tag 
+	  (dlog-list-entry-get-tag (second entry))))
+     tabulated-list-entries))))
 
 (defun dlog-get-hidden-tags ()
   dlog-hidden-tags)
@@ -159,6 +206,11 @@
 (defun dlog-show-all ()
   (interactive)
   (setq dlog-hidden-tags nil)
+  (dlog-refresh))
+
+(defun dlog-hide-all ()
+  (interactive)
+  (setq dlog-hidden-tags (dlog-get-all-tags))
   (dlog-refresh))
 
 (defun dlog-refresh ()
@@ -181,11 +233,24 @@
       (setq dlog-tag-face-idx (1+ dlog-tag-face-idx))
       (if (= dlog-tag-face-idx (length dlog-tag-faces))
 	  (setq dlog-tag-face-idx 0))
-      (highlight-lines-matching-regexp tag curface)
+      (highlight-lines-matching-regexp 
+       (dlog-hilight-tag-regexp tag)
+       curface)
       (setq dlog-highlighted-tags 
 	    (append (list tag)
 		    dlog-highlighted-tags))
       t)))
+
+(defun dlog-hilight-tag-regexp (tag)
+  ;; (mapconcat 'identity
+  ;; 	     (list (mapconcat 'identity 
+  ;; 			      (loop for i from 0 to 
+  ;; 				    (1- (second (assoc 'tag dlog-line-format-alist)))
+  ;; 				    collect ".+[ ]+")
+  ;; 			      "")
+  ;; 		   tag)
+  ;; 	     "")
+  (concat "[0-9]+[ ]+[0-9]+[ ]+[A-Za-z][ ]+" tag "[ ]+"))
 
 (defun dlog-unhilight-tag (&optional tag)
   (interactive)
