@@ -1677,7 +1677,7 @@ cflags for it in a format ready for `ac-clang-cflags'."
 		"/include/"))))))))
 
 (defun tizen-project-new (prjdir &optional enable-clang enable-ede)
-  (interactive)
+  (interactive "FProject directory: ")
   (let ((prjname (file-name-nondirectory prjdir)))
     (tizen-gbs-build-new-profile prjdir)
 

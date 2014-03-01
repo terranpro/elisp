@@ -488,3 +488,140 @@ BEG and END default to the buffer boundaries."
 		     ".dir-locals.el")))
        
        ))))
+
+
+
+;;; stuff for gerrit using REST api
+(defvar jira-rest-auth-info nil
+  "The auth header used to authenticate each request. Please
+see URL https://developer.atlassian.com/display/JIRADEV/JIRA+REST+API+Example+-+Basic+AuthenticationConsists for more information.")
+
+(defun load-auth-info ()
+  (let ((jira-pwd-file (expand-file-name "~/.jira-auth-info.el")))
+    (if (file-regular-p jira-pwd-file)
+        (load jira-pwd-file))))
+
+(defun jira-rest-login ()
+  (let ((enc (base64-encode-string
+	      (concat "br.fransioli" ":" "yU0wwPuCTuAs" ;"elite100"
+		      ))))
+    (concat "Basic " enc)))
+
+
+(defvar jira-rest-endpoint "http://slp-info.sec.samsung.net/gerrit/")
+(setq jira-rest-endpoint "http://slp-info.sec.samsung.net/gerrit/a")
+
+(defun jira-rest-api-interact (method data &optional path callback)
+  "Interact with the API using method 'method' and data 'data'.
+Optional arg 'path' may be provided to specify another location further
+down the URL structure to send the request."
+  (let ((url-request-method method)
+	(url-request-extra-headers
+	 `(("Content-Type" . "application/json")
+;	   ("Authorization" . ,(jira-rest-login))
+	   ;("Cookie" . "GerritAccount=aPGofeV863zIiSH-OQ8vJM3yCaKapmR0; saveid=; saveSummerTime=N; saveFullScreen=N; saveLanguage=en_US.EUC-KR; saveTimezone=GMT+9; doc-sidebar=300px")
+	   ("Cookie" . "GerritAccount=aPGofeV863zIiSH-OQ8vJM3yCaKapmR0")
+	   ))
+	(url-request-data data)
+	(target (concat jira-rest-endpoint path)))
+    (message "extra headers: %s\ntarget %s" url-request-extra-headers target)
+    (with-current-buffer (current-buffer)
+      (url-retrieve target 'my-switch-to-url-buffer `(,callback)))))
+
+(defun my-switch-to-url-buffer (status cb)
+  "Callback function to capture the contents of the response."
+  (with-current-buffer (current-buffer)
+    ;; Don't try to read the buffer if the method was DELETE,
+    ;; since we won't get a response back.
+    (let ((data (buffer-substring (search-forward-regexp 
+				  (concat "^"
+					  (regexp-quote ")]}'")
+					  "$"))
+				 (point-max)))
+	 resp)
+     
+      (setq resp (json-read-from-string data))
+      (kill-buffer (current-buffer))
+      (funcall cb resp))))
+
+
+(defun gerrit-rest-sync (method data &optional path callback)
+  "Interact with the API using method 'method' and data 'data'.
+Optional arg 'path' may be provided to specify another location further
+down the URL structure to send the request."
+  (let ((url-request-method method)
+	(url-request-extra-headers
+	 `(("Content-Type" . "application/json")
+	   ("Authorization" . , (jira-rest-login))
+;;	   ("Cookie" . "GerritAccount=aPGofeV863zIiSH-OQ8vJM3yCaKapmR0")
+;;	   ("Cookie" . "GerritAccount=aPGoffp5EZ8zYNoAT15rpPCnRkemU4D.; saveid=; saveSummerTime=N; saveFullScreen=N; saveLanguage=en_US.EUC-KR; saveTimezone=GMT+9; doc-sidebar=300px")
+	   ))
+	(url-request-data data)
+	(target (concat jira-rest-endpoint path)))
+    (message "extra headers: %s\ntarget %s" url-request-extra-headers target)
+    
+;    (url-retrieve-synchronously target)
+    (with-current-buffer (url-retrieve-synchronously target)
+      (let ((resp (json-read-from-string (progn 
+				      (goto-char (point-min))
+				      (buffer-substring (search-forward-regexp 
+							 (concat "^"
+								 (regexp-quote ")]}'")
+								 "$"))
+							(point-max))))))
+	;(kill-buffer (current-buffer))
+	resp))))
+
+(mapcar #'(lambda (reviewer)
+	    (list (cdr-safe (assoc 'name reviewer))
+		  (cdr-safe (assoc 'Code-Review (cdr-safe (assoc 'approvals reviewer))))
+		  (cdr-safe (assoc 'Verified (cdr-safe (assoc 'approvals reviewer))))))
+	(gerrit-rest-sync "GET" nil (concat "/changes"
+					    "/magnolia%2Fframework%2Fuifw%2Fvoice%2Flibttssmt~devel%2Fextapps%2Fmaster~I06b753cf5614b90f2de4322d89bef0b14e6b63bc/reviewers")))
+
+
+(gerrit-rest-sync "GET" nil (concat "/changes"
+					    "/magnolia%2Fframework%2Fuifw%2Fvoice%2Flibttssmt~devel%2Fextapps%2Fmaster~I06b753cf5614b90f2de4322d89bef0b14e6b63bc/reviewers"))
+
+(jira-rest-api-interact 
+ "GET" 
+ nil
+ (concat "/changes"
+	 "/magnolia%2Fframework%2Fuifw%2Fvoice%2Flibttssmt~devel%2Fextapps%2Fmaster~I06b753cf5614b90f2de4322d89bef0b14e6b63bc/reviewers")
+ (lambda (resp)
+   (pp 
+    (mapcar #'(lambda (rev)
+		(cdr (assoc 'name rev)))
+	    resp))))
+
+
+(url-hexify-string "magnolia/framework/uifw/voice/libttssmt~devel/extapps/master")
+
+(mm-en "magnolia/framework/uifw/voice/libttssmt")
+(jira-rest-api-interact "GET" "?q=status:open+is:watched&n=2" (concat "/changes/"))
+
+(jira-rest-api-interact "GET" nil (concat "/groups/3050a366ed1783c89254f3e7833bdf66026c25e4/detail"))
+
+
+(let ((inhibit-read-only t))
+  (goto-char (magit-section-beginning (magit-find-section '(gerrit-reviews) magit-top-section)))
+       (forward-line)
+       (magit-with-section "Reviewer" 'reviewer (insert "Suck It Dude")))
+
+(split-string "-pthread -I/usr/include/glibmm-2.4 -I/usr/lib/i386-linux-gnu/glibmm-2.4/include -I/usr/include/sigc++-2.0 -I/usr/lib/i386-linux-gnu/sigc++-2.0/include -I/usr/include/glib-2.0 -I/usr/lib/i386-linux-gnu/glib-2.0/include -I/usr/include/giomm-2.4 -I/usr/lib/i386-linux-gnu/giomm-2.4/include  -lgiomm-2.4 -lgio-2.0 -lglibmm-2.4 -lgobject-2.0 -lsigc-2.0 -lglib-2.0")
+
+(split-string "-lgiomm-2.4 -lgio-2.0 -lglibmm-2.4 -lgobject-2.0 -lsigc-2.0 -lglib-2.0  ")
+
+
+;; Stackoverflow:
+;; http://stackoverflow.com/questions/21127420/how-to-copy-several-lines-from-a-buffer-to-another-in-emacs
+(defun mc/add-cursor-at-line (&optional linenum)
+  (interactive)
+  (unless linenum
+    (setq linenum (read-number "Line number: ")))
+  (save-excursion 
+    (goto-char (point-min))
+    (forward-line (1- linenum))
+    (mc/create-fake-cursor-at-point))
+  (mc/maybe-multiple-cursors-mode))
+
