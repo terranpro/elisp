@@ -29,8 +29,8 @@
 (add-to-list 'load-path brian-clangcomplete-async-dir)
 (require 'auto-complete-clang-async)
 
-(setq max-specpdl-size 10000)
-(setq max-lisp-eval-depth 2000)
+(setq max-specpdl-size 20000)
+(setq max-lisp-eval-depth 3000)
 
 (defvar-local brian-clang-cflags-use-global t
   "Specify on buffer load/reload whether to append the global

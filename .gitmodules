@@ -68,3 +68,6 @@
 [submodule "foreign/magit-gerrit"]
 	path = foreign/magit-gerrit
 	url = https://github.com/terranpro/magit-gerrit.git
+[submodule "foreign/emacs-google-this"]
+	path = foreign/emacs-google-this
+	url = https://github.com/Bruce-Connor/emacs-google-this.git

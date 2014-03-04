@@ -211,6 +211,9 @@
 ;; Turn off that stupid startup screen
 (setq inhibit-startup-screen t)
 
+;; tramp method to avoid stupid y/n question
+(setq tramp-default-method "scp")
+
 ;; Destroy emacs server gracefully
 (defun shutdown-emacs-server () 
   (interactive)
@@ -274,6 +277,11 @@
 	 t)
 	(t
 	 nil)))
+
+;; google this
+(add-to-list 'load-path "~/elisp/foreign/emacs-google-this")
+(require 'google-this)
+(global-set-key (kbd "C-x g") 'google-this-mode-submap)
 
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)
