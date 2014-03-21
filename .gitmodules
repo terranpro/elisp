@@ -71,3 +71,6 @@
 [submodule "foreign/emacs-google-this"]
 	path = foreign/emacs-google-this
 	url = https://github.com/Bruce-Connor/emacs-google-this.git
+[submodule "foreign/column-enforce-mode"]
+	path = foreign/column-enforce-mode
+	url = https://github.com/jordonbiondo/column-enforce-mode.git
