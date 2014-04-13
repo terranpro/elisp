@@ -74,3 +74,6 @@
 [submodule "foreign/column-enforce-mode"]
 	path = foreign/column-enforce-mode
 	url = https://github.com/jordonbiondo/column-enforce-mode.git
+[submodule "foreign/rtags"]
+	path = foreign/rtags
+	url = https://github.com/terranpro/rtags.git

@@ -207,7 +207,7 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
     (setq ac-clang-cflags ccmds-cflags))
   (ac-clang-update-cmdlineargs))
 
-(defun ac-cc-mode-setup ()
+(defun my-ac-cc-mode-setup ()
   (let ((exec-path (add-to-list 'exec-path brian-clangcomplete-async-dir)))
     (setq ac-clang-complete-executable (executable-find "clang-complete")))
 
@@ -250,7 +250,9 @@ based subprojects (e.g. Tizen + GBS rootstrap image dir.")
   (brian-ac-clang-cflags-initialize))
 
 (defun my-ac-clang-config ()
-  (add-hook 'c-mode-common-hook 'ac-clang-cc-mode-setup t))
+  (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup t))
+
+(my-ac-clang-config)
 
 (global-set-key (kbd "M-.") 
 		#'(lambda () (interactive)
