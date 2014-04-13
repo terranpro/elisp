@@ -40,7 +40,7 @@
 (setq ac-use-quick-help t)
 (setq ac-quick-help-delay 0.5)
 (setq ac-auto-show-menu 0.25)
-(setq ac-menu-height 30)
+(setq ac-menu-height 10)
 (setq ac-fuzzy-enable t)
 
 ;; Key Bindings
