@@ -283,5 +283,24 @@
 (require 'google-this)
 (global-set-key (kbd "C-x g") 'google-this-mode-submap)
 
+;; 
+;; Process Environment is so damn important...
+;; Let's try just setting it here
+(setq process-environment
+ (append (list 
+	  (concat "LD_LIBRARY_PATH="
+		  (mapconcat
+		   'identity 
+		   (delete-dups 
+		    (append
+		     (list (expand-file-name "~/build/lib")
+			   "/usr/local/lib")
+		     (split-string
+		      (or (getenv "LD_LIBRARY_PATH") "") ":" t)))
+		   ":")))
+	 (remove-if #'(lambda (item)
+			(string-match "^LD_LIBRARY_PATH=" item))
+		    process-environment)))
+
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)

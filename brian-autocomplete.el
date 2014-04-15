@@ -42,6 +42,7 @@
 (setq ac-auto-show-menu 0.25)
 (setq ac-menu-height 10)
 (setq ac-fuzzy-enable t)
+(setq ac-candidate-limit 500)
 
 ;; Key Bindings
 (define-key ac-mode-map [(control tab)] 'auto-complete)

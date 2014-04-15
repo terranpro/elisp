@@ -37,24 +37,6 @@
   cflags to the `ac-clang-cflags' variable for use in code
   completion.")
 
-;; Process Environment is so damn important...
-;; Let's try just setting it here
-(setq process-environment
- (append (list 
-	  (concat "LD_LIBRARY_PATH="
-		  (mapconcat
-		   'identity 
-		   (delete-dups 
-		    (append
-		     (list (expand-file-name "~/build/lib")
-			   "/usr/local/lib")
-		     (split-string
-		      (or (getenv "LD_LIBRARY_PATH") "") ":" t)))
-		   ":")))
-	 (remove-if #'(lambda (item)
-			(string-match "^LD_LIBRARY_PATH=" item))
-		    process-environment)))
-
 (defun brian-clangcomplete-cflags-make (&optional compiler)
   (interactive)
   (unless compiler 
