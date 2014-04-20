@@ -10,13 +10,13 @@
 (rtags-enable-standard-keybindings c-mode-base-map)
 (rtags-enable-standard-keybindings)
 
-(setq rtags-rc-log-enable t)
+(setq rtags-rc-log-enabled t)
 
 (setq rtags-completions-enabled t)
 
 (defun rtags-ac-cc-mode-setup ()
-  ;; (setq ac-sources '(ac-source-rtags))
-  (add-to-list 'ac-sources 'ac-source-rtags)
+  (setq ac-sources '(ac-source-rtags))
+  ;;(add-to-list 'ac-sources 'ac-source-rtags)
   )
 
 (add-hook 'c-mode-common-hook 'rtags-ac-cc-mode-setup t)

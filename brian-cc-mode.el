@@ -188,6 +188,9 @@ opening bracket position, OB-POS."
       (append '(("\\.h\\'" . c++-mode))
 	      auto-mode-alist))
 
+;; Indent with an extra line and in block format
+(setq comment-style 'extra-line)
+
 (defun brian-c-mode-common-hook ()
   (setq c-hungry-delete-key t)
   (c-toggle-hungry-state 1)
