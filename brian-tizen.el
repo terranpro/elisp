@@ -1783,7 +1783,7 @@ cflags for it in a format ready for `ac-clang-cflags'."
 		       (directory-file-name (concat brdir)))))
 	(while (search-forward-regexp "command\":" (point-max) t)
 	  (if (search-forward-regexp "-I" (point-max) t)
-	      (replace-match (concat "-I" brinc-dir "/usr/include"
+	      (replace-match (concat " -I" brinc-dir "/usr/include"
 				     " " "-I")))))))
 
 (defun compile-commands-replace-includes (brdir incdir)
@@ -1838,6 +1838,14 @@ cflags for it in a format ready for `ac-clang-cflags'."
       (setq buildroot-dir (ido-read-directory-name 
 			   "GBS Root (ex: .../local/armv7l.0/): "
 			   "~/tizen/builds/"))))
+
+  (when (null gbsroot-cc-file)
+    (let* ((builddir (expand-file-name 
+		      (concat buildroot-dir
+			      "/home/abuild/rpmbuild/BUILD")))
+	   (dirs (directory-files builddir)))
+     (setq gbsroot-cc-file (locate-file "compile_commands.json" dirs))))
+
   (unless gbsroot-cc-file
     (setq gbsroot-cc-file
 	  (ido-read-file-name "Compile Commands JSON File: " 
