@@ -1092,7 +1092,9 @@ Directory:
 	  #'(lambda ()
 	      (when (tizen-sdb-is-active)
 		(tizen-sdb-root))
-	      (tizen-fix-broken-strings)))
+	      ;; TODO: temp disable this because of jokerz
+	      ;(tizen-fix-broken-strings)
+))
 
 (defun tizen-remote-install-mode-worker (Opts builtopts)
   (with-slots ((opts elems)) Opts
@@ -1861,12 +1863,12 @@ cflags for it in a format ready for `ac-clang-cflags'."
 
   (unless nuke-keywords
     (setq nuke-keywords compile-commands-nuke-keywords-arm))
-  (pop-to-buffer
-   (compile-commands-deroot gbsroot-cc-file
-			    buildroot-dir
-			    gitprj-dir
-			    nuke-keywords))
-  (write-file (expand-file-name (concat gitprj-dir "/compile_commands.json")) t))
+  (with-current-buffer
+      (compile-commands-deroot gbsroot-cc-file
+			       buildroot-dir
+			       gitprj-dir
+			       nuke-keywords)
+    (write-file (expand-file-name (concat gitprj-dir "/compile_commands.json")))))
 
 ;;(tizen-gbs-build-update-compile-commands)
 
