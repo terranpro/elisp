@@ -58,7 +58,7 @@
 ;;(folder-dirs-recursive "/home/terranpro/tizen/git/libwakeup/src")
 
 (defvar tizen-gbs-chroot
- "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0")
+ "/home/terranpro/tizen/SURC/build/local/BUILD-ROOTS/scratch.armv7l.0")
 (defvar tizen-gbs-conf (expand-file-name  "~/.gbs.conf"))
 (defvar tizen-gerrit-server-address "165.213.149.219")
 (defvar tizen-gerrit-server-port "29418")
@@ -1161,7 +1161,10 @@ Directory:
   (let* ((sdbcmd (concat 
 		  tizen-sdb-executable
 		  " shell "
+		  " ' "
+		  " echo '_' > /proc/self/attr/current; "
 		  cmd
+		  " ' "
 		  (if foreground "" " &"))))
     
     (if tostring 
@@ -1553,12 +1556,12 @@ Directory:
 	  (mapcar #'(lambda (suffix) 
 		      (concat (file-name-as-directory brdir) suffix))
 		  (split-string
-		   "/local/scratch.armv7l.0/usr/include/c++/4.5.3
- /local/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi
- /local/scratch.armv7l.0/usr/include/c++/4.5.3/backward
- /local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include
- /local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed
- /local/scratch.armv7l.0/usr/include"))
+		   "/local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3
+ /local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi
+ /local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3/backward
+ /local/BUILD-ROOTS/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include
+ /local/BUILD-ROOTS/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed
+ /local/BUILD-ROOTS/scratch.armv7l.0/usr/include"))
 	  (split-string
 	   (tizen-system-include-paths
 	    (concat (file-name-as-directory prjdir)
@@ -1642,7 +1645,7 @@ cflags for it in a format ready for `ac-clang-cflags'."
     "~/tizen/git/libwakeup/compile_commands.json"
     "wu_independent_verify.c")
    "/usr/"
-   "/home/terranpro/tizen/SURC/build/local/scratch.armv7l.0/usr/"))
+   "/home/terranpro/tizen/SURC/build/local/BUILD-ROOTS/scratch.armv7l.0/usr/"))
 
 ;; (tizen-project-ac-clang-cflags-from-ccmds 
 ;;  "~/tizen/git/voice-talk2/compile_commands.json"
@@ -1660,12 +1663,12 @@ cflags for it in a format ready for `ac-clang-cflags'."
        #'(lambda (dir)
 	   (concat tizen-gbs-current-profile-br dir))
        
-       '("/local/scratch.armv7l.0/usr/include/c++/4.5.3"
-	 "/local/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi"
-	 "/local/scratch.armv7l.0/usr/include/c++/4.5.3/backward"
-	 "/local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include" 
-	 "/local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed" 
-	 "/local/scratch.armv7l.0/usr/include"))
+       '("/local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3"
+	 "/local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi"
+	 "/local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3/backward"
+	 "/local/BUILD-ROOTS/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include" 
+	 "/local/BUILD-ROOTS/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed" 
+	 "/local/BUILD-ROOTS/scratch.armv7l.0/usr/include"))
       (split-string
        (tizen-system-include-paths
 	(concat ac-clang-project-directory
@@ -1712,12 +1715,12 @@ cflags for it in a format ready for `ac-clang-cflags'."
 				#'(lambda (dir)
 				    (concat tizen-gbs-current-profile-br dir))
 				
-				'("/local/scratch.armv7l.0/usr/include/c++/4.5.3"
-				  "/local/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi"
-				  "/local/scratch.armv7l.0/usr/include/c++/4.5.3/backward"
-				  "/local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include" 
-				  "/local/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed" 
-				  "/local/scratch.armv7l.0/usr/include"))
+				'("/local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3"
+				  "/local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3/armv7l-tizen-linux-gnueabi"
+				  "/local/BUILD-ROOTS/scratch.armv7l.0/usr/include/c++/4.5.3/backward"
+				  "/local/BUILD-ROOTS/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include" 
+				  "/local/BUILD-ROOTS/scratch.armv7l.0/usr/lib/gcc/armv7l-tizen-linux-gnueabi/4.5.3/include-fixed" 
+				  "/local/BUILD-ROOTS/scratch.armv7l.0/usr/include"))
 			       (split-string
 				(tizen-system-include-paths
 				 (concat ac-clang-project-directory
@@ -1836,7 +1839,7 @@ cflags for it in a format ready for `ac-clang-cflags'."
 			      (string-match "\\(.*local/\\)" 
 					    tizen-gbs-built-rpm-directory)
 			      (concat (match-string 1 tizen-gbs-built-rpm-directory) 
-				      "scratch.armv7l.0")))
+				      "BUILD-ROOTS/scratch.armv7l.0")))
       (setq buildroot-dir (ido-read-directory-name 
 			   "GBS Root (ex: .../local/armv7l.0/): "
 			   "~/tizen/builds/"))))
@@ -1863,31 +1866,35 @@ cflags for it in a format ready for `ac-clang-cflags'."
 
   (unless nuke-keywords
     (setq nuke-keywords compile-commands-nuke-keywords-arm))
+
   (with-current-buffer
       (compile-commands-deroot gbsroot-cc-file
 			       buildroot-dir
 			       gitprj-dir
 			       nuke-keywords)
-    (write-file (expand-file-name (concat gitprj-dir "/compile_commands.json")))))
+    (let ((outfile (expand-file-name (concat gitprj-dir "/compile_commands.json"))))
+      (if (file-exists-p outfile)
+	  (delete-file outfile))
+      (write-file outfile))))
 
 ;;(tizen-gbs-build-update-compile-commands)
 
 
 ;; ;; libwakeup
 ;; (compile-commands-deroot "~/tizen/git/libwakeup/compile_commands.json.GBSROOT"
-;; 			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
+;; 			 "~/tizen/builds/eur-open-mk1/local/BUILD-ROOTS/scratch.armv7l.0"
 ;; 			 "~/tizen/git/libwakeup/"
 ;; 			 compile-commands-nuke-keywords-arm)
 
 ;; ;; svoice
 ;; (compile-commands-deroot "~/tizen/git/voice-talk2/compile_commands.json.GBSROOT"
-;; 			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
+;; 			 "~/tizen/builds/eur-open-mk1/local/BUILD-ROOTS/scratch.armv7l.0"
 ;; 			 "~/tizen/git/voice-talk2/"
 ;; 			 compile-commands-nuke-keywords-arm)
 
 ;; ;; libsttnuance
-;; (compile-commands-deroot "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0/home/abuild/rpmbuild/BUILD/libsttnuance-0.0.11/compile_commands.json"
-;; 			 "~/tizen/builds/eur-open-mk1/local/scratch.armv7l.0"
+;; (compile-commands-deroot "~/tizen/builds/eur-open-mk1/local/BUILD-ROOTS/scratch.armv7l.0/home/abuild/rpmbuild/BUILD/libsttnuance-0.0.11/compile_commands.json"
+;; 			 "~/tizen/builds/eur-open-mk1/local/BUILD-ROOTS/scratch.armv7l.0"
 ;; 			 "~/tizen/git/libsttnuance/"
 ;; 			 compile-commands-nuke-keywords-arm)
 
