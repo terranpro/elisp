@@ -302,5 +302,8 @@
 			(string-match "^LD_LIBRARY_PATH=" item))
 		    process-environment)))
 
+;; auto revert buffers (useful for magit branch changes/updates)
+(global-auto-revert-mode)
+
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)
