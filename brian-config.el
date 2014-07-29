@@ -305,5 +305,8 @@
 ;; auto revert buffers (useful for magit branch changes/updates)
 (global-auto-revert-mode)
 
+;; ediff buffers in one frame - no new frame
+(setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)
