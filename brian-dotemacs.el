@@ -8,7 +8,7 @@
 (require 'brian-cc-mode)
 (require 'brian-paredit)
 (require 'brian-magit)
-(require 'brian-autocomplete)
+;(require 'brian-autocomplete)
 ;(require 'brian-ac-clang)
 (require 'brian-rtags)
 ;(require 'brian-clang-faces)

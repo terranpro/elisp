@@ -41,8 +41,11 @@
 (setq ac-quick-help-delay 0.5)
 (setq ac-auto-show-menu 0.25)
 (setq ac-menu-height 10)
+;(setq ac-fuzzy-enable nil)
+;(setq ac-use-fuzzy nil)
 (setq ac-fuzzy-enable t)
-(setq ac-candidate-limit 500)
+(setq ac-use-fuzzy t)
+(setq ac-candidate-limit 10000)
 
 ;; Key Bindings
 (define-key ac-mode-map [(control tab)] 'auto-complete)

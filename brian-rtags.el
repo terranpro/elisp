@@ -3,7 +3,6 @@
 (add-to-list 'load-path (concat brian-rtags-root "src/"))
 
 (require 'rtags)
-(require 'rtags-ac)
 
 (setq rtags-path (concat brian-rtags-root "build/"))
 
@@ -19,10 +18,11 @@
   ;;(add-to-list 'ac-sources 'ac-source-rtags)
   )
 
-(add-hook 'c-mode-common-hook 'rtags-ac-cc-mode-setup t)
-
 (provide 'brian-rtags)
 
+;; (require 'brian-company-mode)
 
-
-
+(require 'brian-autocomplete)
+(require 'auto-complete)
+(require 'rtags-ac)
+(add-hook 'c-mode-common-hook 'rtags-ac-cc-mode-setup t)
