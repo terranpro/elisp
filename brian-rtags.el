@@ -18,6 +18,14 @@
   ;;(add-to-list 'ac-sources 'ac-source-rtags)
   )
 
+(defun my-rtags-start-process-maybe ()
+  (let ((psout (shell-command-to-string "ps -ef | grep rdm | grep -v grep")))
+    (when (and (stringp psout)
+	       (= (length psout) 0))
+      (rtags-start-process-maybe))))
+
+(my-rtags-start-process-maybe)
+
 (provide 'brian-rtags)
 
 ;; (require 'brian-company-mode)

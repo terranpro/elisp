@@ -2,7 +2,7 @@ set mode "c++-mode"
 
 set priority 120
 
-set comment_start "/*"
+set comment_start "/**"
 set comment_end " */"
 set comment_prefix " *"
 set comment_extra "//"
@@ -10,7 +10,7 @@ set comment_extra "//"
 set SAMSUNGAUTHOR "Brian Fransioli <br.fransioli@samsung.com>"
 
 set SAMSUNGCOPYRIGHT "
-Copyright (c) 2000 - 2014 Samsung Electronics Co., Ltd All Rights Reserved
+Copyright (c) 2000 - 2015 Samsung Electronics Co., Ltd All Rights Reserved
 
 PROPRIETARY/CONFIDENTIAL
 This software is the confidential and proprietary information of SAMSUNG
@@ -77,6 +77,15 @@ class {{?NAME}} {{#PARENTS}}{{#FIRST}}: {{/FIRST}}public {{NAME}}{{/PARENTS}}
 bind ""
 
 template filecomment :file :time
+sectiondictionary "A"
+----
+{{comment_start}}
+{{SAMSUNGCOPYRIGHT:brian-srecode-projname-replace-and-comment}}
+{{comment_end}}
+
+----
+
+template fileauthorcomment :file :time
 sectiondictionary "A"
 ----
 {{comment_start}}

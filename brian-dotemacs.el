@@ -24,6 +24,7 @@
 ;;(require 'brian-ideone)
 ;;(require 'brian-themes)
 (require 'brian-wgrep)
+(require 'brian-slime)
 
 ;;; tramp 
 (setq tramp-default-method "scpc")

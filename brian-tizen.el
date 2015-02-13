@@ -627,34 +627,119 @@ and translates it to a project directory based on PRJDIR. "
   (tizen-gbs-build-mode-build-keymap)
   (tizen-gbs-build-mode-cb))
 
+(defun tizen-gbs-chomp-whitespace (str)
+  (replace-regexp-in-string (rx (or (: bos (any " \t\n")))) "" str))
+
+(defun tizen-gbs-arg-split-string (str)
+  (loop while (and (> (length str) 0)
+		   (string-match (rx 
+				  (group (or (group "'" (1+ (not (any "'"))) "'")
+					     (group (0+ whitespace) (0+ (not (any whitespace "'")))))))
+				 str))
+	collect (tizen-gbs-chomp-whitespace (match-string 1 str))
+	do
+	(setq str (if (zerop (match-end 0))
+		      nil
+		    (substring str (match-end 0))))))
+
+(defun tizen-gbs-arg-split-list (arglist)
+  (loop for str in arglist
+	nconc (tizen-gbs-arg-split-string str)))
+
+;; (tizen-gbs-arg-split-string "--incremental cool")
+
+;; (tizen-gbs-arg-split-list '("build" "--noinit" "--keep-packs" "--include-all" "--incremental" "--profile svoice-tizenw" "--arch armv7l" "--with svoice_test_enable" "."))
+
+
+(mapcar #'shell-quote-argument (tizen-gbs-arg-split-list '("build" "--noinit" "--keep-packs" "--include-all" "--incremental" "--profile svoice-tizenw" "--arch armv7l" "--define '_svoice_test_enable 1'" ".")))
+
 (defun tizen-gbs-build-worker (opts args)
   (interactive)
+  (pp args)
   (let ((auto-install (IsActive (SearchName opts "PushDevice+Install")))
 	(parent-buffer (current-buffer))
-	(cmd (concat "gbs build "
-		     (mapconcat 'identity
-				(remove-if 
+	(prjdir (tizen-gbs-find-prj-dir default-directory))
+	(nonempty-args (remove-if 
 				 #'(lambda (str)
 				     (or (string= str "")
 					 (string= str " ")))
-				 args)
-				" "))))
+				 args))
+	;; (cmd (concat "gbs build "
+	;; 	     (mapconcat 'identity
+	;; 			(remove-if 
+	;; 			 #'(lambda (str)
+	;; 			     (or (string= str "")
+	;; 				 (string= str " ")))
+	;; 			 args)
+	;; 			" ")))
+
+	)
+
     
+    (pp nonempty-args)
+    (message (concat
+		   "gbs build "
+		   (mapconcat 'identity
+			      (remove-if 
+			       #'(lambda (str)
+				   (or (string= str "")
+				       (string= str " ")))
+			       (tizen-gbs-arg-split-list nonempty-args))
+			      " ")
+		   (mapconcat 'identity
+			      (when (IsActive (SearchName opts "NoDebugPackages"))
+				'("--define" "__debug_install_post %{nil}"
+				  "--define" "debug_package %{nil}"))
+			      " ")
+		   " "
+		   prjdir))
     (let* ((process-environment
 	    ;; TODO: What's better than this double cons?! this can't be ideal
 	    (cons "http_proxy=" 
-		  (cons "https_proxy=" 
-			process-environment)))
+	    	  (cons "https_proxy=" 
+	    		process-environment)))
 	   (proc-buf-name (generate-new-buffer-name 
 			   "Tizen GBS Build"))
-	   (proc (apply 'start-process
-			"gbs-build" 
-			proc-buf-name
-			"gbs"
-			(cdr (split-string cmd " " t)))))
-      
-      (message cmd)
+	   ;; (proc (apply 'start-process
+	   ;; 		"gbs-build" 
+	   ;; 		proc-buf-name
+	   ;; 		"gbs"
+	   ;; 		(concatenate
+	   ;; 		 'list
+	   ;; 		 (list "build")
+	   ;; 		 (remove-if 
+	   ;; 			 #'(lambda (str)
+	   ;; 			     (or (string= str "")
+	   ;; 				 (string= str " ")))
+	   ;; 			 (tizen-gbs-arg-split-list nonempty-args))
+	   ;; 		 (when (IsActive (SearchName opts "NoDebugPackages"))
+	   ;; 		   '("--define" "__debug_install_post %{nil}"
+	   ;; 		     "--define" "debug_package %{nil}"))
+	   ;; 		 (list "."))))
 
+	  
+ 	   (proc (start-process-shell-command
+		  "gbs-build" 
+		  proc-buf-name
+		  (concat
+		   "gbs build "
+		   (mapconcat 'identity
+			      (remove-if 
+			       #'(lambda (str)
+				   (or (string= str "")
+				       (string= str " ")))
+			       (tizen-gbs-arg-split-list nonempty-args))
+			      " ")
+		   (mapconcat 'identity
+			      (when (IsActive (SearchName opts "NoDebugPackages"))
+				'("--define" "__debug_install_post %{nil}"
+				  "--define" "debug_package %{nil}"))
+			      " ")
+		   " "
+		   prjdir)))
+	   
+	   )
+      
       ;;(set-process-filter proc 'ansi-color-for-comint-mode-on)      
       (set-process-filter proc
       			  #'(lambda (proc output)
@@ -664,13 +749,13 @@ and translates it to a project directory based on PRJDIR. "
 					(gbswin (get-buffer-window 
 						 (process-buffer proc)
 						 t)))
-				     (goto-char (point-max))
-				     (insert output)
-				     (ansi-color-apply-on-region
-				      lastpt (point-max))
-				     (when gbswin
-				       (with-selected-window gbswin
-					 (goto-char (point-max)))))))))
+				    (goto-char (point-max))
+				    (insert output)
+				    (ansi-color-apply-on-region
+				     lastpt (point-max))
+				    (when gbswin
+				      (with-selected-window gbswin
+					(goto-char (point-max)))))))))
 
       (set-process-sentinel proc (function tizen-gbs-build-proc-sentinel))
 
@@ -805,12 +890,12 @@ When all options are selected, press ENTER to launch gbs build.")
 		   (SwitchArg "--profile"
 			      :key "P"
 			      :desc "Specify the GBS profile to be used"
-			      :arg "latest"
+			      :arg "svoice-tizenw"
 			      :onactivate #'(lambda (opt)
 					      (ido-completing-read 
 					       "Profile: "
 					       (tizen-gbs-conf-get-profiles)
-					       "latest")))
+					       "svoice-tizenw")))
 		   
 		   (SwitchArg "--arch"
 			      :key "A"
@@ -822,11 +907,31 @@ When all options are selected, press ENTER to launch gbs build.")
 					       (list "armv7l" "i586")
 					       "armv7l")))
 
+
+		   (SwitchArg "--define"
+			      :key "T"
+			      :desc "Build SVoice Test Packages"
+			      :arg "\"_svoice_test_enable 1\""
+			      :onactivate #'(lambda (opt)
+					      (ido-completing-read
+					       "Flags: "
+					       (list "\"_svoice_test_enable 1\"")
+					       "\"_svoice_test_enable 1\"")))
+		   
 		   NewLineOption
 
+		   (Switch "NoDebugPackages"
+			   :key "S"
+			   :desc "Don't Strip and Build Separate Debug Packages"
+			   :auto nil
+			   :active nil
+			   :onactivate #'(lambda (opt)))
+
+		   NewLineOption
+		   
 		   (Switch "PushDevice+Install"
 			   :key "!"
-			   :active t
+			   :active nil
 			   :auto nil
 			   :desc "Use RPMPushMode to Push+Install to Device"
 			   :onactivate #'(lambda (opt)
@@ -969,10 +1074,11 @@ Directory:
 		       :elems 
 		       options)))))
 
+;; TODO: temp testing
 (defun tizen-change-booting-mode ()
   (shell-command (concat tizen-sdb-executable 
 			 " shell "
-			 "change-booting-mode.sh --update")))
+			 "/bin/mount -o remount,rw /")))
 
 (defun tizen-fix-broken-strings ()
   (tizen-shell-cmd

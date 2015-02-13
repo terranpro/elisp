@@ -5,23 +5,26 @@
 ;; TODO: investigate
 ;; Had to add an extra two for one ubuntu linux machine that had three
 ;; split sizes of 80 : 79 : 79
-(add-to-list
- 'default-frame-alist
- `(width  . ,(+ 240 2
-		(/ (frame-parameter nil 'left-fringe) (frame-char-width))
-		(/ (frame-parameter nil 'right-fringe) (frame-char-width)))))
+(when (not (null (window-system)))
 
-(add-to-list
- 'default-frame-alist
- `(height  . ,(- (/ (display-pixel-height) (frame-char-height))
-		 2)))
+  (add-to-list
+   'default-frame-alist
+   `(width  . ,(+ 240 2
+		  (/ (frame-parameter nil 'left-fringe) (frame-char-width))
+		  (/ (frame-parameter nil 'right-fringe) (frame-char-width)))))
 
-; Emacs24 default font on one of my debian sids was 
-; fucking stupid huge; so put this so the default font is 
-; size 10pt.
-;(set-face-attribute 'default nil :font "Ubuntu Mono 10") 
-;(set-face-attribute 'default nil :font "")
-(set-face-attribute 'default nil :height 115)
+  (add-to-list
+   'default-frame-alist
+   `(height  . ,(- (/ (display-pixel-height) (frame-char-height))
+		   2)))
+
+  ;; Emacs24 default font on one of my debian sids was 
+  ;; fucking stupid huge; so put this so the default font is 
+  ;; size 10pt.
+  ;; (set-face-attribute 'default nil :font "Ubuntu Mono 10") 
+  ;; (set-face-attribute 'default nil :font "")
+  (set-face-attribute 'default nil :height 115))
+
 ;TODO: (temp) some default tweaking for window sizing
 ;;(add-to-list 'default-frame-alist '(height . 65))
 ;;(add-to-list 'default-frame-alist '(width  . 80))
@@ -131,6 +134,8 @@
 ;; Remove eyecandy for mouse
 ;; we are one with the keyboard in emacs land
 (scroll-bar-mode -1)        ;hide scroll-bar
+(when (boundp horizontal-scroll-bar-mode)
+  (horizontal-scroll-bar-mode -1))
 
 (tool-bar-mode -1)          ;hide tool-bar
 (menu-bar-mode -1)          ;hide menu-bar

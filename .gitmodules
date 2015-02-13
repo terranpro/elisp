@@ -77,3 +77,9 @@
 [submodule "foreign/rtags"]
 	path = foreign/rtags
 	url = https://github.com/terranpro/rtags.git
+[submodule "foreign/ac-slime"]
+	path = foreign/ac-slime
+	url = https://github.com/purcell/ac-slime.git
+[submodule "foreign/ample-theme"]
+	path = foreign/ample-theme
+	url = https://github.com/jordonbiondo/ample-theme

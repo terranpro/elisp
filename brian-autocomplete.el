@@ -33,13 +33,18 @@
 (require 'auto-complete-config)
 (ac-config-default)
 
+(set-face-attribute 'popup-face nil :foreground "black" :background "khaki3")
+(set-face-attribute 'popup-tip-face nil :foreground "khaki" :background "purple4")
+(set-face-attribute 'tooltip nil :foreground "black" :background "purple4")
+(setq pos-tip-background-color "purple4")
+
 ;; Custom Configs
 ;; Fast Displays, Quick Helps, and Fuzzy
 (setq ac-delay 0.15)
 (setq ac-auto-start 2)
 (setq ac-use-quick-help t)
-(setq ac-quick-help-delay 0.5)
-(setq ac-auto-show-menu 0.25)
+(setq ac-quick-help-delay 1.0)
+(setq ac-auto-show-menu 0.8)
 (setq ac-menu-height 10)
 ;(setq ac-fuzzy-enable nil)
 ;(setq ac-use-fuzzy nil)
