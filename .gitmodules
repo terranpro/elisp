@@ -83,3 +83,6 @@
 [submodule "foreign/ample-theme"]
 	path = foreign/ample-theme
 	url = https://github.com/jordonbiondo/ample-theme
+[submodule "foreign/popup-el"]
+	path = foreign/popup-el
+	url = https://github.com/auto-complete/popup-el.git
