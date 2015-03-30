@@ -2,6 +2,9 @@
 
 (add-to-list 'load-path (concat brian-rtags-root "src/"))
 
+(require 'brian-autocomplete)
+(require 'auto-complete)
+
 (require 'rtags)
 
 (setq rtags-path (concat brian-rtags-root "build/"))
@@ -24,13 +27,11 @@
 	       (= (length psout) 0))
       (rtags-start-process-maybe))))
 
-(my-rtags-start-process-maybe)
+;; (my-rtags-start-process-maybe)
 
 (provide 'brian-rtags)
 
 ;; (require 'brian-company-mode)
 
-(require 'brian-autocomplete)
-(require 'auto-complete)
 (require 'rtags-ac)
 (add-hook 'c-mode-common-hook 'rtags-ac-cc-mode-setup t)
