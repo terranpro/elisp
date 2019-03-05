@@ -25,7 +25,7 @@
 
 (setq ac-dictionary-directories "~/elisp/foreign/auto-complete/dict_brian")
 (add-to-list 'load-path "~/elisp/foreign/auto-complete")
-(add-to-list 'load-path "~/elisp/foreign/auto-complete/lib/popup")
+(add-to-list 'load-path "~/elisp/foreign/popup-el")
 (add-to-list 'load-path "~/elisp/foreign/auto-complete/lib/fuzzy")
 (add-to-list 'Info-default-directory-list
 	     (expand-file-name "~/elisp/foreign/auto-complete/doc"))
@@ -41,7 +41,7 @@
 ;; Custom Configs
 ;; Fast Displays, Quick Helps, and Fuzzy
 (setq ac-delay 0.15)
-(setq ac-auto-start 2)
+(setq ac-auto-start 1)
 (setq ac-use-quick-help t)
 (setq ac-quick-help-delay 1.0)
 (setq ac-auto-show-menu 0.8)

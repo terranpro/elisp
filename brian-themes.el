@@ -3,6 +3,6 @@
 
 
 (if (null (member 'assem custom-enabled-themes))
-    (load-theme 'assem))
+    (load-theme 'assem t))
 
 (provide 'brian-themes)

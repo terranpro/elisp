@@ -67,7 +67,7 @@ nil : Otherwise, return nil and run next lineup function."
 
 ;; Check if the line with the < contains any other
 ;; definitions/types, if so, base lineup of subsequent lines
-;; on the starting column position of the type; 
+;; on the starting column position of the type;
 
 ;; e.g. template<    class X
 ;; lineup here:      ^
@@ -78,8 +78,8 @@ nil : Otherwise, return nil and run next lineup function."
 ;; ,,class T
 ;; ...
 ;; example where c-basic-offset=2
-	  
-(defvar brian-c-lineup-template-closebracket 'under 
+
+(defvar brian-c-lineup-template-closebracket 'under
   "Control the indentation of the closing template bracket, >.
 Possible values and consequences:
 'under : Align directly under (same column) the opening bracket.
@@ -88,7 +88,7 @@ nil    : Align at the same column of previous types (e.g. col of class T).")
 
 (defun brian-c-lineup-template--closebracket-p ()
   "Return t if the line contains only a template close bracket, >."
-  (save-excursion 
+  (save-excursion
     (beginning-of-line)
     ;; Check if this line is empty except for the trailing bracket, >
     (looking-at (rx (zero-or-more blank)
@@ -102,7 +102,7 @@ nil    : Align at the same column of previous types (e.g. col of class T).")
 
 (defun brian-c-lineup-template--calc-open-bracket-pos (langelem)
   "Calculate the column position of a template declaration opening bracket."
-  (save-excursion 
+  (save-excursion
     (c-with-syntax-table c++-template-syntax-table
       (goto-char (c-langelem-pos langelem))
       (1- (re-search-forward "<" (point-max) 'move)))))
@@ -113,7 +113,7 @@ opening bracket position, OB-POS."
   (save-excursion
     (c-with-syntax-table c++-template-syntax-table
       (goto-char (1+ ob-pos))
-      (cond ((re-search-forward (rx 
+      (cond ((re-search-forward (rx
       				 (or "class"
       				     "typename"
       				     (one-or-more (not blank))))
@@ -124,7 +124,7 @@ opening bracket position, OB-POS."
       	    (t
       	     (back-to-indentation)
       	     (+ c-basic-offset (current-column))))
-      
+
       )))
 
 (defun brian-c-lineup-template-args (langelem)
@@ -154,7 +154,7 @@ opening bracket position, OB-POS."
 	   (vector offset)))))
 
 ;; Customs for C and C++ Programming styles I like
-(c-add-style 
+(c-add-style
  "briancpp" '((c-basic-offset . 2)
 	      (c-comment-only-line-offset . 0)
 	      (c-cleanup-list . (brace-else-brace
@@ -212,7 +212,7 @@ opening bracket position, OB-POS."
 	       (statement-cont . brian-c-statement-cont)
 	       (inline-open . 0)
 	       (inline-close . 0)
-	       (innamespace . 0))))
+	       (innamespace . [0]))))
 
 (defun brian-c-statement-cont (langelem)
   (save-excursion
@@ -228,24 +228,29 @@ opening bracket position, OB-POS."
       '(after))))
 
 (defun brian-c-block-close-offset (langelem)
-  (save-excursion
-    (if (c-beginning-of-syntax)
-	(progn
-	  ;; test for lambda
-	  (backward-sexp 2)
-	  (let ((cur-syntax (c-guess-basic-syntax)))
-	    ;; (pp langelem)
-	    ;; (pp (list (point) cur-syntax))
-	    (if (looking-at (rx "[" (zero-or-more any) "](" (zero-or-more any) ")"))
-		;; align with either the beginning of lambda or the
-		;; start column if we're in a 'statement' syntax
-		(if (assq 'statement cur-syntax)
-		    (save-excursion
-		      (beginning-of-line-text)
-		      (vector (current-column)))
-		 (vector (current-column)))
-	      0)))
-      0)))
+  ;; (pp (list (point)))
+  (let ((lambda-rx (rx (zero-or-more any) "[" (zero-or-more any) "](" (zero-or-more any) ")" (zero-or-more any))))
+    (save-excursion
+      (if (or 1) ;;(c-beginning-of-syntax)
+	  (or (ignore-errors
+		;; test for lambda
+		;; (backward-sexp 2)
+		(backward-up-list)
+		(let ((cur-syntax (c-guess-basic-syntax)))
+		  ;; (pp langelem)
+		  ;; (pp (list (point) cur-syntax))
+		  (if (or (looking-at lambda-rx)
+			  (looking-back lambda-rx))
+		      ;; align with either the beginning of lambda or the
+		      ;; start column if we're in a 'statement' syntax
+		      ;; (assq 'statement cur-syntax)
+		      (save-excursion
+			(beginning-of-line-text)
+			(vector (current-column)))
+		    (vector (current-column))
+		    0)))
+	      0)
+	0))))
 
 (defun brian-c-hanging-defun-open (syntax pos)
   (save-excursion
@@ -266,14 +271,14 @@ opening bracket position, OB-POS."
 ;;     (let (langelem)
 ;;       (if (and (eq syntax 'defun-close)
 ;; 	       (setq langelem (assq 'defun-close c-syntactic-context)))
-	  
+
 ;; 	  (progn (goto-char (c-langelem-pos langelem))
 ;; 		 (pp langelem)
 ;; 		 (if (eq (char-after) ?{)
 ;; 		     nil))
 ;; 	'(before after)))))
 
-;; c electric paren blink matching open paren 
+;; c electric paren blink matching open paren
 ;; delay need this if i use the space-after-funcall mod since the
 ;; blink severely slowed down response
 (setq blink-matching-delay 0.1)
@@ -296,17 +301,17 @@ opening bracket position, OB-POS."
   (add-hook 'before-save-hook 'delete-trailing-whitespace nil t)
   (subword-mode 1)
   ;(modify-syntax-entry ?_ "w")
-  (set (make-local-variable 'time-stamp-format) 
+  (set (make-local-variable 'time-stamp-format)
        "%3a %3b %02d %02H:%02M:%02S %Z %Y")
-  (set (make-local-variable 'time-stamp-pattern) 
+  (set (make-local-variable 'time-stamp-pattern)
        "50/Last modified: %%$")
   (add-hook 'write-file-hooks 'time-stamp))
 
 (add-hook 'c-mode-common-hook 'brian-c-mode-common-hook)
-(add-hook 'c++-mode-hook (lambda () 
-			   (define-key 
-			     c++-mode-map 
-			     (kbd "RET") 
+(add-hook 'c++-mode-hook (lambda ()
+			   (define-key
+			     c++-mode-map
+			     (kbd "RET")
 			     'newline-and-indent)))
 
 
@@ -411,7 +416,7 @@ opening bracket position, OB-POS."
 ;; 		     (skip-chars-backward " \t")
 ;; 		     (setq beg (point))
 ;; 		     (pp beg)
-;; 		     (and (c-save-buffer-state () 
+;; 		     (and (c-save-buffer-state ()
 ;; 			    (or
 ;; 			     (save-excursion (c-backward-token-2)
 ;; 					     (looking-at c-keywords-regexp))
@@ -420,18 +425,18 @@ opening bracket position, OB-POS."
 ;;                           (not (and (c-beginning-of-macro)
 ;;                                     (c-forward-over-cpp-define-id)
 ;;                                     (eq (point) beg))))))
-	      
+
 ;; 	      (insert ?\ ))
 
 ;; 	     ((eq last-command-event ?\))
 ;; 	      (progn
-;; 	       (when 
+;; 	       (when
 ;; 		   (save-excursion
 ;; 		     (and (memq 'space-after-funcall c-cleanup-list)
-			 
+
 ;; 			  ;(eq (c-beginning-of-statement-1) 'same)
 ;; 			  (and
-;; 			   (c-save-buffer-state () 
+;; 			   (c-save-buffer-state ()
 ;; 			     (search-backward-regexp "(" (point-min) t)
 ;; 			     (or
 ;; 			      (save-excursion (c-backward-token-2)
@@ -448,7 +453,7 @@ opening bracket position, OB-POS."
 ;; 		   (delete-region (point) end)
 ;; 		   (insert ?\ )))
 
-;; 	       (when 
+;; 	       (when
 ;; 		   (c-save-buffer-state ()
 ;; 		     (and (memq 'compact-empty-funcall c-cleanup-list)
 ;; 			  (save-excursion

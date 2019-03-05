@@ -3,8 +3,8 @@
       ;; Assem palette
       ;; colors with +x are lighter, colors with -x are darker
       (assem-fg "#dcdccc")
-      ;(assem-fg "#5090ff")
-      ;(assem-fg "#BCC7BCC7BCC7")
+                                        ;(assem-fg "#5090ff")
+                                        ;(assem-fg "#BCC7BCC7BCC7")
       (assem-fg-1 "#656555")
       (assem-bg-3 "#000000")
       (assem-bg-2 "#1b1b1b")
@@ -58,20 +58,20 @@
    `(cursor ((,class (:foreground ,assem-fg))))
    `(escape-glyph-face ((,class (:foreground ,assem-red))))
    `(fringe ((,class (:foreground ,assem-fg :background ,assem-bg+1))))
-   `(header-line ((,class 
+   `(header-line ((,class
 		   (:foreground ,assem-yellow
 				:background ,assem-bg-1
-				:box 
+				:box
 				(:line-width -1 :style released-button)))))
    `(highlight ((,class (:background ,assem-blue-4))))
-   
+
    ;;; compilation
    `(compilation-column-face ((,class (:foreground ,assem-yellow))))
    `(compilation-enter-directory-face ((,class (:foreground ,assem-green))))
-   `(compilation-error-face ((,class 
-                              (:foreground 
+   `(compilation-error-face ((,class
+                              (:foreground
                                ,assem-red+1
-                               :weight bold 
+                               :weight bold
                                :underline t))))
    `(compilation-face ((,class (:foreground ,assem-fg))))
    `(compilation-info-face ((,class (:foreground ,assem-blue))))
@@ -156,11 +156,11 @@
    `(ack-match ((,class (:foreground ,assem-orange :background ,assem-bg-1 :weigth bold))))
 
    ;;; ace-jump
-   `(ace-jump-face-background ((,class (:foreground 
+   `(ace-jump-face-background ((,class (:foreground
                                         ,assem-fg-1
                                         :background
                                         ,assem-bg-1))))
-   `(ace-jump-face-foreground ((,class (:foreground 
+   `(ace-jump-face-foreground ((,class (:foreground
                                         ,assem-cyan+2
                                         :background
                                         ,assem-bg-1
@@ -335,9 +335,9 @@
 
    ;; ido-mode
    `(ido-first-match ((,class (:foreground ,assem-orange :weight bold))))
-   `(ido-only-match ((,class 
-                      (:foreground 
-                       ,assem-orange 
+   `(ido-only-match ((,class
+                      (:foreground
+                       ,assem-orange
                        :background
                        ,assem-bg-2
                        :weight bold))))
@@ -367,6 +367,11 @@
 
    ;; linum-mode
    `(linum ((,class (:foreground ,assem-green+2 :background ,assem-bg))))
+
+   ;; lsp-mode
+   `(lsp-ui-doc-background ((,class (:background ,assem-bg+1))))
+   `(lsp-ui-peek-peek ((,class (:background ,assem-bg+1))))
+   `(lsp-ui-peek-list ((,class (:background ,assem-bg+1))))
 
    ;; magit
    `(magit-section-title ((,class (:foreground ,assem-yellow :weight bold))))
@@ -441,7 +446,7 @@
      ((,class (:inherit font-lock-comment-face))))
    `(org-archived ((,class (:foreground ,assem-fg :weight bold))))
    `(org-checkbox ((,class (:background ,assem-bg+2 :foreground "white"
-                                   :box (:line-width 1 :style released-button)))))
+                                        :box (:line-width 1 :style released-button)))))
    `(org-date ((,class (:foreground ,assem-blue :underline t))))
    `(org-deadline-announce ((,class (:foreground ,assem-red-1))))
    `(org-done ((,class (:bold t :weight bold :foreground ,assem-green+3))))
@@ -460,9 +465,9 @@
    `(org-scheduled ((,class (:foreground ,assem-green+4))))
    `(org-scheduled-previously ((,class (:foreground ,assem-red-4))))
    `(org-scheduled-today ((,class (:foreground ,assem-blue+1))))
-   `(org-special-keyword ((,class (:foreground 
-                                   ,assem-lightgreen 
-                                   :weight 
+   `(org-special-keyword ((,class (:foreground
+                                   ,assem-lightgreen
+                                   :weight
                                    bold))))
    `(org-table ((,class (:foreground ,assem-green+2))))
    `(org-tag ((,class (:bold t :weight bold))))
@@ -559,7 +564,7 @@
    `(wl-highlight-message-unimportant-header-contents ((,class (:foreground ,assem-fg))))
    `(wl-highlight-summary-answered-face ((,class (:foreground ,assem-blue))))
    `(wl-highlight-summary-disposed-face ((,class (:foreground ,assem-fg
-                                                         :slant italic))))
+                                                              :slant italic))))
    `(wl-highlight-summary-new-face ((,class (:foreground ,assem-blue))))
    `(wl-highlight-summary-normal-face ((,class (:foreground ,assem-fg))))
    `(wl-highlight-summary-thread-top-face ((,class (:foreground ,assem-yellow))))
@@ -579,7 +584,7 @@
   (custom-theme-set-variables
    'assem
    `(ansi-color-names-vector [,assem-bg ,assem-red ,assem-green ,assem-yellow
-                                          ,assem-blue ,assem-magenta ,assem-cyan ,assem-fg])
+                                        ,assem-blue ,assem-magenta ,assem-cyan ,assem-fg])
 
    ;; fill-column-indicator
    `(fci-rule-color ,assem-bg-05))
@@ -587,10 +592,20 @@
   ;;; colors for the ansi-term
   (eval-after-load 'term
     `(setq ansi-term-color-vector
-         (vector 'unspecified ,assem-bg ,assem-red ,assem-green ,assem-yellow
+           (vector 'unspecified ,assem-bg ,assem-red ,assem-green ,assem-yellow
 		   ,assem-blue ,assem-magenta ,assem-cyan ,assem-fg))))
 
 (provide-theme 'assem)
+
+;; (set-face-attribute 'lsp-ui-doc-background nil :background "purple")
+;; (set-face-attribute 'lsp-ui-sideline-symbol nil :background "#d0bf8f" :foreground "black")
+;; (set-face-attribute 'lsp-ui-sideline-current-symbol nil :background "#d0bf8f" :foreground "purple")
+;; (set-face-attribute 'lsp-ui-sideline-global nil :background "#050505" :foreground "green")
+
+;; (set-face-attribute 'lsp-ui-peek-list nil :background "#d0bf8f" :foreground "black")
+;; (set-face-attribute 'lsp-ui-peek-peek nil :background "#d0bf8f" :foreground "black")
+
+;; (set-face-attribute 'error nil :foreground "#ff5555")
 
 ;; Local Variables:
 ;; no-byte-compile: t

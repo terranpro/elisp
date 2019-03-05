@@ -37,9 +37,61 @@
 (load-library "eieio")
 (load-library "eieio-base")
 
+(defface options-mode-default-face
+  '((((class color) (min-colors 88) (background light))
+     :background "darkseagreen2")
+    (((class color) (min-colors 88) (background dark))
+     :background "darkolivegreen" :foreground "red")
+    (((class color) (min-colors 16) (background light))
+     :background "darkseagreen2")
+    (((class color) (min-colors 16) (background dark))
+     :background "darkolivegreen" :foreground "red")
+    (((class color) (min-colors 8))
+     :background "green" :foreground "black")
+    (t :inverse-video t))
+  "Basic face for highlighting."
+  :group 'options-mode-faces)
+
+(defface options-mode-switch-active-face
+  '((((class color) (min-colors 88) (background light))
+     :background "darkseagreen2")
+    (((class color) (min-colors 88) (background dark))
+     :background "darkolivegreen" :foreground "darkorange")
+    (((class color) (min-colors 16) (background light))
+     :background "darkseagreen2")
+    (((class color) (min-colors 16) (background dark))
+     :background "darkolivegreen" :foreground "darkorange")
+    (((class color) (min-colors 8))
+     :background "green" :foreground "black")
+    (t :inverse-video t))
+  "Face for an active switch."
+  :group 'options-mode-faces)
+
+(defface options-mode-switch-desc-face
+  '((((class color) (min-colors 88) (background light))
+     :background "darkseagreen2")
+    (((class color) (min-colors 88) (background dark))
+     :background "darkolivegreen")
+    (((class color) (min-colors 16) (background light))
+     :background "darkseagreen2")
+    (((class color) (min-colors 16) (background dark))
+     :background "darkolivegreen")
+    (((class color) (min-colors 8))
+     :background "green" :foreground "black")
+    (t :inverse-video t))
+  "Face for a switch's description."
+  :group 'options-mode-faces)
+
 (defun options-mode-build-window ())
 
-(defclass Option () 
+(defclass NamedClass ()
+  ((internal-name :initarg :internal-name
+		  :initform ""))
+  "A named class with property `:internal-name' that is used
+  since naming of classes became obsolete in newer versions of
+  EIEIO.")
+
+(defclass Option (NamedClass) 
   ((hidden :initarg :hidden
 	   :initform nil)
    (display-name :initarg :display-name
@@ -49,7 +101,7 @@
    (desc :initarg :desc
 	 :initform "")
    (face :initarg :face
-	 :initform 'ac-candidate-face)
+	 :initform 'options-mode-default-face)
    (auto :initarg :auto 
 	 :initform t)
    (onactivate :initarg :onactivate
@@ -65,22 +117,22 @@ FACE is the default face to use when displaying in the option window (TODO).
 ONACTIVATE is the user callback that is called when the option activated.
 The one argument passed to the callback is the Option obj. ")
 
-(defvar NewLineOption (Option "newline"
+(defvar NewLineOption (Option :internal-name "newline"
 			      :display-name "\n"
 			      :auto nil))
 
-(defvar NullOption (Option "null"
+(defvar NullOption (Option :internal-name "null"
 			   :display-name ""
 			   :auto nil))
 
 (defmethod Redraw ((obj Option))
   "Redraw an individual Option"
-  (with-slots (hidden display-name) obj 
+  (with-slots (hidden internal-name display-name) obj 
     (format "%s" (if hidden
 		     "" 
-		   (or display-name (object-name-string obj))))))
+		   (or display-name internal-name)))))
 
-(defclass Options ()
+(defclass Options (NamedClass)
   ((elems :initarg :elems)
    (separator :initarg :separator
 	      :initform "\n"))
@@ -99,26 +151,26 @@ The one argument passed to the callback is the Option obj. ")
 
 (defmethod SearchName ((obj Options) name)
   (with-slots (elems) obj
-   (cdr (assoc name (object-assoc-name elems)))))
+   (cdr (assoc name (object-assoc-list-safe 'internal-name elems)))))
 
 (defclass Switch (Option)
   ((active :initform nil
 	   :initarg :active)
-   (active-face :initform 'ac-selection-face
+   (active-face :initform 'options-mode-switch-active-face
 		:initarg :active-face))
   "Options to represent command-line switches (e.g. --clean)")
 
 (defmethod Redraw ((obj Switch))
-  (with-slots (key desc active face active-face display-name) obj
+  (with-slots (key desc active face active-face internal-name display-name) obj
     (let ((key-face (if active active-face face))
 	  (name-face (if active active-face 'default))
-	  (desc-face 'ac-candidate-face))
+	  (desc-face 'options-mode-switch-desc-face))
       (format "%s : %s %s" 
 	      (if key 
 		  (propertize key 'face key-face)
 		" ")
 	      (propertize 
-	       (or display-name (object-name-string obj))
+	       (or display-name internal-name)
 	       'face name-face)
 	      (if (and desc (not (string= "" desc)))
 		  (concat " [ " desc " ] ")
@@ -135,14 +187,14 @@ The one argument passed to the callback is the Option obj. ")
   "A Switch that also has a trailing arg (e.g. --profile SLP")
 
 (defmethod Redraw ((obj SwitchArg))
-  (with-slots (key face arg) obj
+  (with-slots (key internal-name face arg) obj
     (let ((objstr (call-next-method)))
       (format "%s : %s %s" 
 	      (propertize key 'face face)
-	      (propertize (object-name-string obj) 'face face)
+	      (propertize internal-name 'face face)
 	      arg))))
 
-(defclass Command ()
+(defclass Command (NamedClass)
   ((options :initform nil
 	    :initarg :options)
    (command :initform nil
@@ -152,9 +204,9 @@ The one argument passed to the callback is the Option obj. ")
   "A wrapper around a command that requires extra options!")
 
 (defmethod Redraw ((obj Command))
-  (with-slots (options help-string) obj
+  (with-slots (options internal-name help-string) obj
     (insert (format "%s\n\n%s\n\n"
-		    (object-name-string obj)
+		    internal-name
 		    help-string))
     (Redraw options)))
 
@@ -232,28 +284,29 @@ The one argument passed to the callback is the Option obj. ")
   (format "%s" 
 	  (if (and (oref obj active)
 		   (oref obj auto))
-	      (object-name-string obj)
+	      (oref obj internal-name)
 	    "")))
 
 (defmethod BuildOption ((obj SwitchArg))
   (if (oref obj auto)
-      (format "%s %s" (object-name-string obj) (oref obj arg))
+      (format "%s %s" (oref obj internal-name) (oref obj arg))
     ""))
 
 (defmethod BuildOptions ((obj Options))
   (with-slots (elems) obj
     (mapcar 'BuildOption elems)))
 
-(object-assoc-list 'elems (list (Options "a" :elems "123") (Options "b" :elems "678")))
+(object-assoc-list 'elems (list (Options :internal-name "a" :elems "123")
+				(Options :internal-name "b" :elems "678")))
 
 (defun object-assoc-name (list)
   "Return an association list with the object name as the key element.
 LIST must be a list of objects with names.
 This is useful when you need to do completing read on an object group."
-  (eieio--check-type listp list)
+  ;; (eieio--check-type listp list)
   (let ((assoclist nil))
     (while list
-      (setq assoclist (cons (cons (object-name-string (car list))
+      (setq assoclist (cons (cons (oref (car list) internal-name)
 				  (car list))
 			    assoclist))
       (setq list (cdr list)))
@@ -264,7 +317,7 @@ This is useful when you need to do completing read on an object group."
 	(old-line (line-number-at-pos (point))))
     (erase-buffer)
     (goto-char (point-min))
-    ;(Redraw options-mode-options)
+    ;;(Redraw options-mode-options)
     (Redraw options-mode-command)
     (goto-char (point-min))
     (forward-line (1- old-line))))
@@ -310,7 +363,7 @@ This is useful when you need to do completing read on an object group."
     (save-excursion
       (goto-char (point-min))
       (while (options-forward)
-	(when (string-match name-rx (object-name (options-current-option)))
+	(when (string-match name-rx (oref (options-current-option) internal-name))
 	  (push (options-current-option) opts)))
       opts)))
 

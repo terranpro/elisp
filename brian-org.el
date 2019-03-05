@@ -28,7 +28,18 @@
 (org-babel-do-load-languages
  'org-babel-load-languages
  '((emacs-lisp . t)
-   (C . t)))
+   (C . t)
+   (shell . t)
+   (python . t)
+   (R . t)
+   (ruby . t)
+   (ditaa . t)
+   (dot . t)
+   (octave . t)
+   (sqlite . t)
+   (perl . t)
+   )
+ )
 
 (setq org-plantuml-jar-path "/home/terranpro/Downloads/plantuml.jar")
 
@@ -49,7 +60,7 @@
 ;; 				     "pdflatex -shell-escape %b"))
 
 ;; clean up files first, then make with --shell-escape for minted
-(setq org-latex-to-pdf-process 
+(setq org-latex-to-pdf-process
       (list "latexmk -c"
 	    "latexmk -gg -pdf -pdflatex='pdflatex --shell-escape' %b"))
 
@@ -69,7 +80,7 @@
 
 (add-to-list 'org-latex-classes
 	     '("brianletter" "\\documentclass[11pt, b5paper]{letter}"
-	       ("\\begin{letter}{%s}" . "\\begin{letter}{%s}") 
+	       ("\\begin{letter}{%s}" . "\\begin{letter}{%s}")
 	       ("\\opening{%s}" . "\\opening{%s}")
 ))
 
@@ -92,7 +103,7 @@
 
 ;; Org mode templates
 ;; Fast Figure template with placement set to fixed position
-(add-to-list 'org-structure-template-alist 
+(add-to-list 'org-structure-template-alist
 	     (list "f"
 		   (concat "#+CAPTION: ?\n"
 			   "#+LABEL: fig:?\n"
@@ -111,7 +122,7 @@
          "Default template"
          entry
          (file+headline (concat (file-name-directory brian-org-capture-dir)
-				"inbox.org.gpg") 
+				"inbox.org.gpg")
 			"Notes")
          "* %^{Title}\n\n  Source: %u, %c\n\n  %i"
          :empty-lines 1)
@@ -150,7 +161,7 @@
          (file+headline (concat (file-name-directory brian-org-capture-dir)
 				"my-facts.org.gpg")
 			"Inbox")
-         ,(concat "* Fact: '%^{Title}'      " 
+         ,(concat "* Fact: '%^{Title}'      "
                   ":" (format "%s" org-drill-question-tag) ":"
                   "\n:PROPERTIES:\n:DATE_ADDED: %u\n:END:\n\n%i\n%?\n")
          :empty-lines 1

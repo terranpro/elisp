@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+#name: tcmsg
+#key: tcmsg
+# --
+$1
+
+[Model] ${2:Solis}
+[BinType] AP
+[Customer] ALL
+
+[Issue#] NA
+[Request] NA
+[Occurrence Version] NA
+
+[Problem] ${3:N/A}
+[Cause & Measure] $1
+[Checking Method] N/A
+
+[Team] SVOICE
+[Developer] Samsung
+[Solution company] Samsung
+[Change Type] Apply patch

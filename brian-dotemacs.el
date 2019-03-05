@@ -4,13 +4,23 @@
 ;;(load-library "brian-dotemacs")
 (add-to-list 'load-path "~/elisp/foreign")
 
+;;; package
+(require 'package)
+;; MELPA packages
+(add-to-list 'package-archives
+             '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+
+
 (require 'brian-config)
 (require 'brian-cc-mode)
 (require 'brian-paredit)
 (require 'brian-magit)
 ;(require 'brian-autocomplete)
 ;(require 'brian-ac-clang)
-(require 'brian-rtags)
+(require 'brian-company-mode)
+(require 'brian-nodejs)
+(require 'brian-python)
+;;(require 'brian-rtags)
 ;(require 'brian-clang-faces)
 ;(require 'brian-cedet)
 (require 'brian-srecode)
@@ -18,15 +28,19 @@
 ;;(require 'brian-clang)
 ;;(require 'brian-gnus)
 (require 'brian-org)
-(require 'brian-yasnippet)
+(require 'brian-lsp)
 ;;(require 'brian-muse)
 (require 'brian-cmake)
 ;;(require 'brian-ideone)
-;;(require 'brian-themes)
 (require 'brian-wgrep)
-(require 'brian-slime)
+;;(require 'brian-slime)
 
-;;; tramp 
+(require 'brian-yasnippet)
+
+;; all faces/symbols should be defined before including the theme
+(require 'brian-themes)
+
+;;; tramp
 (setq tramp-default-method "scpc")
 (setq tramp-chunksize 100)
 (setq tramp-default-proxies-alist nil)
@@ -43,6 +57,7 @@
 
 
 (global-set-key (kbd "<f5>") 'compile)
+
 
 ;;workgroups.el
 ;; (add-to-list 'load-path "~/code/workgroups.el")

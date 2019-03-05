@@ -2,6 +2,7 @@
 (setq ring-bell-function 'ignore)
 (setq enable-local-eval t)
 
+
 ;; TODO: investigate
 ;; Had to add an extra two for one ubuntu linux machine that had three
 ;; split sizes of 80 : 79 : 79
@@ -18,12 +19,13 @@
    `(height  . ,(- (/ (display-pixel-height) (frame-char-height))
 		   2)))
 
-  ;; Emacs24 default font on one of my debian sids was 
-  ;; fucking stupid huge; so put this so the default font is 
+  ;; Emacs24 default font on one of my debian sids was
+  ;; fucking stupid huge; so put this so the default font is
   ;; size 10pt.
-  ;; (set-face-attribute 'default nil :font "Ubuntu Mono 10") 
+  (set-face-attribute 'default nil :font "Ubuntu Mono 10")
   ;; (set-face-attribute 'default nil :font "")
   (set-face-attribute 'default nil :height 115))
+(set-face-attribute 'default nil :height 145)
 
 ;TODO: (temp) some default tweaking for window sizing
 ;;(add-to-list 'default-frame-alist '(height . 65))
@@ -122,6 +124,8 @@
 (setq powerline-color1 "chocolate2")
 ;; (setq powerline-color2 "grey40")
 (setq powerline-color2 "goldenrod")
+(set-face-attribute 'mode-line nil :foreground "purple4" :background "cyan2")
+(set-face-attribute 'mode-line-inactive nil :foreground "seashell3")
 
 ;; expand region
 (add-to-list 'load-path "~/elisp/foreign/expand-region")
@@ -134,7 +138,7 @@
 ;; Remove eyecandy for mouse
 ;; we are one with the keyboard in emacs land
 (scroll-bar-mode -1)        ;hide scroll-bar
-(when (boundp horizontal-scroll-bar-mode)
+(when (boundp 'horizontal-scroll-bar-mode)
   (horizontal-scroll-bar-mode -1))
 
 (tool-bar-mode -1)          ;hide tool-bar
@@ -158,7 +162,7 @@
 	      " [No match]" " [Matched]" " [Not readable]" " [Too big]"
 	      " [Confirm]")))
 ;; Vertical completion display in ido!
-(defun ido-disable-line-truncation () 
+(defun ido-disable-line-truncation ()
   (set
    (make-local-variable 'truncate-lines) nil))
 (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
@@ -207,7 +211,7 @@
 
 ;; I Like Autofill mode for all files
 ;;(auto-fill-mode t)
-(add-hook 'text-mode-hook '(lambda () 
+(add-hook 'text-mode-hook '(lambda ()
 			     (auto-fill-mode t)))
 
 ;; Never use backup files (garbage with tildes at end)
@@ -217,17 +221,20 @@
 (setq inhibit-startup-screen t)
 
 ;; tramp method to avoid stupid y/n question
-(setq tramp-default-method "scp")
+(setq tramp-default-method "ssh")
+(setq tramp-verbose 3)
+;; (when (not (null 'tramp-remote-path))
+;;   (add-to-list 'tramp-remote-path 'tramp-own-remote-path))
 
 ;; Destroy emacs server gracefully
-(defun shutdown-emacs-server () 
+(defun shutdown-emacs-server ()
   (interactive)
   (when (not (eq window-system 'x))
     (message "Initializing x windows system.")
     (x-initialize-window-system)
-    (when (not x-display-name) 
+    (when (not x-display-name)
       (setq x-display-name (getenv "DISPLAY")))
-    (select-frame 
+    (select-frame
      (make-frame-on-display x-display-name '((window-system . x)))))
   (let ((last-nonmenu-event nil)
 	(window-system "x"))
@@ -240,9 +247,9 @@
 (defadvice follow-mode (before follow-buffer-to-right activate)
   (let ((rightwin (window-right (get-buffer-window)))
 	(curr-buf (current-buffer)))
-    (when (and follow-mode 
+    (when (and follow-mode
 	       rightwin)
-      (with-selected-window rightwin 
+      (with-selected-window rightwin
 	(switch-to-prev-buffer)))
 
     (when (and (not follow-mode)
@@ -288,30 +295,37 @@
 (require 'google-this)
 (global-set-key (kbd "C-x g") 'google-this-mode-submap)
 
-;; 
+
+;; dash
+(add-to-list 'load-path "~/elisp/foreign/dash")
+
+;;
 ;; Process Environment is so damn important...
 ;; Let's try just setting it here
-(setq process-environment
- (append (list 
-	  (concat "LD_LIBRARY_PATH="
-		  (mapconcat
-		   'identity 
-		   (delete-dups 
-		    (append
-		     (list (expand-file-name "~/build/lib")
-			   "/usr/local/lib")
-		     (split-string
-		      (or (getenv "LD_LIBRARY_PATH") "") ":" t)))
-		   ":")))
-	 (remove-if #'(lambda (item)
-			(string-match "^LD_LIBRARY_PATH=" item))
-		    process-environment)))
+;; (setq process-environment
+;;  (append (list
+;; 	  (concat "LD_LIBRARY_PATH="
+;; 		  (mapconcat
+;; 		   'identity
+;; 		   (delete-dups
+;; 		    (append
+;; 		     (list (expand-file-name "~/build/lib")
+;; 			   "/usr/local/lib")
+;; 		     (split-string
+;; 		      (or (getenv "LD_LIBRARY_PATH") "") ":" t)))
+;; 		   ":")))
+;; 	 (remove-if #'(lambda (item)
+;; 			(string-match "^LD_LIBRARY_PATH=" item))
+;; 		    process-environment)))
 
 ;; auto revert buffers (useful for magit branch changes/updates)
 (global-auto-revert-mode)
 
 ;; ediff buffers in one frame - no new frame
 (setq ediff-window-setup-function 'ediff-setup-windows-plain)
+
+;; echo keystrokes custom - seems better if faster than 1sec
+(setq echo-keystrokes 0.1)
 
 ;; So I can use (require 'brian-config) elsewhere
 (provide 'brian-config)

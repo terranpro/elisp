@@ -1,4 +1,4 @@
-(add-to-list 'load-path "~/elisp/foreign/yasnippet")
+;; (add-to-list 'load-path "~/elisp/foreign/yasnippet")
 
 (defun brian-yasnippet-indent-buffer ()
   (when (derived-mode-p 'prog-mode)
@@ -19,11 +19,18 @@
 
 (require 'yasnippet) ;; not yasnippet-bundle
 
-(setq yas-snippet-dirs (list "~/elisp/brian-snippets" 
-			     "~/elisp/foreign/yasnippet/snippets"))
-(mapcar 'yas-load-directory yas-snippet-dirs)
+(setq yas-snippet-dirs (list "~/elisp/brian-snippets"
+			     "~/elisp/foreign/yasnippet/snippets"
+			     ))
+
+;;(add-to-list 'load-path "~/elisp/foreign/yasnippet/snippets/")
+;;(require 'yasnippet-snippets)
+
+;; this mapcar was segfaulting my emacs 26.x and 27.x from git
+;;(mapcar 'yas-load-directory yas-snippet-dirs)
 ;;(yas/initialize)
 (yas-global-mode t)
+;;(yas-reload-all)
 
 (defun yas-org-very-safe-expand ()
   (let ((yas-fallback-behavior 'return-nil)) (yas/expand)))

@@ -1,12 +1,15 @@
 ;; Gnus Mail and News Reader
 ;(setq load-path (cons (expand-file-name "~/elisp/foreign/gnus/lisp") load-path))
-(push "~/elisp/foreign/gnus/lisp" load-path)
+;;(push "~/elisp/foreign/gnus/lisp" load-path)
 (pp load-path)
 (require 'brian-minimal)
 (pp load-path)
 (require 'brian-config)
 (require 'brian-themes)
-(require 'gnus-load)
+;;(require 'gnus-load)
+
+(setq max-lisp-eval-depth 2400)
+(setq max-specpdl-size 3200)
 
 (if (featurep 'xemacs)
     (add-to-list 'Info-directory-list "~/code/gnus/texi/")
@@ -29,9 +32,7 @@
 ;; )
 
 (setq user-full-name "Brian Fransioli")
-(setq user-mail-address "assem@terranpro.org")
-
-;; (setq user-mail-address "br.fransioli@samsung.com")
+(setq user-mail-address "br.fransioli@samsung.com")
 
 (defun pw-from-authinfo (popserver)
   (require 'nntp)
@@ -45,17 +46,17 @@
 (setq gnus-secondary-select-methods nil)
 (setq gnus-select-method '(nnml ""))
 (setq gnus-verbose 10)
-
-;; (setq mail-sources
-;;       `((pop
-;; 	 :user "br.fransioli"
-;; 	 :password ,(pw-from-authinfo "pop3.samsung.com")
-;; 	 :server "pop3.samsung.com"
-;; 	 :port 995
-;; 	 :stream ssl
-;; 	 :leave t
-;; 	 )))
-
+(setq mail-sources
+      `((pop
+	 :user "br.fransioli"
+	 :password ,(pw-from-authinfo "v7pop3.samsung.com")
+	 ;;:server "pop3.samsung.com"
+	 ;;:port 995
+	 :server "localhost"
+	 :port 9999
+	 :stream ssl
+	 :leave t
+	 )))
 ;; (setq gnus-select-method '(nntp "news.tweaknews.eu"
 ;; 				(nntp-port-number 563)
 ;; 				(nntp-open-connection-function nntp-open-ssl-stream)
@@ -91,7 +92,7 @@
       (offical-release-rx (rx "Official" (zero-or-more any) "Binary-Release"))
       (daily-release-rx (rx "Daily" (zero-or-more any) "Binary-Release"))
       (plm-ux (rx "PLM" (zero-or-more any) "UX" (zero-or-more any)))
-      (forum-updates-rx (rx (or "게시물등록" "게시물수정" "Post"))))
+      (forum-updates-rx (rx (or "게시물등록" "게시물수정" "Post" "DPI wiki"))))
   (setq nnmail-split-fancy 
 	`(| ("from" "slpsystem.m@samsung.com"
 		  (| ("subject" ,build-failed-rx "samsung.slp.build.fails")
@@ -109,18 +110,25 @@
 	    ("from" "패밀리넷" "samsung.ads.familynet")
 
 	    ("subject" "결재.*통보" "samsung.approval")
-
+	    ("subject" "S-Agile" "samsung.slp.agile")
 	    ("subject"
 	     "Binary-Release" 
 	     (| ("subject" "Official" "samsung.slp.build.release")
 		("subject" "Auto" "samsung.slp.build.misc")
 		("subject" "Daily" "samsung.slp.build.daily")
-		"samsung.slp.build.misc"))
+		("subject" "Creating" "samsung.slp.build.misc")
+		("subject" "Snapshot" "samsung.slp.build.misc")
+		("subject" "Base Cut" "samsung.slp.build.misc")
+		"samsung.slp.build.release"))
 
 	    ("subject" "Change in magnolia.*" "samsung.slp.gerrit")
-	    ("subject" ,forum-updates-rx "samsung.slp.forum-updates")
+	    ("subject" "Change in tizenw.*" "samsung.slp.gerrit")
 	    ("subject" "비업무" "samsung.notwork")
 	    ("subject" ,plm-ux "samsung.plm.ux")
+	    ("from" "confluence@smartthings.atlassian.net" "samsung.smartthings.confluence")
+	    ("from" "jira@smartthings.atlassian.net" "samsung.smartthings.jira")
+	    ("subject" "Pride" "samsung.slp.pride")
+	    ("subject" ,forum-updates-rx "samsung.slp.forum-updates")
 	    "samsung.misc"))
   (setq nnmail-split-methods 'nnmail-split-fancy))
 
@@ -149,7 +157,7 @@
 
 (setq starttls-use-gnutls t)
 (setq starttls-gnutls-program "gnutls-cli")
-;(setq starttls-extra-arguments '("-p" "995" "--x509certfile" "~/samsung.pem"))
+(setq starttls-extra-arguments '("-p" "995" "--x509certfile" "~/samsung.pem"))
 
 ;; (setq gnus-secondary-select-methods
 ;;       '((nntp "news.tweaknews.eu"
@@ -160,19 +168,6 @@
 ;; 	       (nnimap-address "imap.gmail.com")
 ;; 	       (nnimap-server-port 993)
 ;; 	       (nnimap-stream ssl))
-
-(setq gnus-secondary-select-methods
-      '((nntp "news"
-				(nntp-port-number 563)
-				(nntp-open-connection-function nntp-open-ssl-stream)
-				;(nntp-address "news.tweaknews.eu")
-				(nntp-address "secure.usenetserver.com")
-				)
-	(nnimap "assem-gmail"
-	       (nnimap-address "imap.gmail.com")
-	       (nnimap-server-port 993)
-	       (nnimap-stream ssl))))
-
 
 ;; 	(nnimap "terranpro-gmail"
 ;; 	       (nnimap-address "imap.gmail.com")
@@ -274,12 +269,9 @@
 ; more gnus customizations
 (setq gnus-treat-display-smileys t)
 
-(setq gnus-asynchronous nil)
-
+(setq gnus-asynchronous t)
 (setq gnus-agent-max-fetch-size 10000000)
 (setq gnus-fetch-old-headers nil)
-(setq gnus-cacheable-groups "^nntp")
-(setq gnus-use-cache t)
 
 ;; TEMP DISABLE~
 ;; ; w3m-el
