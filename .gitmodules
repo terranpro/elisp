@@ -16,15 +16,9 @@
 [submodule "foreign/org-mode"]
 	path = foreign/org-mode
 	url = git://orgmode.org/org-mode.git
-[submodule "foreign/cedet"]
-	path = foreign/cedet
-	url = https://github.com/emacsmirror/cedet.git
 [submodule "foreign/yasnippet"]
 	path = foreign/yasnippet
 	url = https://github.com/capitaomorte/yasnippet.git
-[submodule "foreign/gnus"]
-	path = foreign/gnus
-	url = http://git.gnus.org/gnus.git
 [submodule "external/mo-git-blame"]
 	path = external/mo-git-blame
 	url = https://github.com/mbunkus/mo-git-blame.git
