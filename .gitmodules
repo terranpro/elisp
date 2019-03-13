@@ -13,9 +13,6 @@
 [submodule "foreign/readline-complete.el"]
 	path = foreign/readline-complete.el
 	url = https://github.com/monsanto/readline-complete.el.git
-[submodule "foreign/org-mode"]
-	path = foreign/org-mode
-	url = git://orgmode.org/org-mode.git
 [submodule "foreign/yasnippet"]
 	path = foreign/yasnippet
 	url = https://github.com/capitaomorte/yasnippet.git
