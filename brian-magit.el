@@ -7,8 +7,8 @@
 (add-to-list 'Info-default-directory-list
 		 (expand-file-name "~/elisp/foreign/magit"))
 
-(add-to-list 'load-path "~/elisp/external/mo-git-blame/")
-(require 'mo-git-blame)
+;; (add-to-list 'load-path "~/elisp/external/mo-git-blame/")
+;; (require 'mo-git-blame)
 
 ;; magit-gerrit plugin - by me!!
 (add-to-list 'load-path "~/elisp/foreign/magit-gerrit/")

@@ -74,3 +74,6 @@
 [submodule "foreign/popup-el"]
 	path = foreign/popup-el
 	url = https://github.com/auto-complete/popup-el.git
+[submodule "foreign/org-mode"]
+	path = foreign/org-mode
+	url = https://github.com/emacsmirror/org
