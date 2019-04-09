@@ -1,4 +1,4 @@
-;; (add-to-list 'load-path "~/elisp/foreign/yasnippet")
+(add-to-list 'load-path "~/elisp/foreign/yasnippet")
 
 (defun brian-yasnippet-indent-buffer ()
   (when (derived-mode-p 'prog-mode)

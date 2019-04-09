@@ -25,7 +25,7 @@
 (require 'ido)
 
 (add-to-list 'load-path
-	     "/home/terranpro/elisp/foreign/auto-complete/lib/popup")
+	     "~/elisp/foreign/popup.el")
 (require 'popup)
 (require 'options-mode)
 

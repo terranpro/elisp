@@ -8,13 +8,15 @@
 
 (require 'company)
 
-(add-to-list 'load-path "/home/terranpro/code/ht.el")
-(add-to-list 'load-path "/home/terranpro/code/lsp-mode")
+(add-to-list 'load-path "~/elisp/foreign/ht.el")
+(add-to-list 'load-path "~/elisp/foreign/spinner.el")
+(add-to-list 'load-path "~/elisp/foreign/markdown-mode")
+(add-to-list 'load-path "~/elisp/foreign/lsp-mode")
 
-(add-to-list 'load-path "/home/terranpro/code/lsp-ui")
+(add-to-list 'load-path "~/elisp/foreign/lsp-ui")
 
 
-(add-to-list 'load-path "~/code/flycheck/")
+(add-to-list 'load-path "~/elisp/foreign/flycheck/")
 (require 'flycheck)
 
 
@@ -26,7 +28,7 @@
 (add-hook 'c-mode-hook #'lsp)
 (add-hook 'c++-mode-hook #'lsp)
 
-(add-to-list 'load-path "~/code/company-lsp")
+(add-to-list 'load-path "~/elisp/foreign/company-lsp")
 (require 'company-lsp)
 (push 'company-lsp company-backends)
 

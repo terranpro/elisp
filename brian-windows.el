@@ -1,0 +1,20 @@
+(setenv "HOME" "d:/")
+(add-to-list 'load-path "~/elisp/")
+(add-to-list 'load-path "~/elisp/foreign")
+(add-to-list 'load-path "~/elisp/foreign/company-mode")
+(add-to-list 'load-path "~/elisp/foreign/anaconda-mode")
+(add-to-list 'load-path "~/elisp/foreign/company-anaconda")
+(add-to-list 'load-path "~/elisp/foreign/pythonic")
+(add-to-list 'load-path "~/elisp/foreign/indium")
+(add-to-list 'load-path "~/elisp/foreign/js2-mode")
+(add-to-list 'load-path "~/elisp/foreign/js2-refactor")
+(add-to-list 'load-path "~/elisp/foreign/yasnippet")
+
+(add-to-list 'load-path "~/code/with-editor")
+(add-to-list 'load-path "~/code/transient/lisp")
+(add-to-list 'load-path "~/code/f.el")
+(add-to-list 'load-path "~/code/s.el")
+
+
+(require 'brian-yasnippet)
+(require 'brian-dotemacs)

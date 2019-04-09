@@ -29,14 +29,14 @@
 (autoload 'smart-tabs-insinuate "smart-tabs-mode")
 
 ;; doxymacs (Doxygen helper)
-(add-to-list 'load-path "~/elisp/foreign/doxymacs/lisp")
-(require 'doxymacs)
-(add-hook 'c-mode-common-hook 'doxymacs-mode)
-(defun my-doxymacs-font-lock-hook ()
-  (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-      (doxymacs-font-lock)))
-(when (featurep 'doxymacs)
-  (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook))
+;; (add-to-list 'load-path "~/elisp/foreign/doxymacs/lisp")
+;; (require 'doxymacs)
+;; (add-hook 'c-mode-common-hook 'doxymacs-mode)
+;; (defun my-doxymacs-font-lock-hook ()
+;;   (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
+;;       (doxymacs-font-lock)))
+;; (when (featurep 'doxymacs)
+;;   (add-hook 'font-lock-mode-hook 'my-doxymacs-font-lock-hook))
 
 ;; prevent align-regexp from using tabs
 ;; Align with spaces only

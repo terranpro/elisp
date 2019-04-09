@@ -11,9 +11,9 @@
 ;; (require 'mo-git-blame)
 
 ;; magit-gerrit plugin - by me!!
-(add-to-list 'load-path "~/elisp/foreign/magit-gerrit/")
-(require 'magit-gerrit)
-(setq-default magit-gerrit-ssh-creds "br.fransioli@slp-info.sec.samsung.net")
+;; (add-to-list 'load-path "~/elisp/foreign/magit-gerrit/")
+;; (require 'magit-gerrit)
+;; (setq-default magit-gerrit-ssh-creds "br.fransioli@slp-info.sec.samsung.net")
 
 (global-set-key (kbd "<f12>") 'magit-status)
 

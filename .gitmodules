@@ -13,9 +13,6 @@
 [submodule "foreign/readline-complete.el"]
 	path = foreign/readline-complete.el
 	url = https://github.com/monsanto/readline-complete.el.git
-[submodule "foreign/yasnippet"]
-	path = foreign/yasnippet
-	url = https://github.com/capitaomorte/yasnippet.git
 [submodule "foreign/clang-complete-async"]
 	path = foreign/clang-complete-async
 	url = https://github.com/terranpro/emacs-clang-complete-async.git
@@ -77,3 +74,54 @@
 [submodule "foreign/org-mode"]
 	path = foreign/org-mode
 	url = https://github.com/emacsmirror/org
+[submodule "foreign/dash"]
+	path = foreign/dash
+	url = https://github.com/magnars/dash.el
+[submodule "foreign/company-mode"]
+	path = foreign/company-mode
+	url = https://github.com/company-mode/company-mode
+[submodule "foreign/pythonic"]
+	path = foreign/pythonic
+	url = https://github.com/proofit404/pythonic
+[submodule "foreign/anaconda-mode"]
+	path = foreign/anaconda-mode
+	url = https://github.com/proofit404/anaconda-mode
+[submodule "foreign/company-anaconda"]
+	path = foreign/company-anaconda
+	url = https://github.com/proofit404/company-anaconda
+[submodule "foreign/indium"]
+	path = foreign/indium
+	url = https://github.com/NicolasPetton/Indium
+[submodule "foreign/js2-mode"]
+	path = foreign/js2-mode
+	url = https://github.com/mooz/js2-mode
+[submodule "foreign/js2-refactor"]
+	path = foreign/js2-refactor
+	url = https://github.com/magnars/js2-refactor.el
+[submodule "foreign/yasnippet"]
+	path = foreign/yasnippet
+	url = https://github.com/joaotavora/yasnippet
+[submodule "foreign/popup.el"]
+	path = foreign/popup.el
+	url = https://github.com/auto-complete/popup-el
+[submodule "foreign/flycheck"]
+	path = foreign/flycheck
+	url = https://github.com/flycheck/flycheck
+[submodule "foreign/lsp-mode"]
+	path = foreign/lsp-mode
+	url = https://github.com/emacs-lsp/lsp-mode
+[submodule "foreign/lsp-ui"]
+	path = foreign/lsp-ui
+	url = https://github.com/emacs-lsp/lsp-ui
+[submodule "foreign/ht.el"]
+	path = foreign/ht.el
+	url = https://github.com/Wilfred/ht.el
+[submodule "foreign/spinner.el"]
+	path = foreign/spinner.el
+	url = https://github.com/Malabarba/spinner.el
+[submodule "foreign/markdown-mode"]
+	path = foreign/markdown-mode
+	url = https://github.com/jrblevin/markdown-mode
+[submodule "foreign/company-lsp"]
+	path = foreign/company-lsp
+	url = https://github.com/tigersoldier/company-lsp
