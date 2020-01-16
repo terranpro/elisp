@@ -1,3 +1,12 @@
+;; TESTING
+;;(add-to-list 'load-path "~/code/xelb")
+;;(add-to-list 'load-path "~/code/exwm")
+;;(require 'exwm)
+;;(require 'exwm-config)
+;;(exwm-enable)
+
+;; TODO
+
 ;; Brian's LISP Code
 (setq ring-bell-function 'ignore)
 (setq enable-local-eval t)

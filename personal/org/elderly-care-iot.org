@@ -1,0 +1,182 @@
+#+TITLE: Elderly Care IoT
+#+AUTHOR: assEm
+#+OPTIONS: toc:nil
+
+* Environment Sensors
+** Thermostat/Cold
+Cold related deaths among the elderly are a prevalent and easily
+preventable tragedy; start with cold environment detection in the home
+
+** Medication Scheduling
+Real-time Reminders for Vitamins/Prescriptions
+
+** Wheelchair Management
+Environmental surroundings accessibility measurements, critical
+situation alerts, location tracking, battery life monitoring
+
+** Eye/Skin Disorder Identification
+Using visual inspection through HD cameras on smart phones or similar
+IoT health devices
+
+** Asthma/Cough/Lung Related Analysis
+Microphone arrays built-in to smart devices record and analysis
+breathing patterns and detect obstructions causing coughing
+
+** Remote [Surgical] Procedures
+Augmented reality sensors, robotic arms, intelligence based master
+controllers with human oversight
+
+* Body Sensors
+** EEG
+Early detection of brain abnormalities, stroke symptoms, or mood
+swings
+
+** ECG
+Cardiac rhythm and rate monitoring to quickly detect abnormalities
+
+** Blood Pressure Monitoring
+Detect High/low BP spikes or extended periods of drop or rise
+
+** Body Temperature Monitoring
+Body temperature is an critical measure of a human's overall
+homeostasis
+
+** Body Position/Location Tracking
+Room based location tracking and prone detection coupled with fall
+detection
+
+** Glucose Level Blood Sensing
+Diabetes and metabolic related diseases contribute 
+
+** Activity Level Screening
+Daily goals and overexertion prevention
+
+** Oxygen Saturation Monitoring
+Blood O2 contents used as a marker for health or critical injury
+
+* Example Programs/Routines
+** Cold Related Death Prevention
+Couple the body temperature monitors and house/room thermostat
+monitoring to detect drops that are potentially dangerous for the
+elderly
+
+Alert the patient and his related caregivers, along with
+auto increase of heat on the thermostat
+
+** Advanced Medication Reminders
+Using other available IoT devices, detect when leaving a residence,
+and if a scheduled medication is due soon, issue a reminder to the
+caregiver and to the care receiver to prepare the medication in the
+case they will be outside for an extended period of time
+
+*** Pseudocode
+
+#+BEGIN_SRC cpp
+def initialize()
+{
+  // Get home/room perimeter contact?! devices
+  for (dev in devices)
+    subscribe(dev, "contact.open", door_opened)
+}
+
+def door_opened(dev)
+{
+  notified = false
+
+  if (check_breached(dev))
+    perimeter_breached()
+}
+
+def check_breached(dev)
+{
+  def dist = user.locator.getDistanceFrom(dev)
+  def present = user.presence
+
+  return dist < DISTANCE_THRESHOLD_TO_DOOR
+         || present == "not present"
+}
+
+def perimeter_breached()
+{
+  def next_meds = get_next_medication_in_hours()
+  def avg_time_away = get_average_time_away_from_home()
+
+  if (next_meds < NEXT_MEDS_THRESHOLD || next_meds < avg_time_away) {
+
+    def meds = get_next_medication_names_full_string()
+
+    for (user : getUserAndCaregivers())
+      user.notify("Are you going out?  Please remember to bring your 
+                   medications, $meds, which are due in $next_meds 
+                   hours!")
+  }
+}
+#+END_SRC
+
+** Activity Recommendations
+Using the array of IoT devices, detect extended low periods of time
+without movement, or periods without exertion (heart rate increases)
+along with O2 blood levels or body temperature changes, and recommend
+the user to begin recommended exercises
+
+** Health Event Smart Relay and Feedback
+Based on the type of health event that occurs, find the user's relevant
+medical professional/doctor and publish this event to them in
+real-time, and request feedback.
+
+
+* Desired API
+
+** GetDevices() / GetDevicesByClass() / ..ByCapability() / ...ByResource()
+
+Returns a list of [filtered by class] devices which can at least be
+monitored, if not controlled
+
+EX: 
+
+#+BEGIN_SRC
+
+def devs = GetDevicesByClass( Health::MobilityVehicle )
+for ( d : devs ) {
+  subscribe( d, "battery.low", on_battery_low )
+}
+
+#+END_SRC
+
+** HasResource(dev, res) / HasCapability(dev, cap)
+
+** GetEvents(dev, [since], [until])
+
+
+** PublishMessage(user, msg)
+
+Publishes a notification to the connected user (and/or location?!) -
+using the primary device
+
+** GetUser()
+Some type of handle that refers to the primary user, which can be
+used for publishing messages or gett
+
+** GetUserConfidants(class)
+Address book style references to various classes of relationships
+
+EX:
+
+GetUserConfidants( EmergencyContacts )
+GetUserConfidants( FamilyDoctor )
+GetUserConfidants( HeartDoctor )
+GetUserConfidants( user, PersonalTrainer ) // Generic user lookup?!
+GetUserConfidants( Lawyer )
+
+** GetLocation(dev/user)
+EX:
+
+auto loc = GetLocation( GetUser() )
+
+** GetDistanceBetween(loc1, loc2, [metric])
+Return some metric of distance either by walking time, driving time,
+straight path meters/miles, walking meters/miles, ...
+
+EX: Finding the nearest emergency contact / or medical facility
+
+

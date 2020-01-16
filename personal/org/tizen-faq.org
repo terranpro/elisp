@@ -1,0 +1,272 @@
+#+LATEX_CLASS: article
+#+LATEX_HEADER: \usepackage{setspace}
+#+LATEX_HEADER: \doublespacing
+#+TITLE: Tizen FQA
+#+AUTHOR: Tizen Developers Anonymous
+
+* General
+** My app won't launch!
+
+Possible issues (for RPM installs, *not* TPK):
+
+1. Application DB doesn't have your app
+
+If you are low to the metal, and installing Tizen apps via =rpm=
+command directly, then app framework's database would not have been
+updated during install, and when the db is missing your app
+information, the appfw main loop run call will return immediately,
+failing.
+
+A possible solution is to =pkgcmd -t rpm -i -p
+/opt/usr/media/mypkg-0.0.1.rpm= once, then use =rpm= on subsequent
+re-installs.
+
+2. Missing library files or symbols
+
+Sometimes, usually due to build/install/spec errors, you may have a
+shared library that is not installed into the /correct/ location, and
+the runtime link loader app will spew =undefined symbol= errors;
+this may be hard to see when launching via homescreen/icon, so try
+invoking your application by the command-line directly
+
+3. Mischievous Gnomes
+
+It happens... and we can't forsee all the terrible things you
+might do, but the best thing to do is to load up a couple of
+terminals and in the first, run =dlogutil -c; dlogutil=, to get
+some full logs.
+
+Then in the second, launch the application by command-line invocation
+directly (i.e. not by app_test / appfw launch, possibly even under
+GDB), and hope that the combination of dlogs a console output will
+reveal the source of your misery.
+
+** =xxx_open()= , =xxx_read()= , =xxx_yyy()= API isn't working!
+Probably a SMACK issue! check your SMACK permissions...
+
+** I can't see my app's console output!
+This is by design in Tizen, as developers are encouraged to use a
+library called =dlog= for debugging output purposes;
+
+#+BEGIN_SRC cpp :flags -std=c++11
+
+#include <dlog.h>
+#define LOG_TAG "MY_UNIQUE_APP_TAG"
+#define MY_DEBUG(fmt, arg...) LOGD(fmt, ##arg)
+#define MY_WARNING(fmt, arg...) LOGW(fmt, ##arg)
+#define MY_ERROR(fmt, arg...) LOGE(fmt, ##arg)
+#+END_SRC
+
+If you *really* want to see console output, you can either
+1) Launch the app manually via GDB
+2) Use GDB attach process, =gdb -p 12345=, after the app has launched
+
+** GDB can't launch my app!
+Check [[My app won't launch!]] first
+
+Next, try 
+
+=echo "MY.APP.ID" > /proc/self/attr/current= 
+
+and pray this fixes it.  
+
+Example: =echo "com.samsung.calc" > /proc/self/attr/current=
+
+** When I run Valgrind on my app, it's being SIGKILL'd!
+You've probably hit the device's memory limit (unless your app does
+some other nasty stuff - and it probably does, thus you're using
+valgrind!); check =dlogutil= output for logs related to memory
+pressure, watchdog, low memory signals, etc.
+
+If it is indeed a memory issue, you can try this quick remedy:
+
+#+BEGIN_SRC sh
+
+# make a 512MB file
+dd if=/dev/zero of=/opt/usr/my_swap_file block=1M count=512 
+# make it a swap file
+mkswap /opt/usr/my_swap_file
+# turn it on
+swapon /opt/usr/my_swap_file
+
+#+END_SRC
+
+If you still have memory issues, you can disable the memory watchdog
+all together, by hacking its service file, removing the 'auto
+respawn' lines, and then kill its process. Its process name is called
+`resourced`
+
+# Hack this file 
+# `/usr/lib/systemd/system/resourced.service`
+
+=pkill resourced=
+
+** My UI is lags/slow!!
+You may be doing too much work in the main UI thread, or you may be
+calling a blocking API in the UI thread.
+
+It's hard to say exactly what the problem is, but some offending
+Tizen CAPI are usually device power API, sound manager/audio
+related API, and wav player to name a few.
+
+It's probably not preferences or vconf related API, though they
+aren't exactly free either.
+
+Your best bet is to start profiling - more to come on that
+
+** How do I check for SMACK errors?
+You can actively watch for SMACK errors by:
+
+=tail -f /var/log/audit/audit.log=
+
+Or you can =grep= through that =audit.log= file for your application
+id to find previous SMACK errors.
+
+** SDB Push access denied!
+By default, sdb is working in a user priviledged mode, meaning that
+if you try to push to a location where user does not have write
+access, it will fail.
+
+It's easiest just to run `sdb root on` once, after connecting your
+device, and then all =sdb shell/push= commands will be executed as
+root.  
+
+P.S. If you unplug and then replug your device, it'll be reset to user
+mode again.
+
+* EFL
+** Is this a joke?
+No, unfortunately, it's not a joke; it's funny, in a perverse and
+deeply perverted way, but it's a *sad* reality of Tizen app
+development.
+
+** What is SWALLOW?
+SWALLOW is a term 'borrowed' from an ancient window manager, that
+basically means it 'contains' a widget; it's arguably very poorly
+named, but try to get past that and realize it's just a slot for a
+widget to go in
+
+** I don't see my widget!
+This question can take many forms, perhaps you did
+=elm_button_add(parent)=, and =evas_object_show(btn)=, but don't see
+the widget, right?
+
+You probably forgot (or didn't know) that you need to do one of:
+
+- /put/ the widget into the parent's content manually
+  (=elm_object_content_set()=)
+- pack it if the parent is a box/table/grid, 
+- manually, via =evas_object_move()= and =evas_object_resize()=
+
+Don't worry, you'll have plenty more chances to get it right - you
+have to do this for every widget. >:-)
+
+** Why does EFL want to SPANK SPANK SPANK!!! me?!
+Oh, I see you've been NAUGHTY!
+
+Basically, you've taken one of their =Evas_Object='s and done something
+you shouldn't have, or you've tried to do something on an [now]
+invalid =Evas_Object=.
+
+Sadly, the framework would rather SPANK you than tell you what naughty
+thing you've done and why it was naughty, so sometimes it requires a
+bit of divide-and-conquer in your code to find the offending lines.
+
+As an example, this error might appear if you do something like:
+
+#+BEGIN_SRC cpp
+Evas_Object *build_shitty_button(Evas_Object *parent)
+{
+  Evas_Object *sux = elm_button_add(parent);
+  // ... 
+  // there's literally like 1000 API you must call before you have a semi-usable button
+
+  evas_object_del(sux); // haha! im so l33t h4x0r~!
+
+  return sux;
+}
+
+Evas_Object *b = build_shitty_button(box);
+evas_object_show(b); // SPANK SPANK SPANK!!!
+
+#+END_SRC
+
+** Recalculation errors!
+This is usually caused by going wild with EDC layouts, and creating
+some sort of resize loop.  For example, if you constrain a child
+widget based on its parent size, but also constrain the parent size
+based on its children, you run the risk of creating an infinite
+recalculation loop.
+
+For example, perhaps you want the parent to have a border which is
+slightly larger than its child, but in the child widget, you try to
+have it fill to expand the parent's area.  
+
+These type of dependency loops can get much more complex and intricate
+when you have tons of RECTs and SWALLOWs from your conglomeration of
+widgets all fighting for screen space.
+
+Best to be on the lookout for these, they can cost *hundreds* of
+milliseconds to resolve in your main UI loop, causing laggy UI.
+
+See also: [[My UI is lags/slow!!]]
+
+You can watch for these errors via the dlog tag =EFL=:
+
+ =dlogutil EFL=
+
+** Why am I seeing, =evas_object_color_set() Evas only handles pre multiplied colors!=?
+
+** =_edje_object_part_swallow()= =cannot swallow part elm.text: not swallow type!=
+
+** =_elm_layout_smart_content_set() could not swallow 0xa7873020 into part= '=elm.text='
+
+** Is there an alternative to this trash?
+There might be, depending on your Tizen version!
+
+Samsung appears to be opening up their DALi 3D UI toolkit to third
+party developers, which offers a rich and intuitive C++ based API,
+along with extras like Javascript support and XML/QML/JSON-esque UI
+description files.  Personally, I'd *much* rather go this route than
+deal with all the !@#$ and SPANKing.
+
+[[https://developer.tizen.org/development/ui-practices/native-application/dali]]
+
+* Audio
+** My app's audio is mixing with background music!
+
+** =audio_in_read()= is returning null (zero level) audio!
+There's a couple of reasons for this:
+1) Pulseaudio process has died
+
+2) Possibly SMACK related - try running smack_reload.sh on the device
+   and rebooting (also check you have correct permissions for audio)
+
+* TTS / STT
+** Lockup!!
+
+Currently there is a limitation in the TTS and STT implementations.
+
+All API requests should be run in the main UI thread, *NOT* a worker
+thread, or you run the risk of API calls failing, or potentially
+lockup occurring.
+
+Yes, I know, the API docs don't mention any of this, and apparently
+they would rather the third-party developers stumble across some
+nightmare-to-debug issue, than to embarass themselves by pubically
+announcing this limitation.  Hopefully, the implementations will
+change, but they won't because SWC engineers are /trash/, so getting
+the documentation updated is probably the only reasonable expectation.
+
+** Unsupported Feature!
+
+Currently, certain TTS and STT API are shown to be public and
+available to third-party developers, but will return a failing error
+code, =UNSUPPORTED_FEATURE=.  This is due to internal licensing
+restrictions with the engine providers (i.e. Nuance and Samsung
+STT/TTS).  As such, only Samsung internal applications and certain
+B2B, second-party providers may use the API.
+
+It may be possible in the future for this restriction to be lifted,
+or atleast to apply for extra 'credentials' to circumvent these
+errors; but for now, there is no solution for third-party developers.

@@ -32,6 +32,10 @@
 (require 'company-lsp)
 (push 'company-lsp company-backends)
 
-(setq lsp-clients-clangd-executable "/home/terranpro/minis/llvm/bin/clangd")
+;;(setq lsp-clients-clangd-executable "/home/terranpro/minis/llvm/bin/clangd")
+
+(add-to-list 'load-path "~/code/emacs-ccls")
+(require 'ccls)
+(setq ccls-executable "~/code/ccls/build/ccls")
 
 (provide 'brian-lsp)

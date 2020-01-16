@@ -14,10 +14,16 @@
 
 ;;(add-to-list 'company-backends 'company-tern)
 
+;;(require 'lsp-clients)
+
 ;; lsp requires npm package: javascript-typescript-langserver
 (add-hook 'js2-mode-hook (lambda ()
                            ;;(tern-mode)
 			   (lsp)
                            (company-mode)))
+
+(add-hook 'typescript-mode-hook (lambda ()
+				  (lsp)
+				  (company-mode)))
 
 (provide 'brian-nodejs)
