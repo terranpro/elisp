@@ -1,0 +1,20 @@
+* Test on Remote Machine
+:PROPERTIES:
+:dir: /ssh:127.0.0.1:/home/terranpro/
+:END:
+
+#+begin_src sh
+hostname --long
+
+#+end_src
+
+#+RESULTS:
+: windu
+
+#+begin_src shell :results raw
+ls -l ~/code
+#+end_src
+
+#+RESULTS:
+| total      | 5576 |           |           |         |     |    |       |                                              |
+| drwxrwxr-x |    6 | terranpro | terranpro |    4096 | Jun |  4 | 16:46 | src                                          |
