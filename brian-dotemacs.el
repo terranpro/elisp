@@ -9,7 +9,23 @@
 ;; MELPA packages
 (add-to-list 'package-archives
              '("melpa-stable" . "https://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives
+	     '("melpa" . "http://melpa.org/packages/"))
 
+(setq package-selected-packages
+      (append package-selected-packages
+	      '(ccls
+		with-editor
+		transient
+		magit
+		f
+		company
+		pythonic
+		indium
+		anaconda
+		company-anaconda
+		org-drill)))
+(package-install-selected-packages)
 
 (require 'brian-config)
 (require 'brian-cc-mode)

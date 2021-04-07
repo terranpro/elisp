@@ -1,10 +1,10 @@
 ;;; org-mode dev version
-(setq load-path (cons "~/elisp/foreign/org-mode/lisp" load-path))
-(setq load-path (cons "~/elisp/foreign/org-mode/contrib/lisp" load-path))
+;; (setq load-path (cons "~/elisp/foreign/org-mode/lisp" load-path))
+;; (setq load-path (cons "~/elisp/foreign/org-mode/contrib/lisp" load-path))
 
 ;; org-mode Info directory
-(add-to-list 'Info-default-directory-list
-             (expand-file-name "~/elisp/foreign/org-mode/doc"))
+;; (add-to-list 'Info-default-directory-list
+;;              (expand-file-name "~/elisp/foreign/org-mode/doc"))
 
 ;(require 'org-install)
 (require 'org)
