@@ -34,8 +34,8 @@
 
 ;;(setq lsp-clients-clangd-executable "/home/terranpro/minis/llvm/bin/clangd")
 
-(add-to-list 'load-path "~/code/emacs-ccls")
+;;(add-to-list 'load-path "~/code/emacs-ccls")
 (require 'ccls)
-(setq ccls-executable "~/code/ccls/build/ccls")
+(setq ccls-executable "~/git/ccls/Release/ccls")
 
 (provide 'brian-lsp)
