@@ -35,7 +35,7 @@
     (set-face-attribute 'default nil :font "Ubuntu Mono 10"))
   ;; (set-face-attribute 'default nil :font "")
   (set-face-attribute 'default nil :height 115))
-(set-face-attribute 'default nil :height 145)
+(set-face-attribute 'default nil :height 110)
 
 ;TODO: (temp) some default tweaking for window sizing
 ;;(add-to-list 'default-frame-alist '(height . 65))
@@ -81,6 +81,13 @@
 
 ;; windmove
 ;; Navigate windows via Super+[wasd]
+(define-prefix-command 'brian-windmove-map)
+(global-set-key (kbd "<insert>") 'brian-windmove-map)
+(define-key brian-windmove-map (kbd "a") 'windmove-left)
+(define-key brian-windmove-map (kbd "d") 'windmove-right)
+(define-key brian-windmove-map (kbd "w") 'windmove-up)
+(define-key brian-windmove-map (kbd "s") 'windmove-down)
+
 (global-set-key (kbd "s-a") 'windmove-left)
 (global-set-key (kbd "s-d") 'windmove-right)
 (global-set-key (kbd "s-w") 'windmove-up)
@@ -94,6 +101,11 @@
 (global-set-key (kbd "s-D")  'buf-move-right)
 (global-set-key (kbd "s-W")     'buf-move-up)
 (global-set-key (kbd "s-S")   'buf-move-down)
+
+(define-key brian-windmove-map (kbd "A") 'buf-move-left)
+(define-key brian-windmove-map (kbd "D") 'buf-move-right)
+(define-key brian-windmove-map (kbd "W") 'buf-move-up)
+(define-key brian-windmove-map (kbd "S") 'buf-move-down)
 
 ;; pesky backup files
 (setq backup-directory-alist

@@ -193,4 +193,7 @@
 (setq org-drill-save-buffers-after-drill-sessions-p nil)
 (setq org-drill-spaced-repetition-algorithm 'simple8)
 
+;; org-jira
+(setq jiralib-url "https://jira.argo.ai")
+
 (provide 'brian-org)

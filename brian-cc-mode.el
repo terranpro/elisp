@@ -202,7 +202,7 @@ opening bracket position, OB-POS."
 ;	       (arglist-cont . 0)
 	       (arglist-cont-nonempty . c-lineup-arglist)
 ;	       (arglist-intro . c-lineup-arglist-intro-after-paren )
-	       (template-args-cont . brian-c-lineup-template-args)
+;	       (template-args-cont . brian-c-lineup-template-args)
 	       (statement-block-intro . +)
 	       (substatement-open . 0)
 	       (substatement-label . 0)
@@ -286,11 +286,16 @@ opening bracket position, OB-POS."
 ;; just open .h files in c++ mode since all these retard coders who
 ;; don't know wtf they are doing name them garbage.h - TILT
 (setq auto-mode-alist
-      (append '(("\\.h\\'" . c++-mode))
+      (append '(("\\.h\\'" . c++-mode)
+		("\\.inl\\'" . c++-mode))
 	      auto-mode-alist))
 
 ;; Indent with an extra line and in block format
 (setq comment-style 'extra-line)
+
+;; truncate lines by default to prevent lsp popup in term
+;; tty mode from being fragmented by wrapped lines
+(set-default 'truncate-lines t)
 
 (defun brian-c-mode-common-hook ()
   (setq c-hungry-delete-key t)

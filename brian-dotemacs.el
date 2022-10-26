@@ -24,6 +24,7 @@
 		indium
 		anaconda
 		company-anaconda
+		org-jira
 		org-drill)))
 (package-install-selected-packages)
 
@@ -50,6 +51,7 @@
 ;;(require 'brian-ideone)
 (require 'brian-wgrep)
 ;;(require 'brian-slime)
+(require 'brian-argo)
 
 (require 'brian-yasnippet)
 
